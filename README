@@ -1,0 +1,27 @@
+Greig Cowan 2015
+Matt Needham 2015
+
+FastSim can be useful for generating background (or even toy data sets
+for acceptance studies).
+
+* It uses TGenPhaseSpace to generate b events.
+* FONLL is used to boost the b.
+* The daughter particle momenta are smeared correctly.
+* Cuts can be made on daughter particle properties.
+* There are tools to swap mass hypothesis.
+
+Now moved to using CMake to compile a binary. To build do the following:
+
+mkdir build
+cd build
+cmake ..
+make
+
+To run the binary do
+
+src/FastSim.exe 0 10000 ../rootfiles
+
+TODO
+
+Make the code more generic to allow different decays to be easily configured.
+
