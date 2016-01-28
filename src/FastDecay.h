@@ -1,6 +1,10 @@
 #ifndef DECAY_H
 #define DECAY_H
 
+#include <iostream>
+#include <vector>
+#include <map>
+
 #include "TGenPhaseSpace.h"
 #include "TH1F.h"
 #include "TLorentzVector.h"
@@ -10,11 +14,8 @@
 
 #include "RooDataSet.h"
 
-#include <iostream>
-#include <vector>
-#include <map>
-
 #include "functions.h"
+#include "RapidMomentumSmear.h"
 
 class FastDecay {
 	public:
@@ -40,13 +41,15 @@ class FastDecay {
 		FastDecay(TString filename)
 			: tree(0), varsPerPart(0),
 			  rand(0), maxgen(1000),
-			  ptHisto(0), etaHisto(0), smearGraph(0), accRejHisto(0)
+			  ptHisto(0), etaHisto(0), /*smearGraph(0),*/ accRejHisto(0)
 			{loadDecay(filename);}
 
 		void setRandomGenerator(TRandom& r) { rand = r; }
 		void setMaxGen(int mg) { maxgen = mg; }
 		void loadParentKinematics(TH1F* pt, TH1F* eta);
-		void loadSmearGraph(TGraphErrors* sg) { smearGraph = sg;}
+//		void loadSmearGraph(TGraphErrors* sg) { smearGraph = sg;}
+		void loadSmearing(int particle, std::vector<double> thresholds, std::vector<TH1F*> histos);
+		void loadSmearing(std::vector<int> particles, std::vector<double> thresholds, std::vector<TH1F*> histos);
 		void setAcceptRejectHist(TH1F* hist, ParamType type, std::vector<int> particles);
 		void addCustomParameter(TString name, ParamType type, std::vector<int> particles, bool truth=false, double min=0., double max=10.);
 		
@@ -121,7 +124,8 @@ class FastDecay {
     		TH1F* etaHisto;
 
 		//momentum smearing
-    		TGraphErrors* smearGraph;
+		std::map<int, RapidMomentumSmear*> momSmear;
+    		//TGraphErrors* smearGraph;
 
 		//accept reject hist to sculpt kinematics
 		TH1F* accRejHisto;

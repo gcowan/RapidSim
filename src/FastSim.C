@@ -32,8 +32,24 @@ void PhaseHaofei(const int mode, const int nEvtToGen, const std::string path) {
     TH1F* etaHisto = (TH1F*) fonll->Get("etahisto"); 
 
     // get the graph to smear with
-    TFile* smearfile = new TFile((path + "/smear12.root").c_str());
-    TGraphErrors* sgraph = (TGraphErrors*)smearfile->Get("data;1");
+    //TFile* smearfile = new TFile((path + "/smear12.root").c_str());
+    //TGraphErrors* sgraph = (TGraphErrors*)smearfile->Get("data;1");
+    std::vector<double> kThresholds = {7800, 11600, 15300, 19600, 24800, 31200, 39600, 52300, 76800};
+    std::vector<TH1F*> kHists;
+    std::vector<double> eThresholds = {7700, 11000, 14500, 18300, 22800, 28200, 35500, 46300, 66100};
+    std::vector<TH1F*> eHists;
+    std::vector<int> ee = {2,3};
+    TFile* kFile = new TFile((path + "/histsK.root").c_str());
+    TFile* eFile = new TFile((path + "/histsE.root").c_str());
+
+    for(int i=0; i<10; ++i) {
+	    TString histname="P"; histname+=i; histname+="_K";
+	    kHists.push_back(dynamic_cast<TH1F*>(kFile->Get(histname)));
+    }
+    for(int i=0; i<10; ++i) {
+	    TString histname="P"; histname+=i; histname+="_Brem0_e";
+	    eHists.push_back(dynamic_cast<TH1F*>(eFile->Get(histname)));
+    }
 
 //    //make pdfs for phi and chi mass shape
 //    RooRealVar m1("m1","m1",0.6, 1.5);
@@ -73,11 +89,16 @@ void PhaseHaofei(const int mode, const int nEvtToGen, const std::string path) {
     FastDecay myDecayObject("../src/decay.txt");
     myDecayObject.setRandomGenerator(ran);
     myDecayObject.loadParentKinematics(ptHisto,etaHisto);
-    myDecayObject.loadSmearGraph(sgraph);
+
+    myDecayObject.loadSmearing(1, kThresholds, kHists);
+    myDecayObject.loadSmearing(ee, eThresholds, eHists);
+    //myDecayObject.loadSmearGraph(sgraph);
+    
     std::vector<int> pars;
     pars.push_back(2);
     pars.push_back(3);
-    myDecayObject.addCustomParameter("qSq", FastDecay::M2, pars, true, 0., 25.);
+    myDecayObject.addCustomParameter("qSqTRUE", FastDecay::M2, pars, true, 0., 25.);
+    myDecayObject.addCustomParameter("qSq", FastDecay::M2, pars, false, 0., 25.);
     TH1F* arHist = new TH1F("arHist","",250,0.,25.);
     for(int i=0; i<150; ++i) {
 	    arHist->SetBinContent(i+1, 1.);

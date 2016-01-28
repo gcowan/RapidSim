@@ -13,6 +13,31 @@ void FastDecay::loadParentKinematics(TH1F* pt, TH1F* eta) {
 	etaHisto=eta;
 }
 
+void FastDecay::loadSmearing(int particle, std::vector<double> thresholds, std::vector<TH1F*> histos) {
+	if(particle > parts.size()) {
+		std::cout << "WARNING in FastDecay::loadSmearing : particle " << particle << " does not exist - smearing functions not set." << particle << std::endl;
+		return;
+	}
+	if(nDaug[particle] != 0) {
+		std::cout << "WARNING in FastDecay::loadSmearing : particle " << particle << " is composite - smearing functions not set." << particle << std::endl;
+		return;
+	}
+	if(momSmear.count(particle)) {
+		std::cout << "WARNING in FastDecay::loadSmearing : smearing function for particle " << particle << " has already been set." << std::endl;
+		return;
+	}
+
+	std::cout << "INFO in FastDecay::loadSmearing : setting smearing functions for particle " << particle << std::endl;
+
+	momSmear[particle] = new RapidMomentumSmear(thresholds, histos);
+}
+
+void FastDecay::loadSmearing(std::vector<int> particles, std::vector<double> thresholds, std::vector<TH1F*> histos) {
+	for(int i=0; i< particles.size(); ++i) {
+		loadSmearing(particles[i], thresholds, histos);
+	}
+}
+
 void FastDecay::setAcceptRejectHist(TH1F* hist, ParamType type, std::vector<int> particles) {
 	if(accRejHisto) {
 		std::cout << "WARNING in FastDecay::setAcceptRejectHist : accept/reject histogram already set. Original histogram will be used." << std::endl;
@@ -134,7 +159,10 @@ void FastDecay::smearMomenta() {
 	for(int i=p.size()-1; i>=0; --i) {//don't change to unsigned - needs to hit -1 to break loop
 		if(nDaug[i] == 0) {
 			//smear momentum of each detected particle
-			pSmeared[i] = smearedVec(p[i],smearGraph,rand);
+			if(momSmear.count(i)) {
+				pSmeared[i] = momSmear[i]->smearMomentum(p[i]);
+			}
+			//pSmeared[i] = smearedVec(p[i],smearGraph,rand);
 		} else {
 			//reconstruct mothers from their daughters
 			pSmeared[i] = TLorentzVector();
