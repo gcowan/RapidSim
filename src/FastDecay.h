@@ -39,11 +39,13 @@ class FastDecay {
 		};
 
 		FastDecay(TString filename)
-			: tree(0), varsPerPart(0),
+			: treeFile(0), tree(0), varsPerPart(0),
 			  rand(0), maxgen(1000),
 			  ptHisto(0), etaHisto(0), /*smearGraph(0),*/ accRejHisto(0)
 			{loadDecay(filename);}
 
+		~FastDecay();
+		
 		void setRandomGenerator(TRandom& r) { rand = r; }
 		void setMaxGen(int mg) { maxgen = mg; }
 		void loadParentKinematics(TH1F* pt, TH1F* eta);
@@ -109,6 +111,7 @@ class FastDecay {
 		std::set<TString> usedNames;
 
 		//tree to store parameters in
+		TFile* treeFile;
 		TTree* tree;
 		std::vector<double> treeVars;
 		int varsPerPart;

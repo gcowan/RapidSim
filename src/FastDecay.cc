@@ -7,6 +7,13 @@
 #include <fstream>
 #include <queue>
 
+FastDecay::~FastDecay() {
+	if(tree) {
+		tree->AutoSave();
+		treeFile->Close();
+	}
+}
+
 void FastDecay::loadParentKinematics(TH1F* pt, TH1F* eta) {
 	std::cout << "INFO in FastDecay::loadParentKinematics : setting kinematics of the parent." << std::endl;
 	ptHisto=pt;
@@ -207,7 +214,7 @@ void FastDecay::saveTree(TString fname) {
 	if(!tree) {
 		std::cout << "INFO in FastDecay::saveTree : tree will be saved to file: " << fname << std::endl;
 		std::cout << "                            : This will slow down generation." << std::endl;
-		TFile* treeFile = new TFile(fname, "RECREATE");
+		treeFile = new TFile(fname, "RECREATE");
 		setupTree();
 		tree->SetDirectory(treeFile);
 	} else {
