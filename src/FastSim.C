@@ -20,7 +20,7 @@
 
 #include "FastDecay.h"
 
-void PhaseHaofei(const int mode, const int nEvtToGen, const std::string path) {
+void PhaseHaofei(const std::string mode, const int nEvtToGen, const std::string path) {
 
     // mode == which chic
     // gROOT->ProcessLine(".x ~/lhcb/lhcbStyle.C");
@@ -86,7 +86,7 @@ void PhaseHaofei(const int mode, const int nEvtToGen, const std::string path) {
 
     TRandom3 ran;
 
-    FastDecay myDecayObject("../src/decay.txt");
+    FastDecay myDecayObject(mode);
     myDecayObject.setRandomGenerator(ran);
     myDecayObject.loadParentKinematics(ptHisto,etaHisto);
 
@@ -239,7 +239,7 @@ int main(int argc, char * argv[])
         printf("Usage: %s mode numberToGenerate pathToFiles\n", argv[0]);
         return 1;
     }
-    const int mode   = atoi(argv[1]);
+    const std::string mode = argv[1];
     const int number = atoi(argv[2]);
     const std::string path = argv[3];
     PhaseHaofei(mode, number, path);

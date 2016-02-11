@@ -14,7 +14,7 @@ Now moved to using CMake to compile a binary. To build do the following:
 
 mkdir build
 cd build
-cmake ..
+cmake ../ -DCMAKE_C_COMPILER=/cvmfs/lhcb.cern.ch/lib/lcg/releases/LCG_79/gcc/4.9.3/x86_64-slc6/bin/gcc -DCMAKE_CXX_COMPILER=/cvmfs/lhcb.cern.ch/lib/lcg/releases/LCG_79/gcc/4.9.3/x86_64-slc6/bin/g++
 make
 
 To run the binary do
