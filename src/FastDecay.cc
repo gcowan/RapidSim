@@ -12,6 +12,14 @@ FastDecay::~FastDecay() {
 		tree->AutoSave();
 		treeFile->Close();
 	}
+	while(!histos.empty()) {
+		delete histos[histos.size()-1];
+		histos.pop_back();
+	}
+	std::map<int, RapidMomentumSmear*>::iterator itr = momSmear.begin();
+	while (itr != momSmear.end()) {
+		momSmear.erase(itr++);
+	}
 }
 
 void FastDecay::loadParentKinematics(TH1F* pt, TH1F* eta) {
@@ -59,7 +67,9 @@ void FastDecay::setAcceptRejectHist(TH1F* hist, ParamType type, std::vector<int>
 	accRejParameter = param;
 
 	//correct the histogram to account for the the phasespace distribution
-	accRejHisto->Divide(generateAccRejDenominator());
+	TH1F* denom = generateAccRejDenominator();
+	accRejHisto->Divide(denom);
+	delete denom;
 }
 
 void FastDecay::addCustomParameter(TString name, ParamType type, std::vector<int> particles, bool truth, double min, double max) {
@@ -67,50 +77,50 @@ void FastDecay::addCustomParameter(TString name, ParamType type, std::vector<int
 	if(truth) std::cout << "TRUE";
 	switch(type) {
 		case FastDecay::M:
-		       std::cout << "M";
-		       break;
+			std::cout << "M";
+			break;
 		case FastDecay::M2:
-		       std::cout << "M2";
-		       break;
+			std::cout << "M2";
+			break;
 		case FastDecay::MT:
-		       std::cout << "MT";
-		       break;
+			std::cout << "MT";
+			break;
 		case FastDecay::E:
 			std::cout << "E";
-		       break;
+			break;
 		case FastDecay::ET:
 			std::cout << "ET";
-		       break;
+			break;
 		case FastDecay::P:
-		       std::cout << "P";
-		       break;
+			std::cout << "P";
+			break;
 		case FastDecay::PX:
-		       std::cout << "PX";
-		       break;
+			std::cout << "PX";
+			break;
 		case FastDecay::PY:
-		       std::cout << "PY";
-		       break;
+			std::cout << "PY";
+			break;
 		case FastDecay::PZ:
-		       std::cout << "PZ";
-		       break;
+			std::cout << "PZ";
+			break;
 		case FastDecay::PT:
-		       std::cout << "PT";
-		       break;
+			std::cout << "PT";
+			break;
 		case FastDecay::ETA:
-		       std::cout << "eta";
-		       break;
+			std::cout << "eta";
+			break;
 		case FastDecay::PHI:
-		       std::cout << "phi";
-		       break;
+			std::cout << "phi";
+			break;
 		case FastDecay::RAPIDITY:
-		       std::cout << "Rapidity";
-		       break;
+			std::cout << "Rapidity";
+			break;
 		case FastDecay::GAMMA:
-		       std::cout << "gamma";
-		       break;
+			std::cout << "gamma";
+			break;
 		case FastDecay::BETA:
-		       std::cout << "beta";
-		       break;
+			std::cout << "beta";
+			break;
 	}
 	std::cout << "(";
 	for(int i=0; i<particles.size(); ++i) {
@@ -168,6 +178,8 @@ void FastDecay::smearMomenta() {
 			//smear momentum of each detected particle
 			if(momSmear.count(i)) {
 				pSmeared[i] = momSmear[i]->smearMomentum(p[i]);
+			} else {
+				pSmeared[i] = p[i];
 			}
 			//pSmeared[i] = smearedVec(p[i],smearGraph,rand);
 		} else {
@@ -181,21 +193,21 @@ void FastDecay::smearMomenta() {
 	}
 
 }
-		
+
 TLorentzVector FastDecay::getP(unsigned int i) {
 	if(p.size() > i) return p[i];
 	else {
 		std::cout << "WARNING in FastDecay::getP : particle: " << i << "does not exist." << std::endl
-			  << "                             Returning empty 4-vector..." << std::endl;
+			<< "                             Returning empty 4-vector..." << std::endl;
 		return TLorentzVector();
 	}
 }
-		
+
 TLorentzVector FastDecay::getPSmeared(unsigned int i) {
 	if(pSmeared.size() > i) return pSmeared[i];
 	else {
 		std::cout << "WARNING in FastDecay::getPSmeared : particle: " << i << "does not exist." << std::endl
-			  << "                                    Returning empty 4-vector..." << std::endl;
+			<< "                                    Returning empty 4-vector..." << std::endl;
 		return TLorentzVector();
 	}
 }
@@ -246,7 +258,7 @@ void FastDecay::loadDecay(TString filename) {
 			int end = decayStr.Index('}',start);
 			if(end < 0) {
 				std::cout << "WARNING in FastDecay::loadDecay : malformed decay descriptor." << std::endl
-					  << "                                  Mismatched brackets in:" << decayStr << std::endl;
+					<< "                                  Mismatched brackets in:" << decayStr << std::endl;
 			}
 
 			//move sub decay into its own string
@@ -381,7 +393,7 @@ void FastDecay::setupHistos() {
 		TString histName;
 		TString axisTitle;
 		TH1F* hist(0);
-		
+
 		//for the mother mass
 		double mmin = m[i];
 		double mmax = m[i];
@@ -485,7 +497,7 @@ void FastDecay::fillHistos() {
 		// parent mass
 		// all 2- and 3-body daughter combinations
 		// smeared versions of histograms
-		
+
 		//for the mother mass
 		histos[iHist++]->Fill(p[i].M());
 		histos[iHist++]->Fill(pSmeared[i].M());
@@ -499,7 +511,7 @@ void FastDecay::fillHistos() {
 					TLorentzVector pSum = p[first+j];
 					pSum += p[first+k];
 					histos[iHist++]->Fill(pSum.M());
-	
+
 					pSum = pSmeared[first+j];
 					pSum += pSmeared[first+k];
 					histos[iHist++]->Fill(pSum.M());
@@ -518,7 +530,7 @@ void FastDecay::fillHistos() {
 						pSum += p[first+k];
 						pSum += p[first+l];
 						histos[iHist++]->Fill(pSum.M());
-	
+
 						pSum = pSmeared[first+j];
 						pSum += pSmeared[first+k];
 						pSum += pSmeared[first+l];
@@ -716,63 +728,63 @@ TH1F* FastDecay::generateAccRejDenominator() {
 }
 
 void FastDecay::setupRhoMass() {
-    RooRealVar m213("m213","m213",0.4, 1.5);
-    RooGounarisSakurai* gs = createRhoPlus(m213);
-    massdata[213] = gs->generate(RooArgSet(m213),100000);
-    double mmin(0), mmax(0);
-    massdata[213]->getRange(m213,mmin,mmax);
-    minmass[213] = mmin;
-    maxmass[213] = mmax;
+	RooRealVar m213("m213","m213",0.4, 1.5);
+	RooGounarisSakurai* gs = createRhoPlus(m213);
+	massdata[213] = gs->generate(RooArgSet(m213),100000);
+	double mmin(0), mmax(0);
+	massdata[213]->getRange(m213,mmin,mmax);
+	minmass[213] = mmin;
+	maxmass[213] = mmax;
 }
 
 void FastDecay::setupKstMass() {
-    RooRealVar m323("m323","m323",0.5, 1.5);
-    RooRelBreitWigner* bw = createPhiMassPdf(m323);
-    massdata[323] = bw->generate(RooArgSet(m323),100000);
-    double mmin(0), mmax(0);
-    massdata[323]->getRange(m323,mmin,mmax);
-    minmass[323] = mmin;
-    maxmass[323] = mmax;
+	RooRealVar m323("m323","m323",0.5, 1.5);
+	RooRelBreitWigner* bw = createPhiMassPdf(m323);
+	massdata[323] = bw->generate(RooArgSet(m323),100000);
+	double mmin(0), mmax(0);
+	massdata[323]->getRange(m323,mmin,mmax);
+	minmass[323] = mmin;
+	maxmass[323] = mmax;
 }
 
 void FastDecay::setupPhiMass() {
-    RooRealVar m333("m333","m333",0.6, 1.5);
-    RooRelBreitWigner* bw = createPhiMassPdf(m333);
-    massdata[333] = bw->generate(RooArgSet(m333),100000);
-    double mmin(0), mmax(0);
-    massdata[333]->getRange(m333,mmin,mmax);
-    minmass[333] = mmin;
-    maxmass[333] = mmax;
+	RooRealVar m333("m333","m333",0.6, 1.5);
+	RooRelBreitWigner* bw = createPhiMassPdf(m333);
+	massdata[333] = bw->generate(RooArgSet(m333),100000);
+	double mmin(0), mmax(0);
+	massdata[333]->getRange(m333,mmin,mmax);
+	minmass[333] = mmin;
+	maxmass[333] = mmax;
 }
 
 void FastDecay::setupChic0Mass() {
-    RooRealVar m10441("m10441","m10441",2.5, 5.0);
-    RooRelBreitWigner* bw = createChi0MassPdf(m10441);
-    massdata[10441] = bw->generate(RooArgSet(m10441),100000);
-    double mmin(0), mmax(0);
-    massdata[10441]->getRange(m10441,mmin,mmax);
-    minmass[10441] = mmin;
-    maxmass[10441] = mmax;
+	RooRealVar m10441("m10441","m10441",2.5, 5.0);
+	RooRelBreitWigner* bw = createChi0MassPdf(m10441);
+	massdata[10441] = bw->generate(RooArgSet(m10441),100000);
+	double mmin(0), mmax(0);
+	massdata[10441]->getRange(m10441,mmin,mmax);
+	minmass[10441] = mmin;
+	maxmass[10441] = mmax;
 }
 
 void FastDecay::setupChic1Mass() {
-    RooRealVar m20443("m20443","m20443",2.5, 5.0);
-    RooRelBreitWigner* bw = createChi1MassPdf(m20443);
-    massdata[20443] = bw->generate(RooArgSet(m20443),100000);
-    double mmin(0), mmax(0);
-    massdata[20443]->getRange(m20443,mmin,mmax);
-    minmass[20443] = mmin;
-    maxmass[20443] = mmax;
+	RooRealVar m20443("m20443","m20443",2.5, 5.0);
+	RooRelBreitWigner* bw = createChi1MassPdf(m20443);
+	massdata[20443] = bw->generate(RooArgSet(m20443),100000);
+	double mmin(0), mmax(0);
+	massdata[20443]->getRange(m20443,mmin,mmax);
+	minmass[20443] = mmin;
+	maxmass[20443] = mmax;
 }
 
 void FastDecay::setupChic2Mass() {
-    RooRealVar m445("m445","m445",2.5, 5.0);
-    RooRelBreitWigner* bw = createChi2MassPdf(m445);
-    massdata[445] = bw->generate(RooArgSet(m445),100000);
-    double mmin(0), mmax(0);
-    massdata[445]->getRange(m445,mmin,mmax);
-    minmass[445] = mmin;
-    maxmass[445] = mmax;
+	RooRealVar m445("m445","m445",2.5, 5.0);
+	RooRelBreitWigner* bw = createChi2MassPdf(m445);
+	massdata[445] = bw->generate(RooArgSet(m445),100000);
+	double mmin(0), mmax(0);
+	massdata[445]->getRange(m445,mmin,mmax);
+	minmass[445] = mmin;
+	maxmass[445] = mmax;
 }
 
 void FastDecay::genParent() {
