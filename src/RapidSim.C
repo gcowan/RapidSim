@@ -18,7 +18,7 @@
 #include "RooExponential.h"
 #include "RooRelBreitWigner.h"
 
-#include "FastDecay.h"
+#include "RapidDecay.h"
 
 void PhaseHaofei(const std::string mode, const int nEvtToGen, const std::string path) {
 
@@ -86,7 +86,7 @@ void PhaseHaofei(const std::string mode, const int nEvtToGen, const std::string 
 
     TRandom3 ran;
 
-    FastDecay myDecayObject(mode);
+    RapidDecay myDecayObject(mode);
     myDecayObject.setRandomGenerator(ran);
     myDecayObject.loadParentKinematics(ptHisto,etaHisto);
 
@@ -98,13 +98,13 @@ void PhaseHaofei(const std::string mode, const int nEvtToGen, const std::string 
     std::vector<int> pars;
     pars.push_back(2);
     pars.push_back(3);
-    myDecayObject.addCustomParameter("qSqTRUE", FastDecay::M2, pars, true, 0., 25.);
-    myDecayObject.addCustomParameter("qSq", FastDecay::M2, pars, false, 0., 25.);
+    myDecayObject.addCustomParameter("qSqTRUE", RapidDecay::M2, pars, true, 0., 25.);
+    myDecayObject.addCustomParameter("qSq", RapidDecay::M2, pars, false, 0., 25.);
     TH1F* arHist = new TH1F("arHist","",250,0.,25.);
     for(int i=0; i<150; ++i) {
 	    arHist->SetBinContent(i+1, 1.);
     }
-    myDecayObject.setAcceptRejectHist(arHist, FastDecay::M2, pars);
+    myDecayObject.setAcceptRejectHist(arHist, RapidDecay::M2, pars);
     myDecayObject.saveTree("myTree.root");
 
 

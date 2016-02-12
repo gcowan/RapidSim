@@ -17,7 +17,7 @@
 #include "functions.h"
 #include "RapidMomentumSmear.h"
 
-class FastDecay {
+class RapidDecay {
 	public:
 		enum ParamType {
 			M,        //Mass
@@ -38,13 +38,13 @@ class FastDecay {
 
 		};
 
-		FastDecay(TString filename)
+		RapidDecay(TString filename)
 			: treeFile(0), tree(0), varsPerPart(0),
 			  rand(0), maxgen(1000),
 			  ptHisto(0), etaHisto(0), /*smearGraph(0),*/ accRejHisto(0)
 			{loadDecay(filename);}
 
-		~FastDecay();
+		~RapidDecay();
 		
 		void setRandomGenerator(TRandom& r) { rand = r; }
 		void setMaxGen(int mg) { maxgen = mg; }

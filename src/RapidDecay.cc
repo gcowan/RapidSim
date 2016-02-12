@@ -1,4 +1,4 @@
-#include "FastDecay.h"
+#include "RapidDecay.h"
 
 #include "TMath.h"
 
@@ -10,7 +10,7 @@
 #include "RapidMomentumSmearGauss.h"
 #include "RapidMomentumSmearHisto.h"
 
-FastDecay::~FastDecay() {
+RapidDecay::~RapidDecay() {
 	if(tree) {
 		tree->AutoSave();
 		treeFile->Close();
@@ -25,63 +25,63 @@ FastDecay::~FastDecay() {
 	}
 }
 
-void FastDecay::loadParentKinematics(TH1F* pt, TH1F* eta) {
-	std::cout << "INFO in FastDecay::loadParentKinematics : setting kinematics of the parent." << std::endl;
+void RapidDecay::loadParentKinematics(TH1F* pt, TH1F* eta) {
+	std::cout << "INFO in RapidDecay::loadParentKinematics : setting kinematics of the parent." << std::endl;
 	ptHisto=pt;
 	etaHisto=eta;
 }
 
-void FastDecay::loadSmearing(int particle, TGraphErrors* graph) {
+void RapidDecay::loadSmearing(int particle, TGraphErrors* graph) {
 	if(particle > parts.size()) {
-		std::cout << "WARNING in FastDecay::loadSmearing : particle " << particle << " does not exist - smearing functions not set." << particle << std::endl;
+		std::cout << "WARNING in RapidDecay::loadSmearing : particle " << particle << " does not exist - smearing functions not set." << particle << std::endl;
 		return;
 	}
 	if(nDaug[particle] != 0) {
-		std::cout << "WARNING in FastDecay::loadSmearing : particle " << particle << " is composite - smearing functions not set." << particle << std::endl;
+		std::cout << "WARNING in RapidDecay::loadSmearing : particle " << particle << " is composite - smearing functions not set." << particle << std::endl;
 		return;
 	}
 	if(momSmear.count(particle)) {
-		std::cout << "WARNING in FastDecay::loadSmearing : smearing function for particle " << particle << " has already been set." << std::endl;
+		std::cout << "WARNING in RapidDecay::loadSmearing : smearing function for particle " << particle << " has already been set." << std::endl;
 		return;
 	}
 
-	std::cout << "INFO in FastDecay::loadSmearing : setting smearing functions for particle " << particle << std::endl;
+	std::cout << "INFO in RapidDecay::loadSmearing : setting smearing functions for particle " << particle << std::endl;
 
 	momSmear[particle] = new RapidMomentumSmearGauss(graph);
 }
 
-void FastDecay::loadSmearing(int particle, std::vector<double> thresholds, std::vector<TH1F*> histos) {
+void RapidDecay::loadSmearing(int particle, std::vector<double> thresholds, std::vector<TH1F*> histos) {
 	if(particle > parts.size()) {
-		std::cout << "WARNING in FastDecay::loadSmearing : particle " << particle << " does not exist - smearing functions not set." << particle << std::endl;
+		std::cout << "WARNING in RapidDecay::loadSmearing : particle " << particle << " does not exist - smearing functions not set." << particle << std::endl;
 		return;
 	}
 	if(nDaug[particle] != 0) {
-		std::cout << "WARNING in FastDecay::loadSmearing : particle " << particle << " is composite - smearing functions not set." << particle << std::endl;
+		std::cout << "WARNING in RapidDecay::loadSmearing : particle " << particle << " is composite - smearing functions not set." << particle << std::endl;
 		return;
 	}
 	if(momSmear.count(particle)) {
-		std::cout << "WARNING in FastDecay::loadSmearing : smearing function for particle " << particle << " has already been set." << std::endl;
+		std::cout << "WARNING in RapidDecay::loadSmearing : smearing function for particle " << particle << " has already been set." << std::endl;
 		return;
 	}
 
-	std::cout << "INFO in FastDecay::loadSmearing : setting smearing functions for particle " << particle << std::endl;
+	std::cout << "INFO in RapidDecay::loadSmearing : setting smearing functions for particle " << particle << std::endl;
 
 	momSmear[particle] = new RapidMomentumSmearHisto(thresholds, histos);
 }
 
-void FastDecay::loadSmearing(std::vector<int> particles, std::vector<double> thresholds, std::vector<TH1F*> histos) {
+void RapidDecay::loadSmearing(std::vector<int> particles, std::vector<double> thresholds, std::vector<TH1F*> histos) {
 	for(int i=0; i< particles.size(); ++i) {
 		loadSmearing(particles[i], thresholds, histos);
 	}
 }
 
-void FastDecay::setAcceptRejectHist(TH1F* hist, ParamType type, std::vector<int> particles) {
+void RapidDecay::setAcceptRejectHist(TH1F* hist, ParamType type, std::vector<int> particles) {
 	if(accRejHisto) {
-		std::cout << "WARNING in FastDecay::setAcceptRejectHist : accept/reject histogram already set. Original histogram will be used." << std::endl;
+		std::cout << "WARNING in RapidDecay::setAcceptRejectHist : accept/reject histogram already set. Original histogram will be used." << std::endl;
 		return;
 	}
 
-	std::cout << "INFO in FastDecay::setAcceptRejectHist : setting the required kinematic distribution." << std::endl;
+	std::cout << "INFO in RapidDecay::setAcceptRejectHist : setting the required kinematic distribution." << std::endl;
 	accRejHisto = hist;
 	CustomParameter param;
 	param.type = type;
@@ -94,53 +94,53 @@ void FastDecay::setAcceptRejectHist(TH1F* hist, ParamType type, std::vector<int>
 	delete denom;
 }
 
-void FastDecay::addCustomParameter(TString name, ParamType type, std::vector<int> particles, bool truth, double min, double max) {
-	std::cout << "INFO in FastDecay::addCustomParameter : adding custom parameter " << name << " = ";
+void RapidDecay::addCustomParameter(TString name, ParamType type, std::vector<int> particles, bool truth, double min, double max) {
+	std::cout << "INFO in RapidDecay::addCustomParameter : adding custom parameter " << name << " = ";
 	if(truth) std::cout << "TRUE";
 	switch(type) {
-		case FastDecay::M:
+		case RapidDecay::M:
 			std::cout << "M";
 			break;
-		case FastDecay::M2:
+		case RapidDecay::M2:
 			std::cout << "M2";
 			break;
-		case FastDecay::MT:
+		case RapidDecay::MT:
 			std::cout << "MT";
 			break;
-		case FastDecay::E:
+		case RapidDecay::E:
 			std::cout << "E";
 			break;
-		case FastDecay::ET:
+		case RapidDecay::ET:
 			std::cout << "ET";
 			break;
-		case FastDecay::P:
+		case RapidDecay::P:
 			std::cout << "P";
 			break;
-		case FastDecay::PX:
+		case RapidDecay::PX:
 			std::cout << "PX";
 			break;
-		case FastDecay::PY:
+		case RapidDecay::PY:
 			std::cout << "PY";
 			break;
-		case FastDecay::PZ:
+		case RapidDecay::PZ:
 			std::cout << "PZ";
 			break;
-		case FastDecay::PT:
+		case RapidDecay::PT:
 			std::cout << "PT";
 			break;
-		case FastDecay::ETA:
+		case RapidDecay::ETA:
 			std::cout << "eta";
 			break;
-		case FastDecay::PHI:
+		case RapidDecay::PHI:
 			std::cout << "phi";
 			break;
-		case FastDecay::RAPIDITY:
+		case RapidDecay::RAPIDITY:
 			std::cout << "Rapidity";
 			break;
-		case FastDecay::GAMMA:
+		case RapidDecay::GAMMA:
 			std::cout << "gamma";
 			break;
-		case FastDecay::BETA:
+		case RapidDecay::BETA:
 			std::cout << "beta";
 			break;
 	}
@@ -164,7 +164,7 @@ void FastDecay::addCustomParameter(TString name, ParamType type, std::vector<int
 	histos.push_back(hist);
 }
 
-bool FastDecay::generate() {
+bool RapidDecay::generate() {
 	//keep resonance masses and parent kinematics independent of the accept/reject decision
 	//these will only be biased if the function is very inefficient for certain values
 	//however, one should not use an a/r function the is highly correlated to these variables
@@ -182,7 +182,7 @@ bool FastDecay::generate() {
 	} while(!passAccRej && ntry<maxgen);
 
 	if(!passAccRej) {
-		std::cout << "WARNING in FastDecay::generate : no events found with required kinematics." << std::endl;
+		std::cout << "WARNING in RapidDecay::generate : no events found with required kinematics." << std::endl;
 		return false;
 	}
 
@@ -193,7 +193,7 @@ bool FastDecay::generate() {
 	return true;
 }
 
-void FastDecay::smearMomenta() {
+void RapidDecay::smearMomenta() {
 	//run backwards so that we reach the daughters first
 	for(int i=p.size()-1; i>=0; --i) {//don't change to unsigned - needs to hit -1 to break loop
 		if(nDaug[i] == 0) {
@@ -216,26 +216,26 @@ void FastDecay::smearMomenta() {
 
 }
 
-TLorentzVector FastDecay::getP(unsigned int i) {
+TLorentzVector RapidDecay::getP(unsigned int i) {
 	if(p.size() > i) return p[i];
 	else {
-		std::cout << "WARNING in FastDecay::getP : particle: " << i << "does not exist." << std::endl
+		std::cout << "WARNING in RapidDecay::getP : particle: " << i << "does not exist." << std::endl
 			<< "                             Returning empty 4-vector..." << std::endl;
 		return TLorentzVector();
 	}
 }
 
-TLorentzVector FastDecay::getPSmeared(unsigned int i) {
+TLorentzVector RapidDecay::getPSmeared(unsigned int i) {
 	if(pSmeared.size() > i) return pSmeared[i];
 	else {
-		std::cout << "WARNING in FastDecay::getPSmeared : particle: " << i << "does not exist." << std::endl
+		std::cout << "WARNING in RapidDecay::getPSmeared : particle: " << i << "does not exist." << std::endl
 			<< "                                    Returning empty 4-vector..." << std::endl;
 		return TLorentzVector();
 	}
 }
 
-void FastDecay::saveHistos(TString fname) {
-	std::cout << "INFO in FastDecay::saveHistos : saving histograms to file: " << fname << std::endl;
+void RapidDecay::saveHistos(TString fname) {
+	std::cout << "INFO in RapidDecay::saveHistos : saving histograms to file: " << fname << std::endl;
 	TFile* histFile = new TFile(fname, "RECREATE");
 
 	for(unsigned int i=0; i<histos.size(); ++i) {
@@ -244,20 +244,20 @@ void FastDecay::saveHistos(TString fname) {
 	histFile->Close();
 }
 
-void FastDecay::saveTree(TString fname) {
+void RapidDecay::saveTree(TString fname) {
 	if(!tree) {
-		std::cout << "INFO in FastDecay::saveTree : tree will be saved to file: " << fname << std::endl;
+		std::cout << "INFO in RapidDecay::saveTree : tree will be saved to file: " << fname << std::endl;
 		std::cout << "                            : This will slow down generation." << std::endl;
 		treeFile = new TFile(fname, "RECREATE");
 		setupTree();
 		tree->SetDirectory(treeFile);
 	} else {
-		std::cout << "WARNING in FastDecay::saveTree : tree has already been setup and will be saved to the original file." << std::endl;
+		std::cout << "WARNING in RapidDecay::saveTree : tree has already been setup and will be saved to the original file." << std::endl;
 	}
 }
 
-void FastDecay::loadDecay(TString filename) {
-	std::cout << "INFO in FastDecay::loadDecay : loading decay descriptor from file: " << filename << std::endl;
+void RapidDecay::loadDecay(TString filename) {
+	std::cout << "INFO in RapidDecay::loadDecay : loading decay descriptor from file: " << filename << std::endl;
 	TString decayStr;
 	std::queue<TString> decays;
 
@@ -279,7 +279,7 @@ void FastDecay::loadDecay(TString filename) {
 			int start = decayStr.Index('{');
 			int end = decayStr.Index('}',start);
 			if(end < 0) {
-				std::cout << "WARNING in FastDecay::loadDecay : malformed decay descriptor." << std::endl
+				std::cout << "WARNING in RapidDecay::loadDecay : malformed decay descriptor." << std::endl
 					<< "                                  Mismatched brackets in:" << decayStr << std::endl;
 			}
 
@@ -362,7 +362,7 @@ void FastDecay::loadDecay(TString filename) {
 	}
 }
 
-TString FastDecay::getUniqName(TString base) {
+TString RapidDecay::getUniqName(TString base) {
 	int i=-1;
 	TString uniqName("");
 
@@ -404,7 +404,7 @@ TString FastDecay::getUniqName(TString base) {
 	return uniqName;
 }
 
-void FastDecay::setupHistos() {
+void RapidDecay::setupHistos() {
 	for(unsigned int i=0; i<parts.size(); ++i) {
 		if(nDaug[i] < 2) continue;
 		// for each subdecay include:
@@ -509,7 +509,7 @@ void FastDecay::setupHistos() {
 
 }
 
-void FastDecay::fillHistos() {
+void RapidDecay::fillHistos() {
 
 	int iHist(0);
 
@@ -568,7 +568,7 @@ void FastDecay::fillHistos() {
 	}
 }
 
-void FastDecay::setupTree() {
+void RapidDecay::setupTree() {
 	varsPerPart = 19;
 	tree = new TTree("DecayTree","DecayTree");
 	treeVars = std::vector<double>(parts.size()*varsPerPart + customParams.size(), 0);
@@ -600,7 +600,7 @@ void FastDecay::setupTree() {
 	}
 }
 
-void FastDecay::fillTree() {
+void RapidDecay::fillTree() {
 
 	for(unsigned int i=0; i<parts.size(); ++i) {
 		TLorentzVector mom = pSmeared[i];
@@ -633,7 +633,7 @@ void FastDecay::fillTree() {
 	tree->Fill();
 }
 
-void FastDecay::floatMasses() {
+void RapidDecay::floatMasses() {
 	for(unsigned int i=0; i<parts.size(); ++i) {
 		int id = TMath::Abs(parts[i]);
 		if(massdata.count(id)) {
@@ -644,7 +644,7 @@ void FastDecay::floatMasses() {
 	}
 }
 
-void FastDecay::setupMasses() {//TODO store masses and widths of particles somewhere
+void RapidDecay::setupMasses() {//TODO store masses and widths of particles somewhere
 	for(unsigned int i=0; i<parts.size(); ++i) {
 		//check if it's already been loaded
 		int id = TMath::Abs(parts[i]);
@@ -675,12 +675,12 @@ void FastDecay::setupMasses() {//TODO store masses and widths of particles somew
 	}
 }
 
-double FastDecay::evalCustomParam(int i) {
+double RapidDecay::evalCustomParam(int i) {
 	CustomParameter param = customParams[i];
 	evalCustomParam(param);
 }
 
-double FastDecay::evalCustomParam(CustomParameter param) {
+double RapidDecay::evalCustomParam(CustomParameter param) {
 	TLorentzVector mom;
 	if(param.truth) {
 		for(int i=0; i<param.particles.size(); ++i) {
@@ -692,42 +692,42 @@ double FastDecay::evalCustomParam(CustomParameter param) {
 		}
 	}
 	switch(param.type) {
-		case FastDecay::M:
+		case RapidDecay::M:
 			return mom.M();
-		case FastDecay::M2:
+		case RapidDecay::M2:
 			return mom.M2();
-		case FastDecay::MT:
+		case RapidDecay::MT:
 			return mom.Mt();
-		case FastDecay::E:
+		case RapidDecay::E:
 			return mom.E();
-		case FastDecay::ET:
+		case RapidDecay::ET:
 			return mom.Et();
-		case FastDecay::P:
+		case RapidDecay::P:
 			return mom.P();
-		case FastDecay::PX:
+		case RapidDecay::PX:
 			return mom.Px();
-		case FastDecay::PY:
+		case RapidDecay::PY:
 			return mom.Py();
-		case FastDecay::PZ:
+		case RapidDecay::PZ:
 			return mom.Pz();
-		case FastDecay::PT:
+		case RapidDecay::PT:
 			return mom.Pt();
-		case FastDecay::ETA:
+		case RapidDecay::ETA:
 			return mom.Eta();
-		case FastDecay::PHI:
+		case RapidDecay::PHI:
 			return mom.Phi();
-		case FastDecay::RAPIDITY:
+		case RapidDecay::RAPIDITY:
 			return mom.Rapidity();
-		case FastDecay::GAMMA:
+		case RapidDecay::GAMMA:
 			return mom.Gamma();
-		case FastDecay::BETA:
+		case RapidDecay::BETA:
 			return mom.Beta();
 	}
 
 	return 0.;
 }
 
-bool FastDecay::runAcceptReject() {
+bool RapidDecay::runAcceptReject() {
 	double val = evalCustomParam(accRejParameter);
 	double score = accRejHisto->Interpolate(val);
 	double max = accRejHisto->GetMaximum();
@@ -735,11 +735,11 @@ bool FastDecay::runAcceptReject() {
 	return false;
 }
 
-TH1F* FastDecay::generateAccRejDenominator() {
+TH1F* RapidDecay::generateAccRejDenominator() {
 	TH1F* denomHisto = dynamic_cast<TH1F*>(accRejHisto->Clone("denom"));
 	denomHisto->Reset();
 
-	std::cout << "INFO in FastDecay::generateAccRejDenominator : generating 1M decays to remove the \"phasespace\" distribution..." << std::endl;
+	std::cout << "INFO in RapidDecay::generateAccRejDenominator : generating 1M decays to remove the \"phasespace\" distribution..." << std::endl;
 	for(int i=0; i<1000000; ++i) {
 		floatMasses();
 		genParent();
@@ -749,7 +749,7 @@ TH1F* FastDecay::generateAccRejDenominator() {
 	return denomHisto;
 }
 
-void FastDecay::setupRhoMass() {
+void RapidDecay::setupRhoMass() {
 	RooRealVar m213("m213","m213",0.4, 1.5);
 	RooGounarisSakurai* gs = createRhoPlus(m213);
 	massdata[213] = gs->generate(RooArgSet(m213),100000);
@@ -759,7 +759,7 @@ void FastDecay::setupRhoMass() {
 	maxmass[213] = mmax;
 }
 
-void FastDecay::setupKstMass() {
+void RapidDecay::setupKstMass() {
 	RooRealVar m323("m323","m323",0.5, 1.5);
 	RooRelBreitWigner* bw = createPhiMassPdf(m323);
 	massdata[323] = bw->generate(RooArgSet(m323),100000);
@@ -769,7 +769,7 @@ void FastDecay::setupKstMass() {
 	maxmass[323] = mmax;
 }
 
-void FastDecay::setupPhiMass() {
+void RapidDecay::setupPhiMass() {
 	RooRealVar m333("m333","m333",0.6, 1.5);
 	RooRelBreitWigner* bw = createPhiMassPdf(m333);
 	massdata[333] = bw->generate(RooArgSet(m333),100000);
@@ -779,7 +779,7 @@ void FastDecay::setupPhiMass() {
 	maxmass[333] = mmax;
 }
 
-void FastDecay::setupChic0Mass() {
+void RapidDecay::setupChic0Mass() {
 	RooRealVar m10441("m10441","m10441",2.5, 5.0);
 	RooRelBreitWigner* bw = createChi0MassPdf(m10441);
 	massdata[10441] = bw->generate(RooArgSet(m10441),100000);
@@ -789,7 +789,7 @@ void FastDecay::setupChic0Mass() {
 	maxmass[10441] = mmax;
 }
 
-void FastDecay::setupChic1Mass() {
+void RapidDecay::setupChic1Mass() {
 	RooRealVar m20443("m20443","m20443",2.5, 5.0);
 	RooRelBreitWigner* bw = createChi1MassPdf(m20443);
 	massdata[20443] = bw->generate(RooArgSet(m20443),100000);
@@ -799,7 +799,7 @@ void FastDecay::setupChic1Mass() {
 	maxmass[20443] = mmax;
 }
 
-void FastDecay::setupChic2Mass() {
+void RapidDecay::setupChic2Mass() {
 	RooRealVar m445("m445","m445",2.5, 5.0);
 	RooRelBreitWigner* bw = createChi2MassPdf(m445);
 	massdata[445] = bw->generate(RooArgSet(m445),100000);
@@ -809,20 +809,20 @@ void FastDecay::setupChic2Mass() {
 	maxmass[445] = mmax;
 }
 
-void FastDecay::genParent() {
+void RapidDecay::genParent() {
 	double pt(0), eta(0), phi(rand.Uniform(0,2*TMath::Pi()));
 	if(ptHisto)   pt = ptHisto->GetRandom();
 	if(etaHisto) eta = etaHisto->GetRandom();
 	p[0].SetPtEtaPhiM(pt,eta,phi,m[0]);
 }
 
-bool FastDecay::genDecay() {
+bool RapidDecay::genDecay() {
 	int sumDaug(0);
 	for(unsigned int i=0; i<parts.size(); ++i) {
 		if(nDaug[i]>0) {
 			TGenPhaseSpace event;
 			if(!generateEvent(p[i], event, &m[1+sumDaug], nDaug[i], rand, maxgen)) {
-				std::cout << "ERROR in FastDecay::generate : generation failed." << std::endl;
+				std::cout << "ERROR in RapidDecay::generate : generation failed." << std::endl;
 				return false;
 			}
 			for(int j=0; j<nDaug[i]; ++j) {
