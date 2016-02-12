@@ -1,11 +1,11 @@
-#include "RapidMomentumSmear.h"
+#include "RapidMomentumSmearHisto.h"
 
 #include <iostream>
 
 #include "TMath.h"
 #include "TRandom.h"
 
-TLorentzVector RapidMomentumSmear::smearMomentum(TLorentzVector p) {
+TLorentzVector RapidMomentumSmearHisto::smearMomentum(TLorentzVector p) {
 
     double kp, kptx, kpty, norm, smear;
     kp = p.P();
@@ -32,16 +32,16 @@ TLorentzVector RapidMomentumSmear::smearMomentum(TLorentzVector p) {
 
 }
 
-void RapidMomentumSmear::init(std::vector<double> thresholds, std::vector<TH1F*> histos) {
+void RapidMomentumSmearHisto::init(std::vector<double> thresholds, std::vector<TH1F*> histos) {
 	if(thresholds.size() < histos.size() - 1) {
-		std::cout << "WARNING in RapidMomentumSmear::init : too many histograms provided. Number of histograms should be one more than number of thresholds." << std::endl;
+		std::cout << "WARNING in RapidMomentumSmearHisto::init : too many histograms provided. Number of histograms should be one more than number of thresholds." << std::endl;
 		std::cout << "                                      excess histograms ignored." << std::endl;
 
 		while(thresholds.size() < histos.size() - 1) {
 			histos.pop_back();
 		}
 	} else if(thresholds.size() > histos.size() - 1) {
-		std::cout << "WARNING in RapidMomentumSmear::init : too few histograms provided. Number of histograms should be one more than number of thresholds." << std::endl;
+		std::cout << "WARNING in RapidMomentumSmearHisto::init : too few histograms provided. Number of histograms should be one more than number of thresholds." << std::endl;
 		std::cout << "                                      excess thresholds ignored." << std::endl;
 
 		while(thresholds.size() > histos.size() - 1) {

@@ -49,7 +49,7 @@ class FastDecay {
 		void setRandomGenerator(TRandom& r) { rand = r; }
 		void setMaxGen(int mg) { maxgen = mg; }
 		void loadParentKinematics(TH1F* pt, TH1F* eta);
-//		void loadSmearGraph(TGraphErrors* sg) { smearGraph = sg;}
+		void loadSmearing(int particle, TGraphErrors* graph);
 		void loadSmearing(int particle, std::vector<double> thresholds, std::vector<TH1F*> histos);
 		void loadSmearing(std::vector<int> particles, std::vector<double> thresholds, std::vector<TH1F*> histos);
 		void setAcceptRejectHist(TH1F* hist, ParamType type, std::vector<int> particles);

@@ -32,8 +32,8 @@ void PhaseHaofei(const std::string mode, const int nEvtToGen, const std::string 
     TH1F* etaHisto = (TH1F*) fonll->Get("etahisto"); 
 
     // get the graph to smear with
-    //TFile* smearfile = new TFile((path + "/smear12.root").c_str());
-    //TGraphErrors* sgraph = (TGraphErrors*)smearfile->Get("data;1");
+    TFile* smearfile = new TFile((path + "/smear12.root").c_str());
+    TGraphErrors* sgraph = (TGraphErrors*)smearfile->Get("data;1");
     std::vector<double> kThresholds = {7800, 11600, 15300, 19600, 24800, 31200, 39600, 52300, 76800};
     std::vector<TH1F*> kHists;
     std::vector<double> eThresholds = {7700, 11000, 14500, 18300, 22800, 28200, 35500, 46300, 66100};
@@ -90,7 +90,8 @@ void PhaseHaofei(const std::string mode, const int nEvtToGen, const std::string 
     myDecayObject.setRandomGenerator(ran);
     myDecayObject.loadParentKinematics(ptHisto,etaHisto);
 
-    myDecayObject.loadSmearing(1, kThresholds, kHists);
+    //myDecayObject.loadSmearing(1, kThresholds, kHists);
+    myDecayObject.loadSmearing(1, sgraph);
     myDecayObject.loadSmearing(ee, eThresholds, eHists);
     //myDecayObject.loadSmearGraph(sgraph);
     

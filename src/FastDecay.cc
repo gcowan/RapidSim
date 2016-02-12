@@ -7,6 +7,9 @@
 #include <fstream>
 #include <queue>
 
+#include "RapidMomentumSmearGauss.h"
+#include "RapidMomentumSmearHisto.h"
+
 FastDecay::~FastDecay() {
 	if(tree) {
 		tree->AutoSave();
@@ -28,6 +31,25 @@ void FastDecay::loadParentKinematics(TH1F* pt, TH1F* eta) {
 	etaHisto=eta;
 }
 
+void FastDecay::loadSmearing(int particle, TGraphErrors* graph) {
+	if(particle > parts.size()) {
+		std::cout << "WARNING in FastDecay::loadSmearing : particle " << particle << " does not exist - smearing functions not set." << particle << std::endl;
+		return;
+	}
+	if(nDaug[particle] != 0) {
+		std::cout << "WARNING in FastDecay::loadSmearing : particle " << particle << " is composite - smearing functions not set." << particle << std::endl;
+		return;
+	}
+	if(momSmear.count(particle)) {
+		std::cout << "WARNING in FastDecay::loadSmearing : smearing function for particle " << particle << " has already been set." << std::endl;
+		return;
+	}
+
+	std::cout << "INFO in FastDecay::loadSmearing : setting smearing functions for particle " << particle << std::endl;
+
+	momSmear[particle] = new RapidMomentumSmearGauss(graph);
+}
+
 void FastDecay::loadSmearing(int particle, std::vector<double> thresholds, std::vector<TH1F*> histos) {
 	if(particle > parts.size()) {
 		std::cout << "WARNING in FastDecay::loadSmearing : particle " << particle << " does not exist - smearing functions not set." << particle << std::endl;
@@ -44,7 +66,7 @@ void FastDecay::loadSmearing(int particle, std::vector<double> thresholds, std::
 
 	std::cout << "INFO in FastDecay::loadSmearing : setting smearing functions for particle " << particle << std::endl;
 
-	momSmear[particle] = new RapidMomentumSmear(thresholds, histos);
+	momSmear[particle] = new RapidMomentumSmearHisto(thresholds, histos);
 }
 
 void FastDecay::loadSmearing(std::vector<int> particles, std::vector<double> thresholds, std::vector<TH1F*> histos) {
