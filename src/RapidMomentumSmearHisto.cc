@@ -13,8 +13,8 @@ TLorentzVector RapidMomentumSmearHisto::smearMomentum(TLorentzVector p) {
     kpty = p.Py()/p.Pz();
     int iHist=0;
     while( true ) {
-	    if( iHist==thresholds_.size() ) break;
-	    if( kp < thresholds_[iHist] ) break;
+	    if( iHist==thresholds_.size()-1 ) break;
+	    if( kp < thresholds_[iHist+1] ) break;
 	    ++iHist;
     }
     smear = histos_[iHist]->GetRandom()*kp;
@@ -33,18 +33,18 @@ TLorentzVector RapidMomentumSmearHisto::smearMomentum(TLorentzVector p) {
 }
 
 void RapidMomentumSmearHisto::init(std::vector<double> thresholds, std::vector<TH1F*> histos) {
-	if(thresholds.size() < histos.size() - 1) {
-		std::cout << "WARNING in RapidMomentumSmearHisto::init : too many histograms provided. Number of histograms should be one more than number of thresholds." << std::endl;
+	if(thresholds.size() < histos.size()) {
+		std::cout << "WARNING in RapidMomentumSmearHisto::init : too many histograms provided. Number of histograms should match number of thresholds." << std::endl;
 		std::cout << "                                      excess histograms ignored." << std::endl;
 
-		while(thresholds.size() < histos.size() - 1) {
+		while(thresholds.size() < histos.size()) {
 			histos.pop_back();
 		}
-	} else if(thresholds.size() > histos.size() - 1) {
-		std::cout << "WARNING in RapidMomentumSmearHisto::init : too few histograms provided. Number of histograms should be one more than number of thresholds." << std::endl;
+	} else if(thresholds.size() > histos.size()) {
+		std::cout << "WARNING in RapidMomentumSmearHisto::init : too few histograms provided. Number of histograms should match number of thresholds." << std::endl;
 		std::cout << "                                      excess thresholds ignored." << std::endl;
 
-		while(thresholds.size() > histos.size() - 1) {
+		while(thresholds.size() > histos.size()) {
 			thresholds.pop_back();
 		}
 	}

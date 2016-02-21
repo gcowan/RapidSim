@@ -42,16 +42,14 @@ class RapidDecay {
 			: treeFile(0), tree(0), varsPerPart(0),
 			  rand(0), maxgen(1000),
 			  ptHisto(0), etaHisto(0), /*smearGraph(0),*/ accRejHisto(0)
-			{loadDecay(filename);}
+			{loadDecay(filename); loadConfig(filename);}
 
 		~RapidDecay();
 		
 		void setRandomGenerator(TRandom& r) { rand = r; }
 		void setMaxGen(int mg) { maxgen = mg; }
 		void loadParentKinematics(TH1F* pt, TH1F* eta);
-		void loadSmearing(int particle, TGraphErrors* graph);
-		void loadSmearing(int particle, std::vector<double> thresholds, std::vector<TH1F*> histos);
-		void loadSmearing(std::vector<int> particles, std::vector<double> thresholds, std::vector<TH1F*> histos);
+		void setSmearing(int particle, TString category);
 		void setAcceptRejectHist(TH1F* hist, ParamType type, std::vector<int> particles);
 		void addCustomParameter(TString name, ParamType type, std::vector<int> particles, bool truth=false, double min=0., double max=10.);
 		
@@ -72,6 +70,10 @@ class RapidDecay {
 		};
 	private:
 		void loadDecay(TString filename);
+		void loadConfig(TString filename);
+		void writeConfig(TString filename);
+		void configParticle(int part, TString command, TString value);
+		bool loadSmearing(TString category);
 		void setupMasses();
 		TString getUniqName(TString base);
 		void setupHistos();
@@ -126,9 +128,11 @@ class RapidDecay {
     		TH1F* ptHisto; 
     		TH1F* etaHisto;
 
-		//momentum smearing
+		//momentum smearing lookup for each particle
 		std::map<int, RapidMomentumSmear*> momSmear;
-    		//TGraphErrors* smearGraph;
+
+		//mometum smearing lookup for each smearing category
+		std::map<TString, RapidMomentumSmear*> momSmearCategories;
 
 		//accept reject hist to sculpt kinematics
 		TH1F* accRejHisto;

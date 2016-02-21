@@ -31,48 +31,102 @@ void RapidDecay::loadParentKinematics(TH1F* pt, TH1F* eta) {
 	etaHisto=eta;
 }
 
-void RapidDecay::loadSmearing(int particle, TGraphErrors* graph) {
+bool RapidDecay::loadSmearing(TString category) {
+	std::ifstream fin;
+	fin.open("../config/smear/"+category, std::ifstream::in);
+	if( ! fin.good()) {
+		std::cout << "WARNING in RapidDecay::loadSmearing : failed to load smearing category" << category << std::endl;
+		fin.close();
+		return false;
+	}
+
+	TString filename("");
+	filename.ReadToken(fin);
+	TFile* file = TFile::Open("../rootfiles/smear/"+filename);
+
+	if(!file) {
+		std::cout << "WARNING in RapidDecay::loadSmearing : failed to load root file " << filename << std::endl;
+		fin.close();
+		return false;
+	}
+
+	TString type("");
+	type.ReadToken(fin);
+	if(type=="GAUSS") {
+		TString histname("");
+		histname.ReadToken(fin);
+		TGraphErrors* graph = dynamic_cast<TGraphErrors*>(file->Get(histname));
+		if(!graph) {
+			std::cout << "WARNING in RapidDecay::loadSmearing : failed to load graph " << histname << std::endl;
+			file->Close();
+			fin.close();
+			return false;
+		}
+
+		momSmearCategories[category] = new RapidMomentumSmearGauss(graph);
+
+	} else if(type=="HISTS") {
+		double threshold(0.);
+		TString histname("");
+
+		std::vector<TH1F*> hists;
+		std::vector<double> thresholds;
+
+		while( true ) {
+			fin >> threshold;
+			histname.ReadToken(fin);
+			if(fin.good()) {
+				TH1F* hist = dynamic_cast<TH1F*>(file->Get(histname));
+				if(hist) {
+					hists.push_back(hist);
+					thresholds.push_back(threshold);
+				} else {
+					std::cout << "WARNING in RapidDecay::loadSmearing : failed to load histogram " << histname << std::endl
+					          << "                                      threshold will be ignored." << std::endl;
+					
+				}
+			} else {
+				break;
+			}
+		}
+
+		momSmearCategories[category] = new RapidMomentumSmearHisto(thresholds, hists);
+
+	} else {
+		std::cout << "WARNING in RapidDecay::loadSmearing : unknown smearing type. Category " << category << " not added." << std::endl;
+		file->Close();
+		fin.close();
+		return false;
+	}
+
+	fin.close();
+	return true;
+}
+
+void RapidDecay::setSmearing(int particle, TString category) {
 	if(particle > parts.size()) {
-		std::cout << "WARNING in RapidDecay::loadSmearing : particle " << particle << " does not exist - smearing functions not set." << particle << std::endl;
+		std::cout << "WARNING in RapidDecay::setSmearing : particle " << particle << " does not exist - smearing functions not set." << std::endl;
 		return;
 	}
 	if(nDaug[particle] != 0) {
-		std::cout << "WARNING in RapidDecay::loadSmearing : particle " << particle << " is composite - smearing functions not set." << particle << std::endl;
+		std::cout << "WARNING in RapidDecay::setSmearing : particle " << particle << " is composite - smearing functions not set." << std::endl;
 		return;
 	}
 	if(momSmear.count(particle)) {
-		std::cout << "WARNING in RapidDecay::loadSmearing : smearing function for particle " << particle << " has already been set." << std::endl;
+		std::cout << "WARNING in RapidDecay::setSmearing : smearing function for particle " << particle << " has already been set." << std::endl;
 		return;
 	}
 
-	std::cout << "INFO in RapidDecay::loadSmearing : setting smearing functions for particle " << particle << std::endl;
+	std::cout << "INFO in RapidDecay::setSmearing : setting smearing functions for particle " << particle << " (category: " << category << ")" << std::endl;
 
-	momSmear[particle] = new RapidMomentumSmearGauss(graph);
-}
-
-void RapidDecay::loadSmearing(int particle, std::vector<double> thresholds, std::vector<TH1F*> histos) {
-	if(particle > parts.size()) {
-		std::cout << "WARNING in RapidDecay::loadSmearing : particle " << particle << " does not exist - smearing functions not set." << particle << std::endl;
-		return;
-	}
-	if(nDaug[particle] != 0) {
-		std::cout << "WARNING in RapidDecay::loadSmearing : particle " << particle << " is composite - smearing functions not set." << particle << std::endl;
-		return;
-	}
-	if(momSmear.count(particle)) {
-		std::cout << "WARNING in RapidDecay::loadSmearing : smearing function for particle " << particle << " has already been set." << std::endl;
-		return;
+	if(!momSmearCategories.count(category)) {
+		if(!loadSmearing(category)) {
+			std::cout << "WARNING in RapidDecay::setSmearing : failed to load smearing category " << category << " - smearing functions not set." << particle << std::endl;
+			return;
+		}
 	}
 
-	std::cout << "INFO in RapidDecay::loadSmearing : setting smearing functions for particle " << particle << std::endl;
-
-	momSmear[particle] = new RapidMomentumSmearHisto(thresholds, histos);
-}
-
-void RapidDecay::loadSmearing(std::vector<int> particles, std::vector<double> thresholds, std::vector<TH1F*> histos) {
-	for(int i=0; i< particles.size(); ++i) {
-		loadSmearing(particles[i], thresholds, histos);
-	}
+	momSmear[particle] = momSmearCategories[category];
 }
 
 void RapidDecay::setAcceptRejectHist(TH1F* hist, ParamType type, std::vector<int> particles) {
@@ -257,6 +311,7 @@ void RapidDecay::saveTree(TString fname) {
 }
 
 void RapidDecay::loadDecay(TString filename) {
+	filename +=".decay";
 	std::cout << "INFO in RapidDecay::loadDecay : loading decay descriptor from file: " << filename << std::endl;
 	TString decayStr;
 	std::queue<TString> decays;
@@ -271,7 +326,8 @@ void RapidDecay::loadDecay(TString filename) {
 	while(!decays.empty()) {
 
 		decayStr = decays.front();
-		std::cout << decayStr << std::endl;
+		std::cout << "INFO in RapidDecay::loadDecay : Decay descriptor is:" << std::endl
+		          << "                                " << decayStr << std::endl;
 		decays.pop();
 
 		//first strip out any subdecays and add them to the queue
@@ -295,6 +351,8 @@ void RapidDecay::loadDecay(TString filename) {
 			}
 			//add to the queue and label the mother so we know which particle to decay
 			decays.push(subDecay);
+			std::cout << "INFO in RapidDecay::loadDecay : Found sub-decay:" << std::endl
+			          << "                                " << subDecay << std::endl;
 			decayStr.Replace(start,end-start+1,"^"+subDecay(0,subDecay.First(" ")));
 		}
 
@@ -357,12 +415,110 @@ void RapidDecay::loadDecay(TString filename) {
 	setupMasses();
 	setupHistos();
 
+	std::cout << "INFO in RapidDecay::loadDecay : Particle summary follows:" << std::endl;
+	printf("index\tlabel\t\t   ID\t\tmass (GeV/c^2)\tmother\t# daughters\tfirst daughter\n");
 	for(unsigned int i=0; i<parts.size(); ++i) {
-		std::cout << i << "\t" << names[i] << "\t" << mother[i] << "\t" << parts[i] << "\t" << m[i] << "\t" << nDaug[i] << "\t" << firstDaug[i] << std::endl;
+		printf("%3d\t%-15s\t%6d\t\t%.6f\t%3d\t%2d\t\t%3d\n", i, names[i].Data(), parts[i], m[i], mother[i], nDaug[i], firstDaug[i]);
+	}
+}
+
+void RapidDecay::loadConfig(TString filename) {
+	std::cout << "INFO in RapidDecay::loadConfig : attempting to load configuration from file: " << filename+".config" << std::endl;
+
+	std::ifstream fin;
+	fin.open(filename+".config", std::ifstream::in);
+	if( ! fin.good()) {
+		std::cout << "INFO in RapidDecay::loadConfig : failed to load configuration. Will write default config file to: " << filename+".config" << std::endl;
+		fin.close();
+		writeConfig(filename);
+		fin.open(filename+".config", std::ifstream::in);
+	}
+
+	TString buffer;
+	Int_t currentPart(-1);
+	while(fin.good()) {
+		buffer.ReadLine(fin);
+		switch(buffer[0]) {
+			case '@': //particle config
+				buffer.Remove(TString::kBoth,'@');
+				currentPart = buffer.Atoi();
+				break;
+			case '!': //global config
+				break;
+			case '#': //comment
+				continue;
+			default: //continue particle config
+				int colon = buffer.Index(":");
+				TString command = buffer(0,colon);
+				command = command.Strip(TString::kBoth);
+				TString value = buffer(colon+1, buffer.Length()-colon-1);
+				value = value.Strip(TString::kBoth);
+				configParticle(currentPart, command, value);
+				break;
+		}
+	}
+	std::cout << "INFO in RapidDecay::loadConfig : finished loading configuration." << std::endl;
+	fin.close();
+}
+
+void RapidDecay::writeConfig(TString filename) {
+	std::ofstream fout;
+	fout.open(filename+".config", std::ofstream::out);
+
+	for(unsigned int i=0; i<parts.size(); ++i) {
+		fout << "@" << i << "\n";
+		if(nDaug[i]==0) {
+			if(TMath::Abs(parts[i]) == 11) {
+				fout << "\tsmear : electron\n";
+			} else {
+				fout << "\tsmear : generic\n";
+			}
+		}
+
+	}
+
+	fout.close();
+}
+
+void RapidDecay::configParticle(int part, TString command, TString value) {
+	if(part < 0 || part > parts.size()) {
+		std::cout << "WARNING in RapidDecay::configParticle : no particle at index " << part << std::endl;
+		return;
+	}
+
+	if(command=="smear") {
+		setSmearing(part, value);
 	}
 }
 
 TString RapidDecay::getUniqName(TString base) {
+	//first sanitise
+	base = base.ReplaceAll("+","p");
+	base = base.ReplaceAll("-","m");
+	base = base.ReplaceAll("*","st");
+	base = base.ReplaceAll("(","_");
+	base = base.ReplaceAll(")","_");
+	base = base.ReplaceAll("[","_");
+	base = base.ReplaceAll("]","_");
+	base = base.ReplaceAll("<","_");
+	base = base.ReplaceAll(">","_");
+	base = base.ReplaceAll("{","_");
+	base = base.ReplaceAll("}","_");
+	base = base.ReplaceAll(" ","_");
+	base = base.ReplaceAll("$","");
+	base = base.ReplaceAll("%","");
+	base = base.ReplaceAll("&","");
+	base = base.ReplaceAll("/","");
+	base = base.ReplaceAll(":","");
+	base = base.ReplaceAll(";","");
+	base = base.ReplaceAll("=","");
+	base = base.ReplaceAll("\\","");
+	base = base.ReplaceAll("^","");
+	base = base.ReplaceAll("|","");
+	base = base.ReplaceAll(",","");
+	base = base.ReplaceAll(".","");
+	base.Remove(TString::kBoth,'_');
+
 	int i=-1;
 	TString uniqName("");
 
@@ -373,34 +529,8 @@ TString RapidDecay::getUniqName(TString base) {
 		uniqName+= i;
 	} while(usedNames.count(uniqName)>0);
 
-	//now sanitise
-	uniqName = uniqName.ReplaceAll("+","p");
-	uniqName = uniqName.ReplaceAll("-","m");
-	uniqName = uniqName.ReplaceAll("*","st");
-	uniqName = uniqName.ReplaceAll("(","_");
-	uniqName = uniqName.ReplaceAll(")","_");
-	uniqName = uniqName.ReplaceAll("[","_");
-	uniqName = uniqName.ReplaceAll("]","_");
-	uniqName = uniqName.ReplaceAll("<","_");
-	uniqName = uniqName.ReplaceAll(">","_");
-	uniqName = uniqName.ReplaceAll("{","_");
-	uniqName = uniqName.ReplaceAll("}","_");
-	uniqName = uniqName.ReplaceAll(" ","_");
-	uniqName = uniqName.ReplaceAll("$","");
-	uniqName = uniqName.ReplaceAll("%","");
-	uniqName = uniqName.ReplaceAll("&","");
-	uniqName = uniqName.ReplaceAll("/","");
-	uniqName = uniqName.ReplaceAll(":","");
-	uniqName = uniqName.ReplaceAll(";","");
-	uniqName = uniqName.ReplaceAll("=","");
-	uniqName = uniqName.ReplaceAll("\\","");
-	uniqName = uniqName.ReplaceAll("^","");
-	uniqName = uniqName.ReplaceAll("|","");
-	uniqName = uniqName.ReplaceAll(",","");
-	uniqName = uniqName.ReplaceAll(".","");
-	uniqName.Remove(TString::kBoth,'_');
-
 	usedNames.insert(uniqName);
+	
 	return uniqName;
 }
 
@@ -743,7 +873,7 @@ TH1F* RapidDecay::generateAccRejDenominator() {
 	for(int i=0; i<1000000; ++i) {
 		floatMasses();
 		genParent();
-		if(!genDecay()) return false;
+		if(!genDecay()) continue;
 		denomHisto->Fill(evalCustomParam(accRejParameter));
 	}
 	return denomHisto;

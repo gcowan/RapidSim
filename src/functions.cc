@@ -202,6 +202,9 @@ int pdgCode(TString part) {
 	if(part=="nutau")      return  16;
 	if(part=="anti-nutau") return -16;
 
+	//photon
+	if(part=="gamma") return 22;
+
 	//light mesons
 	if(part=="pi0")       return      111;
 	if(part=="pi+")       return      211;
