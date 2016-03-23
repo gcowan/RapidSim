@@ -486,6 +486,7 @@ void RapidDecay::writeConfig(TString filename) {
 
 	for(unsigned int i=0; i<parts.size(); ++i) {
 		fout << "@" << i << "\n";
+		fout << "\tname : " << names[i] << "\n";
 		if(nDaug[i]==0) {
 			if(TMath::Abs(parts[i]) == 11) {
 				fout << "\tsmear : electron\n";
@@ -510,7 +511,9 @@ void RapidDecay::configParticle(int part, TString command, TString value) {
 		return;
 	}
 
-	if(command=="smear") {
+	if(command=="name") {
+		names[part] = value;
+	} else if(command=="smear") {
 		setSmearing(part, value);
 	} else if(command=="invisible") {
 		if(value=="false") {
