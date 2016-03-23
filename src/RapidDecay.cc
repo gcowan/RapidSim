@@ -197,6 +197,9 @@ void RapidDecay::addCustomParameter(TString name, ParamType type, std::vector<in
 		case RapidDecay::BETA:
 			std::cout << "beta";
 			break;
+		case RapidDecay::MCORR:
+			std::cout << "Mcorr";
+			break;
 	}
 	std::cout << "(";
 	for(int i=0; i<particles.size(); ++i) {
@@ -252,7 +255,9 @@ void RapidDecay::smearMomenta() {
 	for(int i=p.size()-1; i>=0; --i) {//don't change to unsigned - needs to hit -1 to break loop
 		if(nDaug[i] == 0) {
 			//smear momentum of each detected particle
-			if(momSmear.count(i)) {
+			if(invisible[i]) {
+				pSmeared[i].SetXYZM(0.,0.,0.,0.);
+			} else if(momSmear.count(i)) {
 				pSmeared[i] = momSmear[i]->smearMomentum(p[i]);
 			} else {
 				pSmeared[i] = p[i];
@@ -311,13 +316,12 @@ void RapidDecay::saveTree(TString fname) {
 }
 
 void RapidDecay::loadDecay(TString filename) {
-	filename +=".decay";
-	std::cout << "INFO in RapidDecay::loadDecay : loading decay descriptor from file: " << filename << std::endl;
+	std::cout << "INFO in RapidDecay::loadDecay : loading decay descriptor from file: " << filename+".decay" << std::endl;
 	TString decayStr;
 	std::queue<TString> decays;
 
 	std::ifstream fin;
-	fin.open(filename);
+	fin.open(filename+".decay");
 	decayStr.ReadLine(fin);
 	fin.close();
 
@@ -383,6 +387,7 @@ void RapidDecay::loadDecay(TString filename) {
 			m.push_back(getMass(id));
 			p.push_back(TLorentzVector());
 			pSmeared.push_back(TLorentzVector());
+			invisible.push_back(false);
 		}
 
 		//second should be ->
@@ -402,6 +407,7 @@ void RapidDecay::loadDecay(TString filename) {
 			m.push_back(getMass(id));
 			p.push_back(TLorentzVector());
 			pSmeared.push_back(TLorentzVector());
+			invisible.push_back(false);
 			++count;
 
 		}
@@ -411,6 +417,19 @@ void RapidDecay::loadDecay(TString filename) {
 
 	}
 
+	loadConfig(filename);
+
+	//automatically add the corrected mass variable if we have any invisible particles
+	for(unsigned int i=0; i<parts.size(); ++i) {
+		if(invisible[i]) {
+			std::cout << "INFO in RapidDecay::loadDecay : invisible daughter found." << std::endl
+				  << "                                Adding corrected mass variable for mother particle." << std::endl;
+			std::vector<int> mother;
+			mother.push_back(0);
+			addCustomParameter("MCorr", RapidDecay::MCORR, mother, false, 0., 7.);
+			break;
+		}
+	}
 
 	setupMasses();
 	setupHistos();
@@ -473,6 +492,11 @@ void RapidDecay::writeConfig(TString filename) {
 			} else {
 				fout << "\tsmear : generic\n";
 			}
+			if(TMath::Abs(parts[i]) == 12 ||
+			   TMath::Abs(parts[i]) == 14 ||
+			   TMath::Abs(parts[i]) == 16 ) {
+				fout << "\tinvisible : true\n";
+			}
 		}
 
 	}
@@ -488,6 +512,12 @@ void RapidDecay::configParticle(int part, TString command, TString value) {
 
 	if(command=="smear") {
 		setSmearing(part, value);
+	} else if(command=="invisible") {
+		if(value=="false") {
+			invisible[part] = false;
+		} else if(value=="true") {
+			invisible[part] = true;
+		}
 	}
 }
 
@@ -811,6 +841,9 @@ double RapidDecay::evalCustomParam(int i) {
 }
 
 double RapidDecay::evalCustomParam(CustomParameter param) {
+
+	if(param.type == RapidDecay::MCORR) return evalCorrectedMass(param);
+
 	TLorentzVector mom;
 	if(param.truth) {
 		for(int i=0; i<param.particles.size(); ++i) {
@@ -855,6 +888,45 @@ double RapidDecay::evalCustomParam(CustomParameter param) {
 	}
 
 	return 0.;
+}
+
+double RapidDecay::evalCorrectedMass(CustomParameter param) {
+	
+	TLorentzVector momS, momT;
+
+	//load the true (inc. invisible) and smeared momenta
+	for(int i=0; i<param.particles.size(); ++i) {
+		momT += getP(param.particles[i]);
+		momS += getPSmeared(param.particles[i]);
+	}
+
+	//get the sine and cosine of the angle to the B flight direction with a Gaussian smearing applied
+	double cosDir = momT.Vect().Dot(momS.Vect())/(momT.P()*momS.P());
+	double dir = TMath::ACos(cosDir) + rand.Gaus(0.,0.01); //TODO smearing parameter should be configurable
+	double sinDir = TMath::Sin(dir);
+	cosDir = TMath::Cos(dir);
+
+	//get the longitudinal and transverse momentum of the visible daughters wrt the B flight direction
+	double pLong  = TMath::Abs(cosDir * momS.P());
+	double pTran = TMath::Abs(sinDir * momS.P());
+	
+	//invariant masses of the visible daughters and the parent as well as the missing mass
+	double mVis2 = momS.M2();
+	double mPar2 = momT.M2();
+	double mMiss2 = mPar2 - mVis2;
+
+	//the corrected mass
+	double mCorr = TMath::Sqrt( mVis2 + pTran*pTran ) + pTran;
+
+	//coefficients of the quadratic equation in pL(invisible)
+	double a = 2. * pLong * pLong * mVis2;
+	double b = 4*pLong*(2*pTran*pLong - mMiss2);
+	double c = 4*pTran*pTran * (pLong*pLong + mPar2) - mMiss2*mMiss2;
+
+	//separate according to whether solutions of pL(invisible) are real or not
+	if(b*b - 4.*a*c > 0.) mCorr=-1.*mCorr;
+
+	return mCorr;
 }
 
 bool RapidDecay::runAcceptReject() {

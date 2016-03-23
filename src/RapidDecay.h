@@ -34,7 +34,9 @@ class RapidDecay {
 			PHI,      //Azimuthal angle
 			RAPIDITY, //Rapidity
 			GAMMA,    //Relitivistic gamma
-			BETA      //velocity
+			BETA,     //velocity
+			//COSTHETA, //angle
+			MCORR     //corrected mass
 
 		};
 
@@ -42,7 +44,7 @@ class RapidDecay {
 			: treeFile(0), tree(0), varsPerPart(0),
 			  rand(0), maxgen(1000),
 			  ptHisto(0), etaHisto(0), /*smearGraph(0),*/ accRejHisto(0)
-			{loadDecay(filename); loadConfig(filename);}
+			{loadDecay(filename);}
 
 		~RapidDecay();
 		
@@ -81,6 +83,7 @@ class RapidDecay {
 
 		double evalCustomParam(int i);
 		double evalCustomParam(CustomParameter param);
+		double evalCorrectedMass(CustomParameter param);
 
 		bool runAcceptReject();
 		TH1F* generateAccRejDenominator();
@@ -107,6 +110,9 @@ class RapidDecay {
 		std::vector<double> m;
 		std::vector<TLorentzVector> p;
 		std::vector<TLorentzVector> pSmeared;
+		std::vector<bool> invisible;
+		
+		//custom parameters
 		std::vector<TH1F*> histos;
 
 		//register of particle names that have been used
