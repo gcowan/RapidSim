@@ -1,6 +1,6 @@
 # include ROOT library and include files
 
-SET( CMAKE_CXX_FLAGS "-Weffc++ -Os -msse -msse2 -msse3 -m3dnow -ansi -fPIC -fmerge-all-constants -funroll-all-loops -g -D__ROOFIT_NOBANNER -Wconversion -Weffc++ -Wextra -Wsign-compare -Wfloat-equal -Wmissing-noreturn -Wall -Wno-non-virtual-dtor -std=c++11" )
+SET( CMAKE_CXX_FLAGS "-Os -msse -msse2 -msse3 -m3dnow -ansi -fPIC -fmerge-all-constants -funroll-all-loops -g -D__ROOFIT_NOBANNER -Wall -Wextra -Werror -Wsign-compare -Wmissing-noreturn -Wno-non-virtual-dtor -std=c++11" )
 
 SET (FILES functions RooGounarisSakurai RooRelBreitWigner RapidDecay RapidMomentumSmearHisto RapidMomentumSmearGauss)
 FOREACH ( lib ${FILES} ) 

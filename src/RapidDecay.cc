@@ -90,6 +90,13 @@ bool RapidDecay::loadSmearing(TString category) {
 			}
 		}
 
+		if(hists.size() == 0) {
+			std::cout << "WARNING in RapidDecay::loadSmearing : failed to load any histograms for smearing category " << category << std::endl;
+			file->Close();
+			fin.close();
+			return false;
+		}
+
 		momSmearCategories[category] = new RapidMomentumSmearHisto(thresholds, hists);
 
 	} else {
@@ -103,7 +110,7 @@ bool RapidDecay::loadSmearing(TString category) {
 	return true;
 }
 
-void RapidDecay::setSmearing(int particle, TString category) {
+void RapidDecay::setSmearing(unsigned int particle, TString category) {
 	if(particle > parts.size()) {
 		std::cout << "WARNING in RapidDecay::setSmearing : particle " << particle << " does not exist - smearing functions not set." << std::endl;
 		return;
@@ -121,7 +128,8 @@ void RapidDecay::setSmearing(int particle, TString category) {
 
 	if(!momSmearCategories.count(category)) {
 		if(!loadSmearing(category)) {
-			std::cout << "WARNING in RapidDecay::setSmearing : failed to load smearing category " << category << " - smearing functions not set." << particle << std::endl;
+			std::cout << "WARNING in RapidDecay::setSmearing : failed to load smearing category " << category << "." << std::endl
+				  << "                                     smearing functions not set for particle " << particle << "." << std::endl;
 			return;
 		}
 	}
@@ -202,7 +210,7 @@ void RapidDecay::addCustomParameter(TString name, ParamType type, std::vector<in
 			break;
 	}
 	std::cout << "(";
-	for(int i=0; i<particles.size(); ++i) {
+	for(unsigned int i=0; i<particles.size(); ++i) {
 		if(i>0) std::cout << ", ";
 		std::cout << names[particles[i]];
 	}
@@ -454,7 +462,7 @@ void RapidDecay::loadConfig(TString filename) {
 	}
 
 	TString buffer;
-	Int_t currentPart(-1);
+	unsigned int currentPart(parts.size());
 	while(fin.good()) {
 		buffer.ReadLine(fin);
 		switch(buffer[0]) {
@@ -466,7 +474,7 @@ void RapidDecay::loadConfig(TString filename) {
 				break;
 			case '#': //comment
 				continue;
-			default: //continue particle config
+			default: //continue particle or global config
 				int colon = buffer.Index(":");
 				TString command = buffer(0,colon);
 				command = command.Strip(TString::kBoth);
@@ -505,8 +513,8 @@ void RapidDecay::writeConfig(TString filename) {
 	fout.close();
 }
 
-void RapidDecay::configParticle(int part, TString command, TString value) {
-	if(part < 0 || part > parts.size()) {
+void RapidDecay::configParticle(unsigned int part, TString command, TString value) {
+	if(part > parts.size()) {
 		std::cout << "WARNING in RapidDecay::configParticle : no particle at index " << part << std::endl;
 		return;
 	}
@@ -840,7 +848,7 @@ void RapidDecay::setupMasses() {//TODO store masses and widths of particles some
 
 double RapidDecay::evalCustomParam(int i) {
 	CustomParameter param = customParams[i];
-	evalCustomParam(param);
+	return evalCustomParam(param);
 }
 
 double RapidDecay::evalCustomParam(CustomParameter param) {
@@ -849,11 +857,11 @@ double RapidDecay::evalCustomParam(CustomParameter param) {
 
 	TLorentzVector mom;
 	if(param.truth) {
-		for(int i=0; i<param.particles.size(); ++i) {
+		for(unsigned int i=0; i<param.particles.size(); ++i) {
 			mom += getP(param.particles[i]);
 		}
 	} else {
-		for(int i=0; i<param.particles.size(); ++i) {
+		for(unsigned int i=0; i<param.particles.size(); ++i) {
 			mom += getPSmeared(param.particles[i]);
 		}
 	}
@@ -888,6 +896,11 @@ double RapidDecay::evalCustomParam(CustomParameter param) {
 			return mom.Gamma();
 		case RapidDecay::BETA:
 			return mom.Beta();
+		case RapidDecay::MCORR: //dealt with separately above - included to appease compiler
+		default:
+			std::cout << "WARNING in RapidDecay::evalCustomParam : unknown parameter type " << param.type << std::endl
+				  << "                                         returning 0." << std::endl;
+
 	}
 
 	return 0.;
@@ -898,7 +911,7 @@ double RapidDecay::evalCorrectedMass(CustomParameter param) {
 	TLorentzVector momS, momT;
 
 	//load the true (inc. invisible) and smeared momenta
-	for(int i=0; i<param.particles.size(); ++i) {
+	for(unsigned int i=0; i<param.particles.size(); ++i) {
 		momT += getP(param.particles[i]);
 		momS += getPSmeared(param.particles[i]);
 	}

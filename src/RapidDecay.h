@@ -51,7 +51,7 @@ class RapidDecay {
 		void setRandomGenerator(TRandom& r) { rand = r; }
 		void setMaxGen(int mg) { maxgen = mg; }
 		void loadParentKinematics(TH1F* pt, TH1F* eta);
-		void setSmearing(int particle, TString category);
+		void setSmearing(unsigned int particle, TString category);
 		void setAcceptRejectHist(TH1F* hist, ParamType type, std::vector<int> particles);
 		void addCustomParameter(TString name, ParamType type, std::vector<int> particles, bool truth=false, double min=0., double max=10.);
 		
@@ -74,7 +74,7 @@ class RapidDecay {
 		void loadDecay(TString filename);
 		void loadConfig(TString filename);
 		void writeConfig(TString filename);
-		void configParticle(int part, TString command, TString value);
+		void configParticle(unsigned int part, TString command, TString value);
 		bool loadSmearing(TString category);
 		void setupMasses();
 		TString getUniqName(TString base);

@@ -11,7 +11,7 @@ TLorentzVector RapidMomentumSmearHisto::smearMomentum(TLorentzVector p) {
     kp = p.P();
     kptx = p.Px()/p.Pz();
     kpty = p.Py()/p.Pz();
-    int iHist=0;
+    unsigned int iHist=0;
     while( true ) {
 	    if( iHist==thresholds_.size()-1 ) break;
 	    if( kp < thresholds_[iHist+1] ) break;
