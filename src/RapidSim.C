@@ -19,7 +19,7 @@
 
 #include "RapidDecay.h"
 
-void rapidSim(const std::string mode, const int nEvtToGen, const std::string path) {
+void rapidSim(const std::string mode, const int nEvtToGen, const std::string path, bool saveTree=false) {
 
     // load the fonll stuff
     TFile* fonll = new TFile((path + "/fonll/fonll.root").c_str());
@@ -42,7 +42,7 @@ void rapidSim(const std::string mode, const int nEvtToGen, const std::string pat
 //	    arHist->SetBinContent(i+1, 1.);
 //    }
 //    myDecayObject.setAcceptRejectHist(arHist, RapidDecay::M2, pars);
-    myDecayObject.saveTree("myTree.root");
+    if(saveTree) myDecayObject.saveTree("myTree.root");
 
 
     int ngenerated = 0; int nselected = 0;
@@ -61,13 +61,19 @@ void rapidSim(const std::string mode, const int nEvtToGen, const std::string pat
 
 int main(int argc, char * argv[])
 {
-    if (argc != 4) {
-        printf("Usage: %s mode numberToGenerate pathToFiles\n", argv[0]);
+    if (argc < 4) {
+        printf("Usage: %s mode numberToGenerate pathToFiles [saveTree=false]\n", argv[0]);
         return 1;
     }
     const std::string mode = argv[1];
     const int number = atoi(argv[2]);
     const std::string path = argv[3];
-    rapidSim(mode, number, path);
+    bool saveTree = false;
+
+    if(argc>4) {
+	    saveTree = atoi(argv[4]);
+    }
+    
+    rapidSim(mode, number, path, saveTree);
     return 0;
 }

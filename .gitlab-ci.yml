@@ -1,6 +1,34 @@
+stages:
+    - build
+    - test
+
 build:
     script:
         - mkdir build
         - cd build
         - cmake ../
         - make
+    stage: build
+    artifacts:
+        paths:
+            - build/src/RapidSim.exe
+
+run-kee:
+    script:
+        - cd build
+        - echo "B+ -> K+ e+ e-" > ../src/B2Kee.decay
+        - src/RapidSim.exe ../src/B2Kee 100000 ../rootfiles
+    stage: test
+    artifacts:
+        paths:
+            - build/myHistos.root
+
+run-kee-tree:
+    script:
+        - cd build
+        - echo "B+ -> K+ e+ e-" > ../src/B2Kee.decay
+        - src/RapidSim.exe ../src/B2Kee 1000 ../rootfiles 1
+    stage: test
+    artifacts:
+        paths:
+            - build/myTree.root
