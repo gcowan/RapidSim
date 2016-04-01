@@ -1,30 +1,5 @@
 #include "functions.h"
 
-bool generateEvent(TLorentzVector& head, TGenPhaseSpace& event, double* masses , int np, TRandom& ran, int m_maxgen ){
-
-    /* TLorentzVector head Particle to decay
-       TGenPhaseSpace decay generator
-       double* masses array of output particles
-       int m_maxgen number to try  
-       */
-
-    // check decay kinematics valid
-    bool isok = event.SetDecay(head, np, masses);
-    if (!isok) return false;
-
-    // make an event
-    int ntoGen = 0; bool accept = false;
-    while (ntoGen < m_maxgen && accept == false){
-        Double_t weight = event.Generate();
-        accept = weight > ran.Uniform();
-        ++ntoGen;
-    } // while
-
-    return accept;
-
-}
-
-
 double pick(RooDataSet * data ,TRandom& ran, std::string var_name){
     int entry = int(data->numEntries() * ran.Uniform());
     const RooArgSet* row = data->get(entry); 
@@ -93,13 +68,6 @@ RooRelBreitWigner* createpsi2MassPdf(RooRealVar& m, std::string name){
     return rooBW(m,mPsi ,0.3e-3,1,mpi,mpi,name ); 
 }
 
-
-TLorentzVector genB(TRandom ran, TH1F* ptHisto, TH1F* etaHisto, double m){
-    TLorentzVector vec;
-    double phi = ran.Uniform(0,2*TMath::Pi());
-    vec.SetPtEtaPhiM(ptHisto->GetRandom(),etaHisto->GetRandom(),phi,m);
-    return vec;
-}
 
 double resSlope(double p) {
     // std::cout << p << std::endl;
@@ -310,65 +278,50 @@ int pdgCode(TString part) {
 }
 
 double getMass(int pdgCode) {
-	switch(pdgCode) {
+	switch(TMath::Abs(pdgCode)) {
 		case       11:
-		case      -11:
 			return me;
 		case       13:
-		case      -13:
 			return mmu;
 		case       15:
-		case      -15:
 			return mtau;
 		case      111:
 			return mpi0;
 		case      211:
-		case     -211:
 			return mpi;
 		case      221:
 			return meta;
 		case      113:
 			return mrho0;
 		case      213:
-		case     -213:
 			return mrho;
 		case      223:
 			return momega;
 		case      130:
 		case      310:
 		case      311:
-		case     -311:
 			return mK0;
 		case      321:
-		case     -321:
 			return mK;
 		case      313:
-		case     -313:
 			return mKstar;
 		case      323:
-		case     -323:
 			return mKstar0;
 		case      331:
 			return metapr;
 		case      333:
 			return mphi;
 		case      411:
-		case     -411:
 			return mDplus;
 		case      421:
-		case     -421:
 			return mD0;
 		case      431:
-		case     -431:
 			return mDs;
 		case      413:
-		case     -413:
 			return mDstar;
 		case      423:
-		case     -423:
 			return mD0star;
 		case      433:
-		case     -433:
 			return mDsstar;
 		case      441:
 			return metac;
@@ -383,25 +336,18 @@ double getMass(int pdgCode) {
 		case      445:
 			return mchic2;
 		case      511:
-		case     -511:
 			return mBd;
 		case      521:
-		case     -521:
 			return mB;
 		case      531:
-		case     -531:
 			return mBs;
 		case      541:
-		case     -541:
 			return mBc;
 		case      513:
-		case     -513:
 			return mB0star;
 		case      523:
-		case     -523:
 			return mBstar;
 		case      533:
-		case     -533:
 			return mBsstar;
 		case      553:
 			return mUp1S;
@@ -414,43 +360,30 @@ double getMass(int pdgCode) {
 		case   300553:
 			return mUp4S;
 		case     2112:
-		case    -2112:
 			return mn;
 		case     2212:
-		case    -2212:
 			return mp;
 		case     3122:
-		case    -3122:
 			return mL;
 		case     3112:
-		case    -3112:
 			return mSm;
 		case     3212:
-		case    -3212:
 			return mS0;
 		case     3222:
-		case    -3222:
 			return mSp;
 		case     4122:
-		case    -4122:
 			return mLc;
 		case     4112:
-		case    -4112:
 			return mSc0;
 		case     4212:
-		case    -4212:
 			return mScp;
 		case     4222:
-		case    -4222:
 			return mScpp;
 		case     5122:
-		case    -5122:
 			return mLb;
 		case     5112:
-		case    -5112:
 			return mSbm;
 		case     5222:
-		case    -5222:
 			return mSbp;
 	}
 	return 0.;

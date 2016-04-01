@@ -74,8 +74,6 @@ const double mLb     = 5.61951;
 const double mSbm    = 5.8155;
 const double mSbp    = 5.8113;
 
-bool generateEvent(TLorentzVector& head, TGenPhaseSpace& event, double* masses , int np, TRandom& ran, int m_maxgen );
-
 double pick(RooDataSet * data ,TRandom& ran, std::string var_name);
 
 const double barrierFactor = 3;
@@ -102,8 +100,6 @@ RooRelBreitWigner* createChi1MassPdf(RooRealVar& m, std::string name = "chic1");
 RooRelBreitWigner* createChi2MassPdf(RooRealVar& m, std::string name = "chic2");
 
 RooRelBreitWigner* createpsi2MassPdf(RooRealVar& m, std::string name = "chic2");
-
-TLorentzVector genB(TRandom ran, TH1F* ptHisto, TH1F* etaHisto, double m);
 
 double resSlope(double p);
 

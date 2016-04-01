@@ -15,7 +15,9 @@
 #include "RooDataSet.h"
 
 #include "functions.h"
-#include "RapidMomentumSmear.h"
+
+class RapidParticle;
+class RapidMomentumSmear;
 
 class RapidDecay {
 	public:
@@ -43,7 +45,7 @@ class RapidDecay {
 		RapidDecay(TString filename)
 			: treeFile(0), tree(0), varsPerPart(0),
 			  rand(0), maxgen(1000),
-			  ptHisto(0), etaHisto(0), /*smearGraph(0),*/ accRejHisto(0)
+			  ptHisto(0), etaHisto(0), accRejHisto(0)
 			{loadDecay(filename);}
 
 		~RapidDecay();
@@ -90,7 +92,8 @@ class RapidDecay {
 
 		void floatMasses();
 		void genParent();
-		bool genDecay();
+		bool genDecay(bool acceptAny=false);
+		bool genDecayAccRej();
 		void smearMomenta();
 		void fillHistos();
 		void fillTree();
@@ -102,15 +105,8 @@ class RapidDecay {
 		void setupChic1Mass();
 		void setupChic2Mass();
 
-		std::vector<int> parts;
-		std::vector<TString> names;
-		std::vector<int> mother;
-		std::vector<int> nDaug;
-		std::vector<int> firstDaug;
-		std::vector<double> m;
-		std::vector<TLorentzVector> p;
-		std::vector<TLorentzVector> pSmeared;
-		std::vector<bool> invisible;
+		//the particles
+		std::vector<RapidParticle*> parts;
 		
 		//custom parameters
 		std::vector<TH1F*> histos;
@@ -133,9 +129,6 @@ class RapidDecay {
 		//parent kinematics
     		TH1F* ptHisto; 
     		TH1F* etaHisto;
-
-		//momentum smearing lookup for each particle
-		std::map<int, RapidMomentumSmear*> momSmear;
 
 		//mometum smearing lookup for each smearing category
 		std::map<TString, RapidMomentumSmear*> momSmearCategories;
