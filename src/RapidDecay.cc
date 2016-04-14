@@ -362,9 +362,7 @@ void RapidDecay::loadDecay(TString filename) {
 		decayStr.Tokenize(token, from, " ");
 		//only need to add this if it is the top particle
 		if(parts.empty()) {
-			int id = pdgCode(token);
-			TString name = getUniqName(token);
-			theMother = new RapidParticle(id, name, 0);
+			theMother = particleData->makeParticle(token, 0);
 			parts.push_back(theMother);
 		}
 
@@ -376,9 +374,7 @@ void RapidDecay::loadDecay(TString filename) {
 				token = token.Strip(TString::kBoth,'^');
 				stable = false;//flags it to edit later
 			}
-			int id = pdgCode(token);
-			TString name = getUniqName(token);
-			RapidParticle* part = new RapidParticle(id, name, theMother);
+			RapidParticle* part = particleData->makeParticle(token, theMother);
 			part->setStable(stable);
 			parts.push_back(part);
 			theMother->addDaughter(part);
@@ -496,49 +492,6 @@ void RapidDecay::configParticle(unsigned int part, TString command, TString valu
 	}
 }
 
-TString RapidDecay::getUniqName(TString base) {
-	//first sanitise
-	base = base.ReplaceAll("+","p");
-	base = base.ReplaceAll("-","m");
-	base = base.ReplaceAll("*","st");
-	base = base.ReplaceAll("(","_");
-	base = base.ReplaceAll(")","_");
-	base = base.ReplaceAll("[","_");
-	base = base.ReplaceAll("]","_");
-	base = base.ReplaceAll("<","_");
-	base = base.ReplaceAll(">","_");
-	base = base.ReplaceAll("{","_");
-	base = base.ReplaceAll("}","_");
-	base = base.ReplaceAll(" ","_");
-	base = base.ReplaceAll("$","");
-	base = base.ReplaceAll("%","");
-	base = base.ReplaceAll("&","");
-	base = base.ReplaceAll("/","");
-	base = base.ReplaceAll(":","");
-	base = base.ReplaceAll(";","");
-	base = base.ReplaceAll("=","");
-	base = base.ReplaceAll("\\","");
-	base = base.ReplaceAll("^","");
-	base = base.ReplaceAll("|","");
-	base = base.ReplaceAll(",","");
-	base = base.ReplaceAll(".","");
-	base.Remove(TString::kBoth,'_');
-
-	int i=-1;
-	TString uniqName("");
-
-	do {
-		++i;
-		uniqName = base;
-		uniqName+= "_";
-		uniqName+= i;
-	} while(usedNames.count(uniqName)>0);
-
-	usedNames.insert(uniqName);
-
-	return uniqName;
-}
-
 void RapidDecay::setupHistos() {
 	for(unsigned int i=0; i<parts.size(); ++i) {
 		RapidParticle* part = parts[i];
@@ -554,13 +507,8 @@ void RapidDecay::setupHistos() {
 		TH1F* hist(0);
 
 		//for the mother mass
-		double mmin = part->mass();
-		double mmax = part->mass();
-		int id = TMath::Abs(part->id());
-		if(massdata.count(id)) {
-			mmin = minmass[id];
-			mmax = maxmass[id];
-		}
+		double mmin = part->minMass();
+		double mmax = part->maxMass();
 		mmin -= 0.1;
 		mmax += 0.1;
 
@@ -769,43 +717,13 @@ void RapidDecay::fillTree() {
 
 void RapidDecay::floatMasses() {
 	for(unsigned int i=0; i<parts.size(); ++i) {
-		int id = TMath::Abs(parts[i]->id());
-		if(massdata.count(id)) {
-			TString varName = "m";
-			varName += id;
-			parts[i]->setMass(pick(massdata[id], rand, std::string(varName.Data())));
-		}
+		parts[i]->floatMass();
 	}
 }
 
-void RapidDecay::setupMasses() {//TODO store masses and widths of particles somewhere
+void RapidDecay::setupMasses() {
 	for(unsigned int i=0; i<parts.size(); ++i) {
-		//check if it's already been loaded
-		int id = TMath::Abs(parts[i]->id());
-		if(massdata.count(id)) continue;
-
-		switch(id) {
-			case 213:
-				setupRhoMass();
-				break;
-			case 323:
-				setupKstMass();
-				break;
-			case 333:
-				setupPhiMass();
-				break;
-			case 10441:
-				setupChic0Mass();
-				break;
-			case 20443:
-				setupChic1Mass();
-				break;
-			case 445:
-				setupChic2Mass();
-				break;
-			default:
-				break;
-		}
+		particleData->setupMass(parts[i]);
 	}
 }
 
@@ -928,66 +846,6 @@ TH1F* RapidDecay::generateAccRejDenominator() {
 		denomHisto->Fill(evalCustomParam(accRejParameter));
 	}
 	return denomHisto;
-}
-
-void RapidDecay::setupRhoMass() {
-	RooRealVar m213("m213","m213",0.4, 1.5);
-	RooGounarisSakurai* gs = createRhoPlus(m213);
-	massdata[213] = gs->generate(RooArgSet(m213),100000);
-	double mmin(0), mmax(0);
-	massdata[213]->getRange(m213,mmin,mmax);
-	minmass[213] = mmin;
-	maxmass[213] = mmax;
-}
-
-void RapidDecay::setupKstMass() {
-	RooRealVar m323("m323","m323",0.5, 1.5);
-	RooRelBreitWigner* bw = createPhiMassPdf(m323);
-	massdata[323] = bw->generate(RooArgSet(m323),100000);
-	double mmin(0), mmax(0);
-	massdata[323]->getRange(m323,mmin,mmax);
-	minmass[323] = mmin;
-	maxmass[323] = mmax;
-}
-
-void RapidDecay::setupPhiMass() {
-	RooRealVar m333("m333","m333",0.6, 1.5);
-	RooRelBreitWigner* bw = createPhiMassPdf(m333);
-	massdata[333] = bw->generate(RooArgSet(m333),100000);
-	double mmin(0), mmax(0);
-	massdata[333]->getRange(m333,mmin,mmax);
-	minmass[333] = mmin;
-	maxmass[333] = mmax;
-}
-
-void RapidDecay::setupChic0Mass() {
-	RooRealVar m10441("m10441","m10441",2.5, 5.0);
-	RooRelBreitWigner* bw = createChi0MassPdf(m10441);
-	massdata[10441] = bw->generate(RooArgSet(m10441),100000);
-	double mmin(0), mmax(0);
-	massdata[10441]->getRange(m10441,mmin,mmax);
-	minmass[10441] = mmin;
-	maxmass[10441] = mmax;
-}
-
-void RapidDecay::setupChic1Mass() {
-	RooRealVar m20443("m20443","m20443",2.5, 5.0);
-	RooRelBreitWigner* bw = createChi1MassPdf(m20443);
-	massdata[20443] = bw->generate(RooArgSet(m20443),100000);
-	double mmin(0), mmax(0);
-	massdata[20443]->getRange(m20443,mmin,mmax);
-	minmass[20443] = mmin;
-	maxmass[20443] = mmax;
-}
-
-void RapidDecay::setupChic2Mass() {
-	RooRealVar m445("m445","m445",2.5, 5.0);
-	RooRelBreitWigner* bw = createChi2MassPdf(m445);
-	massdata[445] = bw->generate(RooArgSet(m445),100000);
-	double mmin(0), mmax(0);
-	massdata[445]->getRange(m445,mmin,mmax);
-	minmass[445] = mmin;
-	maxmass[445] = mmax;
 }
 
 void RapidDecay::genParent() {

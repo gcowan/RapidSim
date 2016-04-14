@@ -18,62 +18,67 @@
 #include "RooRelBreitWigner.h"
 
 #include "RapidDecay.h"
+#include "RapidParticleData.h"
 
 void rapidSim(const std::string mode, const int nEvtToGen, const std::string path, bool saveTree=false) {
 
-    // load the fonll stuff
-    TFile* fonll = new TFile((path + "/fonll/fonll.root").c_str());
-    TH1F* ptHisto = (TH1F*) fonll->Get("pthisto"); 
-    TH1F* etaHisto = (TH1F*) fonll->Get("etahisto"); 
+	// load the fonll stuff
+	TFile* fonll = new TFile((path + "/fonll/fonll.root").c_str());
+	TH1F* ptHisto = (TH1F*) fonll->Get("pthisto");
+	TH1F* etaHisto = (TH1F*) fonll->Get("etahisto");
 
-    TRandom3 ran;
+	TRandom3 ran;
 
-    RapidDecay myDecayObject(mode);
-    myDecayObject.setRandomGenerator(ran);
-    myDecayObject.loadParentKinematics(ptHisto,etaHisto);
+	RapidParticleData* rpd = RapidParticleData::getInstance();
+	rpd->loadData("../config/particles.dat");
 
-//    std::vector<int> pars;
-//    pars.push_back(2);
-//    pars.push_back(3);
-//    myDecayObject.addCustomParameter("qSqTRUE", RapidDecay::M2, pars, true, 0., 25.);
-//    myDecayObject.addCustomParameter("qSq", RapidDecay::M2, pars, false, 0., 25.);
-//    TH1F* arHist = new TH1F("arHist","",250,0.,25.);
-//    for(int i=0; i<150; ++i) {
-//	    arHist->SetBinContent(i+1, 1.);
-//    }
-//    myDecayObject.setAcceptRejectHist(arHist, RapidDecay::M2, pars);
-    if(saveTree) myDecayObject.saveTree("myTree.root");
+	RapidDecay myDecayObject(mode);
+	myDecayObject.setRandomGenerator(ran);
+	myDecayObject.loadParentKinematics(ptHisto,etaHisto);
+
+//	std::vector<int> pars;
+//	pars.push_back(2);
+//	pars.push_back(3);
+//	myDecayObject.addCustomParameter("qSqTRUE", RapidDecay::M2, pars, true, 0., 25.);
+//	myDecayObject.addCustomParameter("qSq", RapidDecay::M2, pars, false, 0., 25.);
+//	TH1F* arHist = new TH1F("arHist","",250,0.,25.);
+//	for(int i=0; i<150; ++i) {
+//		arHist->SetBinContent(i+1, 1.);
+//	}
+//	myDecayObject.setAcceptRejectHist(arHist, RapidDecay::M2, pars);
+	if(saveTree) myDecayObject.saveTree("myTree.root");
 
 
-    int ngenerated = 0; int nselected = 0;
-    for (Int_t n=0; n<nEvtToGen; ++n) {
-        if (!myDecayObject.generate()) continue;
-        ++ngenerated;
-        ++nselected;
-    } //event loop	
+	int ngenerated = 0; int nselected = 0;
+	for (Int_t n=0; n<nEvtToGen; ++n) {
+		if (!myDecayObject.generate()) continue;
+		++ngenerated;
+		++nselected;
+	} //event loop
 
-    myDecayObject.saveHistos("myHistos.root");
+	myDecayObject.saveHistos("myHistos.root");
 
-    std::cout << "Generated " << ngenerated << std::endl;
-    std::cout << "Selected " << nselected << std::endl;
+	std::cout << "Generated " << ngenerated << std::endl;
+	std::cout << "Selected " << nselected << std::endl;
 
 }
 
 int main(int argc, char * argv[])
 {
-    if (argc < 4) {
-        printf("Usage: %s mode numberToGenerate pathToFiles [saveTree=false]\n", argv[0]);
-        return 1;
-    }
-    const std::string mode = argv[1];
-    const int number = atoi(argv[2]);
-    const std::string path = argv[3];
-    bool saveTree = false;
+	if (argc < 4) {
+		printf("Usage: %s mode numberToGenerate pathToFiles [saveTree=false]\n", argv[0]);
+		return 1;
+	}
 
-    if(argc>4) {
-	    saveTree = atoi(argv[4]);
-    }
-    
-    rapidSim(mode, number, path, saveTree);
-    return 0;
+	const std::string mode = argv[1];
+	const int number = atoi(argv[2]);
+	const std::string path = argv[3];
+	bool saveTree = false;
+
+	if(argc>4) {
+		saveTree = atoi(argv[4]);
+	}
+
+	rapidSim(mode, number, path, saveTree);
+	return 0;
 }

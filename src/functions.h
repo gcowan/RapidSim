@@ -74,33 +74,6 @@ const double mLb     = 5.61951;
 const double mSbm    = 5.8155;
 const double mSbp    = 5.8113;
 
-double pick(RooDataSet * data ,TRandom& ran, std::string var_name);
-
-const double barrierFactor = 3;
-
-std::string varname(std::string header, std::string var);
-
-RooGounarisSakurai* rooGS(RooRealVar& m, double mean = 0.77511 , double gamma = 0.1491,
-        double thespin = 1, double m1 = 0.13957,double m2 = 0.1349766 , std::string name = "rhoplus"); 
-
-
-RooRelBreitWigner* rooBW(RooRealVar& m,  double mean = 1.019461 , double gamma = 0.001491,
-        double thespin = 1, double m1 =0.493677,double m2 = 0.493677 , std::string name = "phi");
-
-RooGounarisSakurai* createRhoPlus(RooRealVar& m, std::string name = "rhoplus");
-
-RooRelBreitWigner* createPhiMassPdf(RooRealVar& m, std::string name = "phi");
-
-RooRelBreitWigner* createKstarMassPdf(RooRealVar& m, std::string name = "kstar");
-
-RooRelBreitWigner* createChi0MassPdf(RooRealVar& m, std::string name = "chic0");
-
-RooRelBreitWigner* createChi1MassPdf(RooRealVar& m, std::string name = "chic1");
-
-RooRelBreitWigner* createChi2MassPdf(RooRealVar& m, std::string name = "chic2");
-
-RooRelBreitWigner* createpsi2MassPdf(RooRealVar& m, std::string name = "chic2");
-
 double resSlope(double p);
 
 TLorentzVector toFourVector(const TVector3& vec, double m);
@@ -125,10 +98,6 @@ const double yMinTracker = 9.5*0.001;
 TLorentzVector magnetKick(TLorentzVector& vec, double charge);
 
 bool inDownstream(TLorentzVector& vec, int charge);
-
-int pdgCode(TString part);
-
-double getMass(int pdgCode);
 
 #endif
 

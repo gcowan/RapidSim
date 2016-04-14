@@ -32,3 +32,23 @@ run-kee-tree:
     artifacts:
         paths:
             - build/myTree.root
+
+run-phi2kk:
+    script:
+        - cd build
+        - echo "phi -> K+ K-" > ../src/phi2KK.decay
+        - src/RapidSim.exe ../src/phi2KK 100000 ../rootfiles
+    stage: test
+    artifacts:
+        paths:
+            - build/myHistos.root
+
+run-rho2pipi:
+    script:
+        - cd build
+        - echo "rho0 -> pi+ pi-" > ../src/rho2pipi.decay
+        - src/RapidSim.exe ../src/rho2pipi 100000 ../rootfiles
+    stage: test
+    artifacts:
+        paths:
+            - build/myHistos.root

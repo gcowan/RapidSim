@@ -16,13 +16,15 @@
 
 #include "functions.h"
 #include "RapidMomentumSmear.h"
+#include "RapidParticleData.h"
 
 class RapidParticle {
 	public:
-		RapidParticle(int id, TString name, RapidParticle* mother)
-			: id_(id), name_(name), mass_(0.),
-			  mother_(mother), next_(0), stable_(true), invisible_(false)
-			{mass_ = getMass(id);}
+		RapidParticle(int id, TString name, double mass, RapidParticle* mother)
+			: index_(0), id_(id), name_(name), mass_(mass),
+			  mother_(mother), next_(0), stable_(true), invisible_(false),
+			  massData_(0), minMass_(mass), maxMass_(mass)
+			{}
 
 
 		~RapidParticle() {}
@@ -38,6 +40,8 @@ class RapidParticle {
 		int id() { return id_; }
 		TString name() { return name_; }
 		double mass() { return mass_; }
+		double minMass() { return minMass_; }
+		double maxMass() { return maxMass_; }
 
 		unsigned int nDaughters() { return daughters_.size(); }
 
@@ -52,7 +56,7 @@ class RapidParticle {
 
 		void setId(int id) { id_=id; }
 		void setName(TString name) { name_=name; }
-		void setMass(double mass) { mass_=mass; }
+		void setMass(double mass);
 
 		void setStable(bool stable=true) { stable_ = stable; }
 		void setInvisible(bool invisible=true) { invisible_ = invisible; }
@@ -63,7 +67,14 @@ class RapidParticle {
 
 		void print(int index); 
 
+		void setMassShape(RooDataSet* ds, double minMass, double maxMass, TString varName);
+		void floatMass();
+
 	private:
+		void updateDaughterMass(unsigned int index);
+
+		unsigned int index_;
+
 		int id_;
 		TString name_;
 		double mass_;
@@ -81,5 +92,9 @@ class RapidParticle {
 		
 		RapidMomentumSmear* momSmear_;
 
+		RooDataSet* massData_;
+		double minMass_;
+		double maxMass_;
+		TString varName_;
 };
 #endif

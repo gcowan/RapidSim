@@ -1,7 +1,8 @@
 Greig Cowan 2015
+Dan Craik 2016
 Matt Needham 2015
 
-FastSim can be useful for generating background (or even toy data sets
+RapidSim can be useful for generating background (or even toy data sets
 for acceptance studies).
 
 * It uses TGenPhaseSpace to generate b events.
@@ -17,11 +18,14 @@ cd build
 cmake ../ -DCMAKE_C_COMPILER=/cvmfs/lhcb.cern.ch/lib/lcg/releases/LCG_79/gcc/4.9.3/x86_64-slc6/bin/gcc -DCMAKE_CXX_COMPILER=/cvmfs/lhcb.cern.ch/lib/lcg/releases/LCG_79/gcc/4.9.3/x86_64-slc6/bin/g++
 make
 
-To run the binary do
+To run an example try
 
-src/FastSim.exe 0 10000 ../rootfiles
+src/RapidSim.exe ../src/Bs2Jpsiphi 10000 ../rootfiles 1
 
 TODO
 
-Make the code more generic to allow different decays to be easily configured.
-
+Add angle between a pair of particles as a possible custom parameter
+Add 2D accept/reject option
+Add option to change FONLL configuration (e.g. D decays or 13 TeV)
+Add validation scripts
+Add more particles to particles.dat

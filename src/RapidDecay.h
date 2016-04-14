@@ -15,6 +15,7 @@
 #include "RooDataSet.h"
 
 #include "functions.h"
+#include "RapidParticleData.h"
 
 class RapidParticle;
 class RapidMomentumSmear;
@@ -45,7 +46,8 @@ class RapidDecay {
 		RapidDecay(TString filename)
 			: treeFile(0), tree(0), varsPerPart(0),
 			  rand(0), maxgen(1000),
-			  ptHisto(0), etaHisto(0), accRejHisto(0)
+			  ptHisto(0), etaHisto(0), accRejHisto(0),
+			  particleData(RapidParticleData::getInstance())
 			{loadDecay(filename);}
 
 		~RapidDecay();
@@ -98,21 +100,11 @@ class RapidDecay {
 		void fillHistos();
 		void fillTree();
 
-		void setupRhoMass();
-		void setupKstMass();
-		void setupPhiMass();
-		void setupChic0Mass();
-		void setupChic1Mass();
-		void setupChic2Mass();
-
 		//the particles
 		std::vector<RapidParticle*> parts;
 		
 		//custom parameters
 		std::vector<TH1F*> histos;
-
-		//register of particle names that have been used
-		std::set<TString> usedNames;
 
 		//tree to store parameters in
 		TFile* treeFile;
@@ -140,10 +132,8 @@ class RapidDecay {
 		//custom parameters added to the histograms and the tree
 		std::vector<CustomParameter> customParams;
 
-		//datasets to sample resonance masses from
-		//loaded on-demand
-		std::map<int, RooDataSet*> massdata;
-		std::map<int, double> minmass;
-		std::map<int, double> maxmass;
+		//particle data lookup
+		RapidParticleData* particleData;
+
 };
 #endif
