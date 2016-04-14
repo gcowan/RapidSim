@@ -36,16 +36,6 @@ void rapidSim(const std::string mode, const int nEvtToGen, const std::string pat
 	myDecayObject.setRandomGenerator(ran);
 	myDecayObject.loadParentKinematics(ptHisto,etaHisto);
 
-//	std::vector<int> pars;
-//	pars.push_back(2);
-//	pars.push_back(3);
-//	myDecayObject.addCustomParameter("qSqTRUE", RapidDecay::M2, pars, true, 0., 25.);
-//	myDecayObject.addCustomParameter("qSq", RapidDecay::M2, pars, false, 0., 25.);
-//	TH1F* arHist = new TH1F("arHist","",250,0.,25.);
-//	for(int i=0; i<150; ++i) {
-//		arHist->SetBinContent(i+1, 1.);
-//	}
-//	myDecayObject.setAcceptRejectHist(arHist, RapidDecay::M2, pars);
 	if(saveTree) myDecayObject.saveTree("myTree.root");
 
 

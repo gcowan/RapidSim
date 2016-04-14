@@ -2,7 +2,7 @@
 
 SET( CMAKE_CXX_FLAGS "-Os -msse -msse2 -msse3 -m3dnow -ansi -fPIC -fmerge-all-constants -funroll-all-loops -g -D__ROOFIT_NOBANNER -Wall -Wextra -Werror -Wsign-compare -Wmissing-noreturn -Wno-non-virtual-dtor -std=c++11" )
 
-SET (FILES functions RooGounarisSakurai RooRelBreitWigner RapidParticle RapidParticleData RapidDecay RapidMomentumSmearHisto RapidMomentumSmearGauss)
+SET (FILES functions RooGounarisSakurai RooRelBreitWigner RapidParam RapidParticle RapidParticleData RapidDecay RapidMomentumSmearHisto RapidMomentumSmearGauss)
 FOREACH ( lib ${FILES} ) 
 	SET (LIBPATH ${LIBPATH} ${PROJECT_SOURCE_DIR}/src/${lib}.cc)
 ENDFOREACH ( lib )

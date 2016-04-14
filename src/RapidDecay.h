@@ -15,6 +15,7 @@
 #include "RooDataSet.h"
 
 #include "functions.h"
+#include "RapidParam.h"
 #include "RapidParticleData.h"
 
 class RapidParticle;
@@ -22,27 +23,6 @@ class RapidMomentumSmear;
 
 class RapidDecay {
 	public:
-		enum ParamType {
-			M,        //Mass
-			M2,       //Mass squared
-			MT,       //Transverse mass
-			E,        //Energy
-			ET,       //Transverse energy
-			P,        //3-momentum
-			PX,       //X-momentum
-			PY,       //Y-momentum
-			PZ,       //Z-momentum
-			PT,       //Transverse momentum
-			ETA,      //Pseudorapidity
-			PHI,      //Azimuthal angle
-			RAPIDITY, //Rapidity
-			GAMMA,    //Relitivistic gamma
-			BETA,     //velocity
-			//COSTHETA, //angle
-			MCORR     //corrected mass
-
-		};
-
 		RapidDecay(TString filename)
 			: treeFile(0), tree(0), varsPerPart(0),
 			  rand(0), maxgen(1000),
@@ -56,8 +36,7 @@ class RapidDecay {
 		void setMaxGen(int mg) { maxgen = mg; }
 		void loadParentKinematics(TH1F* pt, TH1F* eta);
 		void setSmearing(unsigned int particle, TString category);
-		void setAcceptRejectHist(TH1F* hist, ParamType type, std::vector<int> particles);
-		void addCustomParameter(TString name, ParamType type, std::vector<int> particles, bool truth=false, double min=0., double max=10.);
+		void setAcceptRejectHist(TString histFile, TString histName, RapidParam* param);
 		
 		bool generate();
 		TLorentzVector getP(unsigned int i);
@@ -65,29 +44,19 @@ class RapidDecay {
 		void saveHistos(TString fname);
 		void saveTree(TString fname);
 
-	protected:
-		struct CustomParameter {
-			TString name;
-			ParamType type;
-			std::vector<int> particles;
-			bool truth;
-			double minVal;
-			double maxVal;
-		};
 	private:
 		void loadDecay(TString filename);
 		void loadConfig(TString filename);
 		void writeConfig(TString filename);
 		void configParticle(unsigned int part, TString command, TString value);
+		void configGlobal(TString command, TString value);
+		RapidParam* loadParam(TString paramStr);
+
 		bool loadSmearing(TString category);
 		void setupMasses();
 		TString getUniqName(TString base);
 		void setupHistos();
 		void setupTree();
-
-		double evalCustomParam(int i);
-		double evalCustomParam(CustomParameter param);
-		double evalCorrectedMass(CustomParameter param);
 
 		bool runAcceptReject();
 		TH1F* generateAccRejDenominator();
@@ -127,10 +96,10 @@ class RapidDecay {
 
 		//accept reject hist to sculpt kinematics
 		TH1F* accRejHisto;
-		CustomParameter accRejParameter;
+		RapidParam* accRejParameter;
 
 		//custom parameters added to the histograms and the tree
-		std::vector<CustomParameter> customParams;
+		std::vector<RapidParam*> customParams;
 
 		//particle data lookup
 		RapidParticleData* particleData;

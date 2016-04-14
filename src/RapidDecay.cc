@@ -138,96 +138,34 @@ void RapidDecay::setSmearing(unsigned int particle, TString category) {
 	parts[particle]->setSmearing(momSmearCategories[category]);
 }
 
-void RapidDecay::setAcceptRejectHist(TH1F* hist, ParamType type, std::vector<int> particles) {
+void RapidDecay::setAcceptRejectHist(TString histFile, TString histName, RapidParam* param) {
 	if(accRejHisto) {
-		std::cout << "WARNING in RapidDecay::setAcceptRejectHist : accept/reject histogram already set. Original histogram will be used." << std::endl;
+		std::cout << "WARNING in RapidDecay::setAcceptRejectHist : accept/reject histogram already set." << std::endl
+			  << "                                             original histogram will be used." << std::endl;
+		return;
+	}
+
+	TFile* file = TFile::Open(histFile);
+	if(!file) {
+		std::cout << "WARNING in RapidDecay::setAcceptRejectHist : could not open file " << histFile << "." << std::endl
+			  << "                                             accept/reject histogram not set." << std::endl;
+		return;
+	}
+	accRejHisto = dynamic_cast<TH1F*>(file->Get(histName));
+	if(!accRejHisto) {
+		std::cout << histName << std::endl;
+		std::cout << "WARNING in RapidDecay::setAcceptRejectHist : could not load histogram " << histName << "." << std::endl
+			  << "                                             accept/reject histogram not set." << std::endl;
 		return;
 	}
 
 	std::cout << "INFO in RapidDecay::setAcceptRejectHist : setting the required kinematic distribution." << std::endl;
-	accRejHisto = hist;
-	CustomParameter param;
-	param.type = type;
-	param.particles = particles;
 	accRejParameter = param;
 
 	//correct the histogram to account for the the phasespace distribution
 	TH1F* denom = generateAccRejDenominator();
 	accRejHisto->Divide(denom);
 	delete denom;
-}
-
-void RapidDecay::addCustomParameter(TString name, ParamType type, std::vector<int> particles, bool truth, double min, double max) {
-	std::cout << "INFO in RapidDecay::addCustomParameter : adding custom parameter " << name << " = ";
-	if(truth) std::cout << "TRUE";
-	switch(type) {
-		case RapidDecay::M:
-			std::cout << "M";
-			break;
-		case RapidDecay::M2:
-			std::cout << "M2";
-			break;
-		case RapidDecay::MT:
-			std::cout << "MT";
-			break;
-		case RapidDecay::E:
-			std::cout << "E";
-			break;
-		case RapidDecay::ET:
-			std::cout << "ET";
-			break;
-		case RapidDecay::P:
-			std::cout << "P";
-			break;
-		case RapidDecay::PX:
-			std::cout << "PX";
-			break;
-		case RapidDecay::PY:
-			std::cout << "PY";
-			break;
-		case RapidDecay::PZ:
-			std::cout << "PZ";
-			break;
-		case RapidDecay::PT:
-			std::cout << "PT";
-			break;
-		case RapidDecay::ETA:
-			std::cout << "eta";
-			break;
-		case RapidDecay::PHI:
-			std::cout << "phi";
-			break;
-		case RapidDecay::RAPIDITY:
-			std::cout << "Rapidity";
-			break;
-		case RapidDecay::GAMMA:
-			std::cout << "gamma";
-			break;
-		case RapidDecay::BETA:
-			std::cout << "beta";
-			break;
-		case RapidDecay::MCORR:
-			std::cout << "Mcorr";
-			break;
-	}
-	std::cout << "(";
-	for(unsigned int i=0; i<particles.size(); ++i) {
-		if(i>0) std::cout << ", ";
-		std::cout << parts[particles[i]]->name();
-	}
-	std::cout << ")" << std::endl;
-	CustomParameter param;
-	param.name = name;
-	param.type = type;
-	param.particles = particles;
-	param.truth = truth;
-	param.minVal = min;
-	param.maxVal = max;
-
-	customParams.push_back(param);
-
-	TH1F* hist = new TH1F(name, "", 100, min, max);
-	histos.push_back(hist);
 }
 
 bool RapidDecay::generate() {
@@ -392,7 +330,8 @@ void RapidDecay::loadDecay(TString filename) {
 				  << "                                Adding corrected mass variable for mother particle." << std::endl;
 			std::vector<int> mother;
 			mother.push_back(0);
-			addCustomParameter("MCorr", RapidDecay::MCORR, mother, false, 0., 7.);
+			RapidParam* param = new RapidParam("MCorr", RapidParam::MCORR, parts[0], false);
+			customParams.push_back(param);
 			break;
 		}
 	}
@@ -429,6 +368,7 @@ void RapidDecay::loadConfig(TString filename) {
 				currentPart = buffer.Atoi();
 				break;
 			case '!': //global config
+				currentPart = parts.size();
 				break;
 			case '#': //comment
 				continue;
@@ -438,7 +378,9 @@ void RapidDecay::loadConfig(TString filename) {
 				command = command.Strip(TString::kBoth);
 				TString value = buffer(colon+1, buffer.Length()-colon-1);
 				value = value.Strip(TString::kBoth);
-				configParticle(currentPart, command, value);
+
+				if(currentPart==parts.size()) configGlobal(command, value);
+				else configParticle(currentPart, command, value);
 				break;
 		}
 	}
@@ -490,6 +432,63 @@ void RapidDecay::configParticle(unsigned int part, TString command, TString valu
 			parts[part]->setInvisible(true);
 		}
 	}
+}
+
+void RapidDecay::configGlobal(TString command, TString value) {
+	if(command=="param") {
+		RapidParam* param = loadParam(value);
+		if(param) customParams.push_back(param);
+	} else if(command=="shape") {
+		int from(0);
+		TString histName, histFile;
+		value.Tokenize(histFile,from," ");
+		value.Tokenize(histName,from," ");
+		TString paramStr = value(from, value.Length()-from);
+		histFile = histFile.Strip(TString::kBoth);
+		histName = histName.Strip(TString::kBoth);
+		paramStr = paramStr.Strip(TString::kBoth);
+
+		RapidParam* param = loadParam(paramStr);
+		if(param) setAcceptRejectHist(histFile, histName, param);
+	}
+}
+
+RapidParam* RapidDecay::loadParam(TString paramStr) {
+	int from(0);
+	TString name, buffer;
+	RapidParam::ParamType type;
+	bool truth = false;
+	std::vector<RapidParticle*> partlist;
+	paramStr.Tokenize(name,from," ");
+	paramStr.Tokenize(buffer,from," ");
+	type = RapidParam::typeFromString(buffer);
+
+	while(paramStr.Tokenize(buffer,from," ")) {
+		if(buffer.IsDec()) {
+			unsigned int index = buffer.Atoi();
+			if(index>=parts.size()) {
+				std::cout << "WARNING in RapidDecay::loadParam : particle " << index << "is out of range." << std::endl
+					  << "                                   parameter " << name << " has not been added." << std::endl;
+				return 0;
+			} else {
+				partlist.push_back(parts[index]);
+			}
+		} else if(buffer=="TRUE") {
+			truth = true;
+		} else {
+			std::cout << "WARNING in RapidDecay::loadParam : unknown argument " << buffer << "in parameter " << name << "." << std::endl
+				  << "                                   argument will be ignored." << std::endl;
+		}
+	}
+
+	if(type == RapidParam::THETA && partlist.size()!=2) {
+		std::cout << "WARNING in RapidDecay::loadParam : theta parameter expects two particles, " << partlist.size() << "were given." << std::endl
+			  << "                                   parameter " << name << " has not been added." << std::endl;
+		return 0;
+	}
+
+	RapidParam* param = new RapidParam(name,type,partlist,truth);
+	return param;
 }
 
 void RapidDecay::setupHistos() {
@@ -594,6 +593,13 @@ void RapidDecay::setupHistos() {
 		}
 	}
 
+	std::vector<RapidParam*>::iterator it = customParams.begin();
+	for( ; it!= customParams.end(); ++it) {
+		RapidParam* param = (*it);
+		TH1F* hist = new TH1F(param->name(), "", 100, param->min(), param->max());
+		histos.push_back(hist);
+	}
+
 }
 
 void RapidDecay::fillHistos() {
@@ -645,8 +651,9 @@ void RapidDecay::fillHistos() {
 		}
 	}
 
-	for(unsigned int i=0; i<customParams.size(); ++i) {
-		histos[iHist++]->Fill(evalCustomParam(i));
+	std::vector<RapidParam*>::iterator it = customParams.begin();
+	for( ; it!= customParams.end(); ++it) {
+		histos[iHist++]->Fill((*it)->eval());
 	}
 }
 
@@ -678,7 +685,7 @@ void RapidDecay::setupTree() {
 		tree->Branch(baseName+"_TRUEPHI" ,    &treeVars[varsPerPart*i+18]);
 	}
 	for(unsigned int i=0; i<customParams.size(); ++i) {
-		tree->Branch(customParams[i].name, &treeVars[varsPerPart*parts.size() + i]);
+		tree->Branch(customParams[i]->name(), &treeVars[varsPerPart*parts.size() + i]);
 	}
 }
 
@@ -709,7 +716,7 @@ void RapidDecay::fillTree() {
 	}
 
 	for(unsigned int i=0; i<customParams.size(); ++i) {
-		treeVars[varsPerPart*parts.size() + i] = evalCustomParam(i);
+		treeVars[varsPerPart*parts.size() + i] = customParams[i]->eval();
 	}
 
 	tree->Fill();
@@ -727,108 +734,14 @@ void RapidDecay::setupMasses() {
 	}
 }
 
-double RapidDecay::evalCustomParam(int i) {
-	CustomParameter param = customParams[i];
-	return evalCustomParam(param);
-}
-
-double RapidDecay::evalCustomParam(CustomParameter param) {
-
-	if(param.type == RapidDecay::MCORR) return evalCorrectedMass(param);
-
-	TLorentzVector mom;
-	if(param.truth) {
-		for(unsigned int i=0; i<param.particles.size(); ++i) {
-			mom += getP(param.particles[i]);
-		}
-	} else {
-		for(unsigned int i=0; i<param.particles.size(); ++i) {
-			mom += getPSmeared(param.particles[i]);
-		}
-	}
-	switch(param.type) {
-		case RapidDecay::M:
-			return mom.M();
-		case RapidDecay::M2:
-			return mom.M2();
-		case RapidDecay::MT:
-			return mom.Mt();
-		case RapidDecay::E:
-			return mom.E();
-		case RapidDecay::ET:
-			return mom.Et();
-		case RapidDecay::P:
-			return mom.P();
-		case RapidDecay::PX:
-			return mom.Px();
-		case RapidDecay::PY:
-			return mom.Py();
-		case RapidDecay::PZ:
-			return mom.Pz();
-		case RapidDecay::PT:
-			return mom.Pt();
-		case RapidDecay::ETA:
-			return mom.Eta();
-		case RapidDecay::PHI:
-			return mom.Phi();
-		case RapidDecay::RAPIDITY:
-			return mom.Rapidity();
-		case RapidDecay::GAMMA:
-			return mom.Gamma();
-		case RapidDecay::BETA:
-			return mom.Beta();
-		case RapidDecay::MCORR: //dealt with separately above - included to appease compiler
-		default:
-			std::cout << "WARNING in RapidDecay::evalCustomParam : unknown parameter type " << param.type << std::endl
-				  << "                                         returning 0." << std::endl;
-
-	}
-
-	return 0.;
-}
-
-double RapidDecay::evalCorrectedMass(CustomParameter param) {
-
-	TLorentzVector momS, momT;
-
-	//load the true (inc. invisible) and smeared momenta
-	for(unsigned int i=0; i<param.particles.size(); ++i) {
-		momT += getP(param.particles[i]);
-		momS += getPSmeared(param.particles[i]);
-	}
-
-	//get the sine and cosine of the angle to the B flight direction with a Gaussian smearing applied
-	double cosDir = momT.Vect().Dot(momS.Vect())/(momT.P()*momS.P());
-	double dir = TMath::ACos(cosDir) + rand.Gaus(0.,0.01); //TODO smearing parameter should be configurable
-	double sinDir = TMath::Sin(dir);
-	cosDir = TMath::Cos(dir);
-
-	//get the longitudinal and transverse momentum of the visible daughters wrt the B flight direction
-	double pLong  = TMath::Abs(cosDir * momS.P());
-	double pTran = TMath::Abs(sinDir * momS.P());
-
-	//invariant masses of the visible daughters and the parent as well as the missing mass
-	double mVis2 = momS.M2();
-	double mPar2 = momT.M2();
-	double mMiss2 = mPar2 - mVis2;
-
-	//the corrected mass
-	double mCorr = TMath::Sqrt( mVis2 + pTran*pTran ) + pTran;
-
-	//coefficients of the quadratic equation in pL(invisible)
-	double a = 2. * pLong * pLong * mVis2;
-	double b = 4*pLong*(2*pTran*pLong - mMiss2);
-	double c = 4*pTran*pTran * (pLong*pLong + mPar2) - mMiss2*mMiss2;
-
-	//separate according to whether solutions of pL(invisible) are real or not
-	if(b*b - 4.*a*c > 0.) mCorr=-1.*mCorr;
-
-	return mCorr;
-}
-
 bool RapidDecay::runAcceptReject() {
-	double val = evalCustomParam(accRejParameter);
-	double score = accRejHisto->Interpolate(val);
+	double val = accRejParameter->eval();
+	int bin = accRejHisto->FindBin(val);
+
+	double score(0.);
+	if(!accRejHisto->IsBinOverflow(bin) && !accRejHisto->IsBinUnderflow(bin)) {
+		score = accRejHisto->Interpolate(val);
+	}
 	double max = accRejHisto->GetMaximum();
 	if(score > rand.Uniform(max)) return true;
 	return false;
@@ -843,7 +756,7 @@ TH1F* RapidDecay::generateAccRejDenominator() {
 		floatMasses();
 		genParent();
 		if(!genDecay(true)) continue;
-		denomHisto->Fill(evalCustomParam(accRejParameter));
+		denomHisto->Fill(accRejParameter->eval());
 	}
 	return denomHisto;
 }
