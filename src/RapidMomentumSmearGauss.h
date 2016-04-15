@@ -1,11 +1,8 @@
 #ifndef RAPIDMOMENTUMSMEARGAUSS_H
 #define RAPIDMOMENTUMSMEARGAUSS_H
 
-#include <vector>
-
 #include "TGraphErrors.h"
 #include "TH1F.h"
-#include "TLorentzVector.h"
 
 #include "RapidMomentumSmear.h"
 

@@ -24,6 +24,7 @@ src/RapidSim.exe ../src/Bs2Jpsiphi 10000 ../rootfiles 1
 
 TODO
 
+Reintroduce acceptance/selection functionality
 Add 2D accept/reject option
 Add option to change FONLL configuration (e.g. D decays or 13 TeV)
 Add validation scripts

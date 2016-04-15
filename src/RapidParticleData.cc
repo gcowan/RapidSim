@@ -3,8 +3,6 @@
 #include <fstream>
 #include <iostream>
 
-#include "RooRealVar.h"
-
 #include "RooRelBreitWigner.h"
 #include "RooGounarisSakurai.h"
 
@@ -223,9 +221,9 @@ TString RapidParticleData::makeUniqName(TString name) {
 		uniqName = name;
 		uniqName+= "_";
 		uniqName+= i;
-	} while(usedNames.count(uniqName)>0);
+	} while(usedNames_.count(uniqName)>0);
 
-	usedNames.insert(uniqName);
+	usedNames_.insert(uniqName);
 
 	return uniqName;
 

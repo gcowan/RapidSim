@@ -1,39 +1,40 @@
 #include "RapidDecay.h"
 
+#include <fstream>
+#include <queue>
+
+#include "TGenPhaseSpace.h"
 #include "TMath.h"
 
 #include "RooRealVar.h"
-
-#include <fstream>
-#include <queue>
 
 #include "RapidMomentumSmearGauss.h"
 #include "RapidMomentumSmearHisto.h"
 #include "RapidParticle.h"
 
 RapidDecay::~RapidDecay() {
-	if(tree) {
-		tree->AutoSave();
-		treeFile->Close();
+	if(tree_) {
+		tree_->AutoSave();
+		treeFile_->Close();
 	}
-	while(!histos.empty()) {
-		delete histos[histos.size()-1];
-		histos.pop_back();
+	while(!histos_.empty()) {
+		delete histos_[histos_.size()-1];
+		histos_.pop_back();
 	}
-	while(!parts.empty()) {
-		delete parts[parts.size()-1];
-		parts.pop_back();
+	while(!parts_.empty()) {
+		delete parts_[parts_.size()-1];
+		parts_.pop_back();
 	}
-	std::map<TString, RapidMomentumSmear*>::iterator itr = momSmearCategories.begin();
-	while (itr != momSmearCategories.end()) {
-		momSmearCategories.erase(itr++);
+	std::map<TString, RapidMomentumSmear*>::iterator itr = momSmearCategories_.begin();
+	while (itr != momSmearCategories_.end()) {
+		momSmearCategories_.erase(itr++);
 	}
 }
 
-void RapidDecay::loadParentKinematics(TH1F* pt, TH1F* eta) {
+void RapidDecay::loadParentKinematics(TH1F* ptHisto, TH1F* etaHisto) {
 	std::cout << "INFO in RapidDecay::loadParentKinematics : setting kinematics of the parent." << std::endl;
-	ptHisto=pt;
-	etaHisto=eta;
+	ptHisto_=ptHisto;
+	etaHisto_=etaHisto;
 }
 
 bool RapidDecay::loadSmearing(TString category) {
@@ -68,7 +69,7 @@ bool RapidDecay::loadSmearing(TString category) {
 			return false;
 		}
 
-		momSmearCategories[category] = new RapidMomentumSmearGauss(graph);
+		momSmearCategories_[category] = new RapidMomentumSmearGauss(graph);
 
 	} else if(type=="HISTS") {
 		double threshold(0.);
@@ -102,7 +103,7 @@ bool RapidDecay::loadSmearing(TString category) {
 			return false;
 		}
 
-		momSmearCategories[category] = new RapidMomentumSmearHisto(thresholds, hists);
+		momSmearCategories_[category] = new RapidMomentumSmearHisto(thresholds, hists);
 
 	} else {
 		std::cout << "WARNING in RapidDecay::loadSmearing : unknown smearing type. Category " << category << " not added." << std::endl;
@@ -116,18 +117,18 @@ bool RapidDecay::loadSmearing(TString category) {
 }
 
 void RapidDecay::setSmearing(unsigned int particle, TString category) {
-	if(particle > parts.size()) {
+	if(particle > parts_.size()) {
 		std::cout << "WARNING in RapidDecay::setSmearing : particle " << particle << " does not exist - smearing functions not set." << std::endl;
 		return;
 	}
-	if(parts[particle]->nDaughters() != 0) {
+	if(parts_[particle]->nDaughters() != 0) {
 		std::cout << "WARNING in RapidDecay::setSmearing : particle " << particle << " is composite - smearing functions not set." << std::endl;
 		return;
 	}
 
 	std::cout << "INFO in RapidDecay::setSmearing : setting smearing functions for particle " << particle << " (category: " << category << ")" << std::endl;
 
-	if(!momSmearCategories.count(category)) {
+	if(!momSmearCategories_.count(category)) {
 		if(!loadSmearing(category)) {
 			std::cout << "WARNING in RapidDecay::setSmearing : failed to load smearing category " << category << "." << std::endl
 				  << "                                     smearing functions not set for particle " << particle << "." << std::endl;
@@ -135,11 +136,11 @@ void RapidDecay::setSmearing(unsigned int particle, TString category) {
 		}
 	}
 
-	parts[particle]->setSmearing(momSmearCategories[category]);
+	parts_[particle]->setSmearing(momSmearCategories_[category]);
 }
 
 void RapidDecay::setAcceptRejectHist(TString histFile, TString histName, RapidParam* param) {
-	if(accRejHisto) {
+	if(accRejHisto_) {
 		std::cout << "WARNING in RapidDecay::setAcceptRejectHist : accept/reject histogram already set." << std::endl
 			  << "                                             original histogram will be used." << std::endl;
 		return;
@@ -151,8 +152,8 @@ void RapidDecay::setAcceptRejectHist(TString histFile, TString histName, RapidPa
 			  << "                                             accept/reject histogram not set." << std::endl;
 		return;
 	}
-	accRejHisto = dynamic_cast<TH1F*>(file->Get(histName));
-	if(!accRejHisto) {
+	accRejHisto_ = dynamic_cast<TH1F*>(file->Get(histName));
+	if(!accRejHisto_) {
 		std::cout << histName << std::endl;
 		std::cout << "WARNING in RapidDecay::setAcceptRejectHist : could not load histogram " << histName << "." << std::endl
 			  << "                                             accept/reject histogram not set." << std::endl;
@@ -160,11 +161,11 @@ void RapidDecay::setAcceptRejectHist(TString histFile, TString histName, RapidPa
 	}
 
 	std::cout << "INFO in RapidDecay::setAcceptRejectHist : setting the required kinematic distribution." << std::endl;
-	accRejParameter = param;
+	accRejParameter_ = param;
 
 	//correct the histogram to account for the the phasespace distribution
 	TH1F* denom = generateAccRejDenominator();
-	accRejHisto->Divide(denom);
+	accRejHisto_->Divide(denom);
 	delete denom;
 }
 
@@ -175,7 +176,7 @@ bool RapidDecay::generate() {
 	floatMasses();
 	genParent();
 
-	if(accRejHisto) {
+	if(accRejHisto_) {
 		if(!genDecayAccRej()) return false;
 
 	} else {
@@ -184,21 +185,21 @@ bool RapidDecay::generate() {
 
 	smearMomenta();
 	fillHistos();
-	if(tree) fillTree();
+	if(tree_) fillTree();
 
 	return true;
 }
 
 void RapidDecay::smearMomenta() {
 	//run backwards so that we reach the daughters first
-	for(int i=parts.size()-1; i>=0; --i) {//don't change to unsigned - needs to hit -1 to break loop
-		parts[i]->smearMomentum();
+	for(int i=parts_.size()-1; i>=0; --i) {//don't change to unsigned - needs to hit -1 to break loop
+		parts_[i]->smearMomentum();
 	}
 
 }
 
 TLorentzVector RapidDecay::getP(unsigned int i) {
-	if(parts.size() > i) return parts[i]->getP();
+	if(parts_.size() > i) return parts_[i]->getP();
 	else {
 		std::cout << "WARNING in RapidDecay::getP : particle: " << i << "does not exist." << std::endl
 			  << "                             Returning empty 4-vector..." << std::endl;
@@ -207,7 +208,7 @@ TLorentzVector RapidDecay::getP(unsigned int i) {
 }
 
 TLorentzVector RapidDecay::getPSmeared(unsigned int i) {
-	if(parts.size() > i) return parts[i]->getPSmeared();
+	if(parts_.size() > i) return parts_[i]->getPSmeared();
 	else {
 		std::cout << "WARNING in RapidDecay::getPSmeared : particle: " << i << "does not exist." << std::endl
 			  << "                                    Returning empty 4-vector..." << std::endl;
@@ -219,19 +220,19 @@ void RapidDecay::saveHistos(TString fname) {
 	std::cout << "INFO in RapidDecay::saveHistos : saving histograms to file: " << fname << std::endl;
 	TFile* histFile = new TFile(fname, "RECREATE");
 
-	for(unsigned int i=0; i<histos.size(); ++i) {
-		histos[i]->Write();
+	for(unsigned int i=0; i<histos_.size(); ++i) {
+		histos_[i]->Write();
 	}
 	histFile->Close();
 }
 
 void RapidDecay::saveTree(TString fname) {
-	if(!tree) {
+	if(!tree_) {
 		std::cout << "INFO in RapidDecay::saveTree : tree will be saved to file: " << fname << std::endl;
 		std::cout << "                            : This will slow down generation." << std::endl;
-		treeFile = new TFile(fname, "RECREATE");
+		treeFile_ = new TFile(fname, "RECREATE");
 		setupTree();
-		tree->SetDirectory(treeFile);
+		tree_->SetDirectory(treeFile_);
 	} else {
 		std::cout << "WARNING in RapidDecay::saveTree : tree has already been setup and will be saved to the original file." << std::endl;
 	}
@@ -284,8 +285,8 @@ void RapidDecay::loadDecay(TString filename) {
 
 		//the decaying particle is the first unstable particle with no daughters
 		RapidParticle* theMother(0);
-		for(unsigned int i=0; i<parts.size(); ++i) {
-			RapidParticle* part = parts[i];
+		for(unsigned int i=0; i<parts_.size(); ++i) {
+			RapidParticle* part = parts_[i];
 			if(!part->stable() && part->nDaughters()==0) {
 				theMother = part;
 				break;
@@ -299,9 +300,9 @@ void RapidDecay::loadDecay(TString filename) {
 		//first is the parent
 		decayStr.Tokenize(token, from, " ");
 		//only need to add this if it is the top particle
-		if(parts.empty()) {
-			theMother = particleData->makeParticle(token, 0);
-			parts.push_back(theMother);
+		if(parts_.empty()) {
+			theMother = particleData_->makeParticle(token, 0);
+			parts_.push_back(theMother);
 		}
 
 		//second should be ->
@@ -312,9 +313,9 @@ void RapidDecay::loadDecay(TString filename) {
 				token = token.Strip(TString::kBoth,'^');
 				stable = false;//flags it to edit later
 			}
-			RapidParticle* part = particleData->makeParticle(token, theMother);
+			RapidParticle* part = particleData_->makeParticle(token, theMother);
 			part->setStable(stable);
-			parts.push_back(part);
+			parts_.push_back(part);
 			theMother->addDaughter(part);
 
 		}
@@ -324,14 +325,14 @@ void RapidDecay::loadDecay(TString filename) {
 	loadConfig(filename);
 
 	//automatically add the corrected mass variable if we have any invisible particles
-	for(unsigned int i=0; i<parts.size(); ++i) {
-		if(parts[i]->invisible()) {
+	for(unsigned int i=0; i<parts_.size(); ++i) {
+		if(parts_[i]->invisible()) {
 			std::cout << "INFO in RapidDecay::loadDecay : invisible daughter found." << std::endl
 				  << "                                Adding corrected mass variable for mother particle." << std::endl;
 			std::vector<int> mother;
 			mother.push_back(0);
-			RapidParam* param = new RapidParam("MCorr", RapidParam::MCORR, parts[0], false);
-			customParams.push_back(param);
+			RapidParam* param = new RapidParam("MCorr", RapidParam::MCORR, parts_[0], false);
+			customParams_.push_back(param);
 			break;
 		}
 	}
@@ -341,8 +342,8 @@ void RapidDecay::loadDecay(TString filename) {
 
 	std::cout << "INFO in RapidDecay::loadDecay : Particle summary follows:" << std::endl;
 	printf("index\tlabel\t\t   ID\t\tmass (GeV/c^2)\tmother\t\t# daughters\tdaughters\n");
-	for(unsigned int i=0; i<parts.size(); ++i) {
-		parts[i]->print(i);
+	for(unsigned int i=0; i<parts_.size(); ++i) {
+		parts_[i]->print(i);
 	}
 }
 
@@ -359,7 +360,7 @@ void RapidDecay::loadConfig(TString filename) {
 	}
 
 	TString buffer;
-	unsigned int currentPart(parts.size());
+	unsigned int currentPart(parts_.size());
 	while(fin.good()) {
 		buffer.ReadLine(fin);
 		switch(buffer[0]) {
@@ -368,7 +369,7 @@ void RapidDecay::loadConfig(TString filename) {
 				currentPart = buffer.Atoi();
 				break;
 			case '!': //global config
-				currentPart = parts.size();
+				currentPart = parts_.size();
 				break;
 			case '#': //comment
 				continue;
@@ -379,7 +380,7 @@ void RapidDecay::loadConfig(TString filename) {
 				TString value = buffer(colon+1, buffer.Length()-colon-1);
 				value = value.Strip(TString::kBoth);
 
-				if(currentPart==parts.size()) configGlobal(command, value);
+				if(currentPart==parts_.size()) configGlobal(command, value);
 				else configParticle(currentPart, command, value);
 				break;
 		}
@@ -392,8 +393,8 @@ void RapidDecay::writeConfig(TString filename) {
 	std::ofstream fout;
 	fout.open(filename+".config", std::ofstream::out);
 
-	for(unsigned int i=0; i<parts.size(); ++i) {
-		RapidParticle* part = parts[i];
+	for(unsigned int i=0; i<parts_.size(); ++i) {
+		RapidParticle* part = parts_[i];
 
 		fout << "@" << i << "\n";
 		fout << "\tname : " << part->name() << "\n";
@@ -416,28 +417,33 @@ void RapidDecay::writeConfig(TString filename) {
 }
 
 void RapidDecay::configParticle(unsigned int part, TString command, TString value) {
-	if(part > parts.size()) {
+	if(part > parts_.size()) {
 		std::cout << "WARNING in RapidDecay::configParticle : no particle at index " << part << std::endl;
 		return;
 	}
 
 	if(command=="name") {
-		parts[part]->setName(value);
+		parts_[part]->setName(value);
 	} else if(command=="smear") {
 		setSmearing(part, value);
 	} else if(command=="invisible") {
 		if(value=="false") {
-			parts[part]->setInvisible(false);
+			parts_[part]->setInvisible(false);
 		} else if(value=="true") {
-			parts[part]->setInvisible(true);
+			parts_[part]->setInvisible(true);
 		}
 	}
 }
 
 void RapidDecay::configGlobal(TString command, TString value) {
-	if(command=="param") {
+	if(command=="seed") {
+		int seed = value.Atoi();
+		gRandom->SetSeed(seed);
+		std::cout << "INFO in RapidDecay::configGlobal : setting seed for random number generation to " << seed << "." << std::endl
+		          << "                                   seed is now " << gRandom->GetSeed() << "." << std::endl;
+	} else if(command=="param") {
 		RapidParam* param = loadParam(value);
-		if(param) customParams.push_back(param);
+		if(param) customParams_.push_back(param);
 	} else if(command=="shape") {
 		int from(0);
 		TString histName, histFile;
@@ -466,12 +472,12 @@ RapidParam* RapidDecay::loadParam(TString paramStr) {
 	while(paramStr.Tokenize(buffer,from," ")) {
 		if(buffer.IsDec()) {
 			unsigned int index = buffer.Atoi();
-			if(index>=parts.size()) {
+			if(index>=parts_.size()) {
 				std::cout << "WARNING in RapidDecay::loadParam : particle " << index << "is out of range." << std::endl
 					  << "                                   parameter " << name << " has not been added." << std::endl;
 				return 0;
 			} else {
-				partlist.push_back(parts[index]);
+				partlist.push_back(parts_[index]);
 			}
 		} else if(buffer=="TRUE") {
 			truth = true;
@@ -492,8 +498,8 @@ RapidParam* RapidDecay::loadParam(TString paramStr) {
 }
 
 void RapidDecay::setupHistos() {
-	for(unsigned int i=0; i<parts.size(); ++i) {
-		RapidParticle* part = parts[i];
+	for(unsigned int i=0; i<parts_.size(); ++i) {
+		RapidParticle* part = parts_[i];
 
 		if(part->nDaughters() < 2) continue;
 		// for each subdecay include:
@@ -515,12 +521,12 @@ void RapidDecay::setupHistos() {
 		histName = baseName+"_M";
 		hist = new TH1F(histName, "", 100, mmin, mmax);
 		hist->GetXaxis()->SetTitle(axisTitle);
-		histos.push_back(hist);
+		histos_.push_back(hist);
 
 		histName += "_smeared";
 		hist = new TH1F(histName, "", 100, mmin, mmax);
 		hist->GetXaxis()->SetTitle(axisTitle);
-		histos.push_back(hist);
+		histos_.push_back(hist);
 
 		//2-body IMs
 		if(part->nDaughters() > 2) {
@@ -544,12 +550,12 @@ void RapidDecay::setupHistos() {
 					histName += kDaug->name();
 					hist = new TH1F(histName, "", 100, mmin, mmax);
 					hist->GetXaxis()->SetTitle(axisTitle);
-					histos.push_back(hist);
+					histos_.push_back(hist);
 
 					histName += "_smeared";
 					hist = new TH1F(histName, "", 100, mmin, mmax);
 					hist->GetXaxis()->SetTitle(axisTitle);
-					histos.push_back(hist);
+					histos_.push_back(hist);
 
 				}
 			}
@@ -580,12 +586,12 @@ void RapidDecay::setupHistos() {
 						histName += lDaug->name();
 						hist = new TH1F(histName, "", 100, mmin, mmax);
 						hist->GetXaxis()->SetTitle(axisTitle);
-						histos.push_back(hist);
+						histos_.push_back(hist);
 
 						histName += "_smeared";
 						hist = new TH1F(histName, "", 100, mmin, mmax);
 						hist->GetXaxis()->SetTitle(axisTitle);
-						histos.push_back(hist);
+						histos_.push_back(hist);
 					}
 
 				}
@@ -593,11 +599,11 @@ void RapidDecay::setupHistos() {
 		}
 	}
 
-	std::vector<RapidParam*>::iterator it = customParams.begin();
-	for( ; it!= customParams.end(); ++it) {
+	std::vector<RapidParam*>::iterator it = customParams_.begin();
+	for( ; it!= customParams_.end(); ++it) {
 		RapidParam* param = (*it);
 		TH1F* hist = new TH1F(param->name(), "", 100, param->min(), param->max());
-		histos.push_back(hist);
+		histos_.push_back(hist);
 	}
 
 }
@@ -606,8 +612,8 @@ void RapidDecay::fillHistos() {
 
 	int iHist(0);
 
-	for(unsigned int i=0; i<parts.size(); ++i) {
-		RapidParticle* part = parts[i];
+	for(unsigned int i=0; i<parts_.size(); ++i) {
+		RapidParticle* part = parts_[i];
 		if(part->nDaughters() < 2) continue;
 		// for each subdecay include:
 		// parent mass
@@ -615,8 +621,8 @@ void RapidDecay::fillHistos() {
 		// smeared versions of histograms
 
 		//for the mother mass
-		histos[iHist++]->Fill(getP(i).M());
-		histos[iHist++]->Fill(getPSmeared(i).M());
+		histos_[iHist++]->Fill(getP(i).M());
+		histos_[iHist++]->Fill(getPSmeared(i).M());
 
 		//2-body IMs
 		if(part->nDaughters() > 2) {
@@ -625,10 +631,10 @@ void RapidDecay::fillHistos() {
 			for( ; jDaug!=0; jDaug=jDaug->next()) {
 				for(RapidParticle* kDaug=jDaug->next(); kDaug!=0; kDaug=kDaug->next()) {
 					TLorentzVector pSum = jDaug->getP() + kDaug->getP();
-					histos[iHist++]->Fill(pSum.M());
+					histos_[iHist++]->Fill(pSum.M());
 
 					pSum = jDaug->getPSmeared() + kDaug->getPSmeared();
-					histos[iHist++]->Fill(pSum.M());
+					histos_[iHist++]->Fill(pSum.M());
 				}
 			}
 		}
@@ -641,114 +647,114 @@ void RapidDecay::fillHistos() {
 				for(RapidParticle* kDaug=jDaug->next(); kDaug!=0; kDaug=kDaug->next()) {
 					for(RapidParticle* lDaug=kDaug->next(); lDaug!=0; lDaug=lDaug->next()) {
 						TLorentzVector pSum = jDaug->getP() + kDaug->getP() + lDaug->getP();
-						histos[iHist++]->Fill(pSum.M());
+						histos_[iHist++]->Fill(pSum.M());
 
 						pSum = jDaug->getPSmeared() + kDaug->getPSmeared() + lDaug->getPSmeared();
-						histos[iHist++]->Fill(pSum.M());
+						histos_[iHist++]->Fill(pSum.M());
 					}
 				}
 			}
 		}
 	}
 
-	std::vector<RapidParam*>::iterator it = customParams.begin();
-	for( ; it!= customParams.end(); ++it) {
-		histos[iHist++]->Fill((*it)->eval());
+	std::vector<RapidParam*>::iterator it = customParams_.begin();
+	for( ; it!= customParams_.end(); ++it) {
+		histos_[iHist++]->Fill((*it)->eval());
 	}
 }
 
 void RapidDecay::setupTree() {
-	varsPerPart = 19;
-	tree = new TTree("DecayTree","DecayTree");
-	treeVars = std::vector<double>(parts.size()*varsPerPart + customParams.size(), 0);
+	varsPerPart_ = 19;
+	tree_ = new TTree("DecayTree","DecayTree");
+	treeVars_ = std::vector<double>(parts_.size()*varsPerPart_ + customParams_.size(), 0);
 
-	for(unsigned int i=0; i<parts.size(); ++i) {
-		TString baseName = parts[i]->name();
-		tree->Branch(baseName+"_ID"      ,    &treeVars[varsPerPart*i+0] );
-		tree->Branch(baseName+"_M"       ,    &treeVars[varsPerPart*i+1] );
-		tree->Branch(baseName+"_E"       ,    &treeVars[varsPerPart*i+2] );
-		tree->Branch(baseName+"_P"       ,    &treeVars[varsPerPart*i+3] );
-		tree->Branch(baseName+"_PX"      ,    &treeVars[varsPerPart*i+4] );
-		tree->Branch(baseName+"_PY"      ,    &treeVars[varsPerPart*i+5] );
-		tree->Branch(baseName+"_PZ"      ,    &treeVars[varsPerPart*i+6] );
-		tree->Branch(baseName+"_PT"      ,    &treeVars[varsPerPart*i+7] );
-		tree->Branch(baseName+"_ETA"     ,    &treeVars[varsPerPart*i+8] );
-		tree->Branch(baseName+"_PHI"     ,    &treeVars[varsPerPart*i+9] );
-		tree->Branch(baseName+"_TRUEM"   ,    &treeVars[varsPerPart*i+10]);
-		tree->Branch(baseName+"_TRUEE"   ,    &treeVars[varsPerPart*i+11]);
-		tree->Branch(baseName+"_TRUEP"   ,    &treeVars[varsPerPart*i+12]);
-		tree->Branch(baseName+"_TRUEPX"  ,    &treeVars[varsPerPart*i+13]);
-		tree->Branch(baseName+"_TRUEPY"  ,    &treeVars[varsPerPart*i+14]);
-		tree->Branch(baseName+"_TRUEPZ"  ,    &treeVars[varsPerPart*i+15]);
-		tree->Branch(baseName+"_TRUEPT"  ,    &treeVars[varsPerPart*i+16]);
-		tree->Branch(baseName+"_TRUEETA" ,    &treeVars[varsPerPart*i+17]);
-		tree->Branch(baseName+"_TRUEPHI" ,    &treeVars[varsPerPart*i+18]);
+	for(unsigned int i=0; i<parts_.size(); ++i) {
+		TString baseName = parts_[i]->name();
+		tree_->Branch(baseName+"_ID"      ,    &treeVars_[varsPerPart_*i+0] );
+		tree_->Branch(baseName+"_M"       ,    &treeVars_[varsPerPart_*i+1] );
+		tree_->Branch(baseName+"_E"       ,    &treeVars_[varsPerPart_*i+2] );
+		tree_->Branch(baseName+"_P"       ,    &treeVars_[varsPerPart_*i+3] );
+		tree_->Branch(baseName+"_PX"      ,    &treeVars_[varsPerPart_*i+4] );
+		tree_->Branch(baseName+"_PY"      ,    &treeVars_[varsPerPart_*i+5] );
+		tree_->Branch(baseName+"_PZ"      ,    &treeVars_[varsPerPart_*i+6] );
+		tree_->Branch(baseName+"_PT"      ,    &treeVars_[varsPerPart_*i+7] );
+		tree_->Branch(baseName+"_ETA"     ,    &treeVars_[varsPerPart_*i+8] );
+		tree_->Branch(baseName+"_PHI"     ,    &treeVars_[varsPerPart_*i+9] );
+		tree_->Branch(baseName+"_TRUEM"   ,    &treeVars_[varsPerPart_*i+10]);
+		tree_->Branch(baseName+"_TRUEE"   ,    &treeVars_[varsPerPart_*i+11]);
+		tree_->Branch(baseName+"_TRUEP"   ,    &treeVars_[varsPerPart_*i+12]);
+		tree_->Branch(baseName+"_TRUEPX"  ,    &treeVars_[varsPerPart_*i+13]);
+		tree_->Branch(baseName+"_TRUEPY"  ,    &treeVars_[varsPerPart_*i+14]);
+		tree_->Branch(baseName+"_TRUEPZ"  ,    &treeVars_[varsPerPart_*i+15]);
+		tree_->Branch(baseName+"_TRUEPT"  ,    &treeVars_[varsPerPart_*i+16]);
+		tree_->Branch(baseName+"_TRUEETA" ,    &treeVars_[varsPerPart_*i+17]);
+		tree_->Branch(baseName+"_TRUEPHI" ,    &treeVars_[varsPerPart_*i+18]);
 	}
-	for(unsigned int i=0; i<customParams.size(); ++i) {
-		tree->Branch(customParams[i]->name(), &treeVars[varsPerPart*parts.size() + i]);
+	for(unsigned int i=0; i<customParams_.size(); ++i) {
+		tree_->Branch(customParams_[i]->name(), &treeVars_[varsPerPart_*parts_.size() + i]);
 	}
 }
 
 void RapidDecay::fillTree() {
 
-	for(unsigned int i=0; i<parts.size(); ++i) {
+	for(unsigned int i=0; i<parts_.size(); ++i) {
 		TLorentzVector mom = getPSmeared(i);
-		treeVars[varsPerPart*i+0] = parts[i]->id();
-		treeVars[varsPerPart*i+1] = mom.M();
-		treeVars[varsPerPart*i+2] = mom.E();
-		treeVars[varsPerPart*i+3] = mom.P();
-		treeVars[varsPerPart*i+4] = mom.Px();
-		treeVars[varsPerPart*i+5] = mom.Py();
-		treeVars[varsPerPart*i+6] = mom.Pz();
-		treeVars[varsPerPart*i+7] = mom.Pt();
-		treeVars[varsPerPart*i+8] = mom.Eta();
-		treeVars[varsPerPart*i+9] = mom.Phi();
+		treeVars_[varsPerPart_*i+0] = parts_[i]->id();
+		treeVars_[varsPerPart_*i+1] = mom.M();
+		treeVars_[varsPerPart_*i+2] = mom.E();
+		treeVars_[varsPerPart_*i+3] = mom.P();
+		treeVars_[varsPerPart_*i+4] = mom.Px();
+		treeVars_[varsPerPart_*i+5] = mom.Py();
+		treeVars_[varsPerPart_*i+6] = mom.Pz();
+		treeVars_[varsPerPart_*i+7] = mom.Pt();
+		treeVars_[varsPerPart_*i+8] = mom.Eta();
+		treeVars_[varsPerPart_*i+9] = mom.Phi();
 		mom = getP(i);
-		treeVars[varsPerPart*i+10] = mom.M();
-		treeVars[varsPerPart*i+11] = mom.E();
-		treeVars[varsPerPart*i+12] = mom.P();
-		treeVars[varsPerPart*i+13] = mom.Px();
-		treeVars[varsPerPart*i+14] = mom.Py();
-		treeVars[varsPerPart*i+15] = mom.Pz();
-		treeVars[varsPerPart*i+16] = mom.Pt();
-		treeVars[varsPerPart*i+17] = mom.Eta();
-		treeVars[varsPerPart*i+18] = mom.Phi();
+		treeVars_[varsPerPart_*i+10] = mom.M();
+		treeVars_[varsPerPart_*i+11] = mom.E();
+		treeVars_[varsPerPart_*i+12] = mom.P();
+		treeVars_[varsPerPart_*i+13] = mom.Px();
+		treeVars_[varsPerPart_*i+14] = mom.Py();
+		treeVars_[varsPerPart_*i+15] = mom.Pz();
+		treeVars_[varsPerPart_*i+16] = mom.Pt();
+		treeVars_[varsPerPart_*i+17] = mom.Eta();
+		treeVars_[varsPerPart_*i+18] = mom.Phi();
 	}
 
-	for(unsigned int i=0; i<customParams.size(); ++i) {
-		treeVars[varsPerPart*parts.size() + i] = customParams[i]->eval();
+	for(unsigned int i=0; i<customParams_.size(); ++i) {
+		treeVars_[varsPerPart_*parts_.size() + i] = customParams_[i]->eval();
 	}
 
-	tree->Fill();
+	tree_->Fill();
 }
 
 void RapidDecay::floatMasses() {
-	for(unsigned int i=0; i<parts.size(); ++i) {
-		parts[i]->floatMass();
+	for(unsigned int i=0; i<parts_.size(); ++i) {
+		parts_[i]->floatMass();
 	}
 }
 
 void RapidDecay::setupMasses() {
-	for(unsigned int i=0; i<parts.size(); ++i) {
-		particleData->setupMass(parts[i]);
+	for(unsigned int i=0; i<parts_.size(); ++i) {
+		particleData_->setupMass(parts_[i]);
 	}
 }
 
 bool RapidDecay::runAcceptReject() {
-	double val = accRejParameter->eval();
-	int bin = accRejHisto->FindBin(val);
+	double val = accRejParameter_->eval();
+	int bin = accRejHisto_->FindBin(val);
 
 	double score(0.);
-	if(!accRejHisto->IsBinOverflow(bin) && !accRejHisto->IsBinUnderflow(bin)) {
-		score = accRejHisto->Interpolate(val);
+	if(!accRejHisto_->IsBinOverflow(bin) && !accRejHisto_->IsBinUnderflow(bin)) {
+		score = accRejHisto_->Interpolate(val);
 	}
-	double max = accRejHisto->GetMaximum();
-	if(score > rand.Uniform(max)) return true;
+	double max = accRejHisto_->GetMaximum();
+	if(score > gRandom->Uniform(max)) return true;
 	return false;
 }
 
 TH1F* RapidDecay::generateAccRejDenominator() {
-	TH1F* denomHisto = dynamic_cast<TH1F*>(accRejHisto->Clone("denom"));
+	TH1F* denomHisto = dynamic_cast<TH1F*>(accRejHisto_->Clone("denom"));
 	denomHisto->Reset();
 
 	std::cout << "INFO in RapidDecay::generateAccRejDenominator : generating 1M decays to remove the \"phasespace\" distribution..." << std::endl;
@@ -756,21 +762,21 @@ TH1F* RapidDecay::generateAccRejDenominator() {
 		floatMasses();
 		genParent();
 		if(!genDecay(true)) continue;
-		denomHisto->Fill(accRejParameter->eval());
+		denomHisto->Fill(accRejParameter_->eval());
 	}
 	return denomHisto;
 }
 
 void RapidDecay::genParent() {
-	double pt(0), eta(0), phi(rand.Uniform(0,2*TMath::Pi()));
-	if(ptHisto)   pt = ptHisto->GetRandom();
-	if(etaHisto) eta = etaHisto->GetRandom();
-	parts[0]->setPtEtaPhi(pt,eta,phi);
+	double pt(0), eta(0), phi(gRandom->Uniform(0,2*TMath::Pi()));
+	if(ptHisto_)   pt = ptHisto_->GetRandom();
+	if(etaHisto_) eta = etaHisto_->GetRandom();
+	parts_[0]->setPtEtaPhi(pt,eta,phi);
 }
 
 bool RapidDecay::genDecay(bool acceptAny) {
-	for(unsigned int i=0; i<parts.size(); ++i) {
-		RapidParticle* part = parts[i];
+	for(unsigned int i=0; i<parts_.size(); ++i) {
+		RapidParticle* part = parts_[i];
 		if(part->nDaughters()>0) {
 			TGenPhaseSpace event;
 			// check decay kinematics valid
@@ -785,13 +791,13 @@ bool RapidDecay::genDecay(bool acceptAny) {
 			} else {
 				int nGen(0);
 				bool accept(false);
-				while (nGen < maxgen && accept == false){
-					accept = event.Generate() > rand.Uniform();
+				while (nGen < maxgen_ && accept == false){
+					accept = event.Generate() > gRandom->Uniform();
 					++nGen;
 				} // while
 
 				if(!accept) {
-					std::cout << "ERROR in RapidDecay::genDecay : rejected all " << maxgen << " attempts to decay " << part->name() << "." << std::endl;
+					std::cout << "ERROR in RapidDecay::genDecay : rejected all " << maxgen_ << " attempts to decay " << part->name() << "." << std::endl;
 					return false;
 				}
 			}
@@ -815,7 +821,7 @@ bool RapidDecay::genDecayAccRej() {
 		passAccRej = runAcceptReject();
 		++ntry;
 
-	} while(!passAccRej && ntry<maxgen);
+	} while(!passAccRej && ntry<maxgen_);
 
 	if(!passAccRej) {
 		std::cout << "WARNING in RapidDecay::genDecayAccRej : no events found with required kinematics." << std::endl;

@@ -1,22 +1,15 @@
 #ifndef RAPIDPARTICLE_H
 #define RAPIDPARTICLE_H
 
-#include <iostream>
 #include <vector>
-#include <map>
 
-#include "TGenPhaseSpace.h"
-#include "TH1F.h"
 #include "TLorentzVector.h"
-#include "TTree.h"
-#include "TRandom.h"
 #include "TString.h"
 
 #include "RooDataSet.h"
 
-#include "functions.h"
-#include "RapidMomentumSmear.h"
-#include "RapidParticleData.h"
+class RapidMomentumSmear;
+class RapidParticleData;
 
 class RapidParticle {
 	public:

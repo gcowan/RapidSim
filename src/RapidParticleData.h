@@ -2,10 +2,11 @@
 #define RAPIDPARTICLEDATA_H
 
 #include <map>
+#include <set>
 
 #include "TString.h"
 
-#include "RooDataSet.h"
+#include "RooRealVar.h"
 
 class RooRelBreitWigner;
 class RooGounarisSakurai;
@@ -60,7 +61,7 @@ class RapidParticleData {
 		std::map<TString, int> nameToId_;
 
 		//register of particle names that have been used
-		std::set<TString> usedNames;
+		std::set<TString> usedNames_;
 };
 
 #endif

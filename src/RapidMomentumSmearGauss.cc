@@ -1,7 +1,5 @@
 #include "RapidMomentumSmearGauss.h"
 
-#include <iostream>
-
 #include "TMath.h"
 #include "TRandom.h"
 

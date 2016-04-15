@@ -1,5 +1,7 @@
 #include "RapidParam.h"
 
+#include "TRandom.h"
+
 #include "RapidParticle.h"
 
 double RapidParam::eval() {

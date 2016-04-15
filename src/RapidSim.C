@@ -1,39 +1,24 @@
 #include <iostream>
-#include <string>
-#include <sstream>
-#include "TLorentzVector.h"
-#include "TGenPhaseSpace.h"
-#include "TH1F.h"
-#include "TROOT.h"
-#include "TSystem.h"
-#include "TStyle.h"
-#include "TRandom3.h"
-#include "TCanvas.h"
+
 #include "TFile.h"
+#include "TH1F.h"
 #include "TMath.h"
-#include "TGraphErrors.h"
-#include "functions.h"
-#include "RooRealVar.h"
-#include "RooExponential.h"
-#include "RooRelBreitWigner.h"
+#include "TString.h"
 
 #include "RapidDecay.h"
 #include "RapidParticleData.h"
 
-void rapidSim(const std::string mode, const int nEvtToGen, const std::string path, bool saveTree=false) {
+void rapidSim(const TString mode, const int nEvtToGen, const TString path, bool saveTree=false) {
 
 	// load the fonll stuff
-	TFile* fonll = new TFile((path + "/fonll/fonll.root").c_str());
+	TFile* fonll = new TFile(path + "/fonll/fonll.root");
 	TH1F* ptHisto = (TH1F*) fonll->Get("pthisto");
 	TH1F* etaHisto = (TH1F*) fonll->Get("etahisto");
-
-	TRandom3 ran;
 
 	RapidParticleData* rpd = RapidParticleData::getInstance();
 	rpd->loadData("../config/particles.dat");
 
 	RapidDecay myDecayObject(mode);
-	myDecayObject.setRandomGenerator(ran);
 	myDecayObject.loadParentKinematics(ptHisto,etaHisto);
 
 	if(saveTree) myDecayObject.saveTree("myTree.root");
@@ -60,9 +45,9 @@ int main(int argc, char * argv[])
 		return 1;
 	}
 
-	const std::string mode = argv[1];
+	const TString mode = argv[1];
 	const int number = atoi(argv[2]);
-	const std::string path = argv[3];
+	const TString path = argv[3];
 	bool saveTree = false;
 
 	if(argc>4) {

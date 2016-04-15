@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "TH1F.h"
-#include "TLorentzVector.h"
 
 #include "RapidMomentumSmear.h"
 

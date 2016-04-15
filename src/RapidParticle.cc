@@ -1,9 +1,13 @@
 #include "RapidParticle.h"
 
+#include <iostream>
+
 #include "TMath.h"
+#include "TRandom.h"
 
 #include "RapidMomentumSmearGauss.h"
 #include "RapidMomentumSmearHisto.h"
+#include "RapidParticleData.h"
 
 void RapidParticle::addDaughter(RapidParticle* part) {
 	if(!daughters_.empty()) {

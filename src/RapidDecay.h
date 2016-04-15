@@ -1,20 +1,17 @@
-#ifndef DECAY_H
-#define DECAY_H
+#ifndef RAPIDDECAY_H
+#define RAPIDDECAY_H
 
 #include <iostream>
 #include <vector>
 #include <map>
 
-#include "TGenPhaseSpace.h"
+#include "TFile.h"
 #include "TH1F.h"
 #include "TLorentzVector.h"
 #include "TTree.h"
 #include "TRandom.h"
 #include "TString.h"
 
-#include "RooDataSet.h"
-
-#include "functions.h"
 #include "RapidParam.h"
 #include "RapidParticleData.h"
 
@@ -24,17 +21,16 @@ class RapidMomentumSmear;
 class RapidDecay {
 	public:
 		RapidDecay(TString filename)
-			: treeFile(0), tree(0), varsPerPart(0),
-			  rand(0), maxgen(1000),
-			  ptHisto(0), etaHisto(0), accRejHisto(0),
-			  particleData(RapidParticleData::getInstance())
+			: treeFile_(0), tree_(0), varsPerPart_(0),
+			  maxgen_(1000),
+			  ptHisto_(0), etaHisto_(0), accRejHisto_(0),
+			  particleData_(RapidParticleData::getInstance())
 			{loadDecay(filename);}
 
 		~RapidDecay();
 		
-		void setRandomGenerator(TRandom& r) { rand = r; }
-		void setMaxGen(int mg) { maxgen = mg; }
-		void loadParentKinematics(TH1F* pt, TH1F* eta);
+		void setMaxGen(int mg) { maxgen_ = mg; }
+		void loadParentKinematics(TH1F* ptHisto, TH1F* etaHisto);
 		void setSmearing(unsigned int particle, TString category);
 		void setAcceptRejectHist(TString histFile, TString histName, RapidParam* param);
 		
@@ -70,39 +66,36 @@ class RapidDecay {
 		void fillTree();
 
 		//the particles
-		std::vector<RapidParticle*> parts;
+		std::vector<RapidParticle*> parts_;
 		
 		//custom parameters
-		std::vector<TH1F*> histos;
+		std::vector<TH1F*> histos_;
 
 		//tree to store parameters in
-		TFile* treeFile;
-		TTree* tree;
-		std::vector<double> treeVars;
-		int varsPerPart;
-
-		//random number generator
-		TRandom rand;
+		TFile* treeFile_;
+		TTree* tree_;
+		std::vector<double> treeVars_;
+		int varsPerPart_;
 
 		//max number of attempts to generate an event
-		int maxgen;
+		int maxgen_;
 
 		//parent kinematics
-    		TH1F* ptHisto; 
-    		TH1F* etaHisto;
+		TH1F* ptHisto_;
+		TH1F* etaHisto_;
 
 		//mometum smearing lookup for each smearing category
-		std::map<TString, RapidMomentumSmear*> momSmearCategories;
+		std::map<TString, RapidMomentumSmear*> momSmearCategories_;
 
 		//accept reject hist to sculpt kinematics
-		TH1F* accRejHisto;
-		RapidParam* accRejParameter;
+		TH1F* accRejHisto_;
+		RapidParam* accRejParameter_;
 
 		//custom parameters added to the histograms and the tree
-		std::vector<RapidParam*> customParams;
+		std::vector<RapidParam*> customParams_;
 
 		//particle data lookup
-		RapidParticleData* particleData;
+		RapidParticleData* particleData_;
 
 };
 #endif
