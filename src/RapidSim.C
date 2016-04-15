@@ -18,11 +18,8 @@ void rapidSim(const TString mode, const int nEvtToGen, const TString path, bool 
 	RapidParticleData* rpd = RapidParticleData::getInstance();
 	rpd->loadData("../config/particles.dat");
 
-	RapidDecay myDecayObject(mode);
+	RapidDecay myDecayObject(mode, saveTree);
 	myDecayObject.loadParentKinematics(ptHisto,etaHisto);
-
-	if(saveTree) myDecayObject.saveTree("myTree.root");
-
 
 	int ngenerated = 0; int nselected = 0;
 	for (Int_t n=0; n<nEvtToGen; ++n) {
@@ -31,7 +28,7 @@ void rapidSim(const TString mode, const int nEvtToGen, const TString path, bool 
 		++nselected;
 	} //event loop
 
-	myDecayObject.saveHistos("myHistos.root");
+	myDecayObject.saveHistos();
 
 	std::cout << "Generated " << ngenerated << std::endl;
 	std::cout << "Selected " << nselected << std::endl;
