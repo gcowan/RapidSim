@@ -26,6 +26,7 @@ class RapidParticleData {
 		double getMass(int id);
 		double getWidth(int id);
 		double getSpin(int id);
+		double getCharge(int id);
 		TString getName(int id);
 		TString getSanitisedName(int id);
 		
@@ -46,7 +47,7 @@ class RapidParticleData {
 		RapidParticleData( const RapidParticleData& other );
 		RapidParticleData& operator=( const RapidParticleData& other );
 
-		void addEntry(int id, TString name, double mass, double width, double spin, TString lineshape);
+		void addEntry(int id, TString name, double mass, double width, double spin, double charge, TString lineshape);
 		TString sanitiseName(TString name);
 		TString makeUniqName(TString name);
 
@@ -56,6 +57,7 @@ class RapidParticleData {
 		std::map<int, double> idToMass_;
 		std::map<int, double> idToWidth_;
 		std::map<int, double> idToSpin_;
+		std::map<int, double> idToCharge_;
 		std::map<int, TString> idToName_;
 		std::map<int, ResLineShape> idToShape_;
 		std::map<TString, int> nameToId_;

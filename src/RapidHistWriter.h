@@ -13,16 +13,18 @@ class RapidParticle;
 
 class RapidHistWriter {
 	public:
-		RapidHistWriter()
-			: name_(""), treeFile_(0), tree_(0), varsPerPart_(0) {}
+		RapidHistWriter(const std::vector<RapidParticle*>& parts, const std::vector<RapidParam*>& params, TString name, bool saveTree)
+			: name_(name), parts_(parts), params_(params), treeFile_(0), tree_(0), varsPerPart_(0)
+		{setup(saveTree);}
 
 		~RapidHistWriter();
 
-		void setup(std::vector<RapidParticle*> parts, std::vector<RapidParam*> params, TString name, bool saveTree);
 		void fill();
 		void save();
 
 	private:
+		void setup(bool saveTree);
+
 		void setupHistos();
 		void setupTree();
 

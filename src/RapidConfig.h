@@ -7,6 +7,10 @@
 #include "TH1F.h"
 #include "TString.h"
 
+#include "RapidAcceptance.h"
+
+class RapidDecay;
+class RapidHistWriter;
 class RapidMomentumSmear;
 class RapidParam;
 class RapidParticle;
@@ -14,18 +18,18 @@ class RapidParticle;
 class RapidConfig {
 	public:
 		RapidConfig()
-			: fileName_(""), accRejHisto_(0), accRejParameter_(0)
+			: fileName_(""), accRejHisto_(0), accRejParameter_(0),
+			  acceptanceType_(RapidAcceptance::ANY),
+			  decay_(0), acceptance_(0), writer_(0)
 		{}
 
 		~RapidConfig();
 
 		void load(TString fileName);
 
-		const std::vector<RapidParticle*>& particles() { return parts_; }
-		const std::vector<RapidParam*>& parameters() { return params_; }
-		
-		TH1F* acceptRejectHistogram() { return accRejHisto_; }
-		RapidParam* acceptRejectParameter() { return accRejParameter_; }
+		RapidDecay* getDecay();
+		RapidAcceptance* getAcceptance();
+		RapidHistWriter* getWriter(bool saveTree=false);
 
 	private:
 		void loadDecay();
@@ -52,6 +56,13 @@ class RapidConfig {
 		//accept reject hist to sculpt kinematics
 		TH1F* accRejHisto_;
 		RapidParam* accRejParameter_;
+
+		//type of geometric acceptance to apply
+		RapidAcceptance::AcceptanceType acceptanceType_;
+
+		RapidDecay* decay_;
+		RapidAcceptance* acceptance_;
+		RapidHistWriter* writer_;
 };
 
 #endif

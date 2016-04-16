@@ -1,20 +1,19 @@
 #include "RapidDecay.h"
 
-#include <fstream>
-#include <queue>
+#include <iostream>
 
 #include "TGenPhaseSpace.h"
 #include "TMath.h"
-
-#include "RooRealVar.h"
+#include "TRandom.h"
 
 #include "RapidMomentumSmearGauss.h"
 #include "RapidMomentumSmearHisto.h"
 #include "RapidParam.h"
 #include "RapidParticle.h"
+#include "RapidParticleData.h"
 
-void RapidDecay::loadParentKinematics(TH1F* ptHisto, TH1F* etaHisto) {
-	std::cout << "INFO in RapidDecay::loadParentKinematics : setting kinematics of the parent." << std::endl;
+void RapidDecay::setParentKinematics(TH1F* ptHisto, TH1F* etaHisto) {
+	std::cout << "INFO in RapidDecay::setParentKinematics : setting kinematics of the parent." << std::endl;
 	ptHisto_=ptHisto;
 	etaHisto_=etaHisto;
 }
@@ -44,7 +43,6 @@ bool RapidDecay::generate() {
 	}
 
 	smearMomenta();
-	writer_.fill();
 
 	return true;
 }
@@ -57,26 +55,10 @@ void RapidDecay::smearMomenta() {
 
 }
 
-void RapidDecay::saveHistos() {
-	writer_.save();
-}
-
-void RapidDecay::loadDecay(TString filename, bool saveTree) {
-	config_.load(filename);
-
-	parts_ = config_.particles();
-
-	TH1F* arHist = config_.acceptRejectHistogram();
-	RapidParam* arParam = config_.acceptRejectParameter();
-
-	if(arHist && arParam) {
-		setAcceptRejectHist(arHist,arParam);
-	}
-
+void RapidDecay::setup() {
 	setupMasses();
-	writer_.setup(parts_, config_.parameters(), filename, saveTree);
 
-	std::cout << "INFO in RapidDecay::loadDecay : Particle summary follows:" << std::endl;
+	std::cout << "INFO in RapidDecay::setup : Particle summary follows:" << std::endl;
 	printf("index\tlabel\t\t   ID\t\tmass (GeV/c^2)\tmother\t\t# daughters\tdaughters\n");
 	for(unsigned int i=0; i<parts_.size(); ++i) {
 		parts_[i]->print(i);
@@ -90,8 +72,10 @@ void RapidDecay::floatMasses() {
 }
 
 void RapidDecay::setupMasses() {
+	RapidParticleData* particleData = RapidParticleData::getInstance();
+
 	for(unsigned int i=0; i<parts_.size(); ++i) {
-		particleData_->setupMass(parts_[i]);
+		particleData->setupMass(parts_[i]);
 	}
 }
 

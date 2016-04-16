@@ -13,8 +13,8 @@ class RapidParticleData;
 
 class RapidParticle {
 	public:
-		RapidParticle(int id, TString name, double mass, RapidParticle* mother)
-			: index_(0), id_(id), name_(name), mass_(mass),
+		RapidParticle(int id, TString name, double mass, double charge, RapidParticle* mother)
+			: index_(0), id_(id), name_(name), mass_(mass), charge_(charge),
 			  mother_(mother), next_(0), stable_(true), invisible_(false),
 			  massData_(0), minMass_(mass), maxMass_(mass)
 			{}
@@ -33,6 +33,7 @@ class RapidParticle {
 		int id() { return id_; }
 		TString name() { return name_; }
 		double mass() { return mass_; }
+		double charge() { return charge_; }
 		double minMass() { return minMass_; }
 		double maxMass() { return maxMass_; }
 
@@ -71,6 +72,7 @@ class RapidParticle {
 		int id_;
 		TString name_;
 		double mass_;
+		double charge_;
 		
 		RapidParticle* mother_;
 		std::vector<RapidParticle*> daughters_;

@@ -7,6 +7,9 @@
 #include "TFile.h"
 #include "TRandom.h"
 
+#include "RapidAcceptance.h"
+#include "RapidDecay.h"
+#include "RapidHistWriter.h"
 #include "RapidMomentumSmearGauss.h"
 #include "RapidMomentumSmearHisto.h"
 #include "RapidParam.h"
@@ -51,6 +54,32 @@ void RapidConfig::load(TString fileName) {
 			break;
 		}
 	}
+}
+
+RapidDecay* RapidConfig::getDecay() {
+	if(!decay_) {
+		decay_ = new RapidDecay(parts_);
+		if(accRejHisto_ && accRejParameter_) {
+			decay_->setAcceptRejectHist(accRejHisto_,accRejParameter_);
+		}
+	}
+
+	return decay_;
+}
+
+RapidAcceptance* RapidConfig::getAcceptance() {
+	if(!acceptance_) {
+		acceptance_ = new RapidAcceptance(acceptanceType_, parts_);
+	}
+	return acceptance_;
+}
+
+RapidHistWriter* RapidConfig::getWriter(bool saveTree) {
+	if(!writer_) {
+		writer_ = new RapidHistWriter(parts_, params_, fileName_, saveTree);
+	}
+
+	return writer_;
 }
 
 void RapidConfig::loadDecay() {
@@ -234,6 +263,8 @@ void RapidConfig::configGlobal(TString command, TString value) {
 		gRandom->SetSeed(seed);
 		std::cout << "INFO in RapidConfig::configGlobal : setting seed for random number generation to " << seed << "." << std::endl
 		          << "                                    seed is now " << gRandom->GetSeed() << "." << std::endl;
+	} else if(command=="acceptance") {
+		acceptanceType_ = RapidAcceptance::typeFromString(value);
 	} else if(command=="param") {
 		RapidParam* param = loadParam(value);
 		if(param) params_.push_back(param);

@@ -14,11 +14,7 @@ RapidHistWriter::~RapidHistWriter() {
 	}
 }
 
-void RapidHistWriter::setup(std::vector<RapidParticle*> parts, std::vector<RapidParam*> params, TString name, bool saveTree) {
-	parts_ = parts;
-	params_ = params;
-	name_ = name;
-
+void RapidHistWriter::setup(bool saveTree) {
 	setupHistos();
 	if(saveTree) setupTree();
 }

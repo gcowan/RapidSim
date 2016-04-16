@@ -5,8 +5,10 @@
 #include "TMath.h"
 #include "TString.h"
 
+#include "RapidAcceptance.h"
+#include "RapidConfig.h"
 #include "RapidDecay.h"
-#include "RapidParticleData.h"
+#include "RapidHistWriter.h"
 
 void rapidSim(const TString mode, const int nEvtToGen, const TString path, bool saveTree=false) {
 
@@ -15,20 +17,28 @@ void rapidSim(const TString mode, const int nEvtToGen, const TString path, bool 
 	TH1F* ptHisto = (TH1F*) fonll->Get("pthisto");
 	TH1F* etaHisto = (TH1F*) fonll->Get("etahisto");
 
-	RapidParticleData* rpd = RapidParticleData::getInstance();
-	rpd->loadData("../config/particles.dat");
+	RapidConfig config;
+	config.load(mode);
 
-	RapidDecay myDecayObject(mode, saveTree);
-	myDecayObject.loadParentKinematics(ptHisto,etaHisto);
+	RapidDecay* decay = config.getDecay();
+	decay->setParentKinematics(ptHisto,etaHisto);
+
+	RapidAcceptance* acceptance = config.getAcceptance();
+
+	RapidHistWriter* writer = config.getWriter(saveTree);
 
 	int ngenerated = 0; int nselected = 0;
 	for (Int_t n=0; n<nEvtToGen; ++n) {
-		if (!myDecayObject.generate()) continue;
+		if (!decay->generate()) continue;
 		++ngenerated;
-		++nselected;
-	} //event loop
 
-	myDecayObject.saveHistos();
+		if(!acceptance->inAcceptance()) continue;
+		++nselected;
+
+		writer->fill();
+	}
+
+	writer->save();
 
 	std::cout << "Generated " << ngenerated << std::endl;
 	std::cout << "Selected " << nselected << std::endl;

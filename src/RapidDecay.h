@@ -1,45 +1,33 @@
 #ifndef RAPIDDECAY_H
 #define RAPIDDECAY_H
 
-#include <iostream>
 #include <vector>
-#include <map>
 
-#include "TFile.h"
 #include "TH1F.h"
-#include "TLorentzVector.h"
-#include "TTree.h"
-#include "TRandom.h"
 #include "TString.h"
-
-#include "RapidConfig.h"
-#include "RapidHistWriter.h"
-#include "RapidParticleData.h"
 
 class RapidParticle;
 class RapidParam;
 
 class RapidDecay {
 	public:
-		RapidDecay(TString filename, bool saveTree)
-			: maxgen_(1000),
-			  ptHisto_(0), etaHisto_(0), accRejHisto_(0),
-			  particleData_(RapidParticleData::getInstance())
-			{loadDecay(filename, saveTree);}
+		RapidDecay(const std::vector<RapidParticle*>& parts)
+			: parts_(parts), maxgen_(1000),
+			  ptHisto_(0), etaHisto_(0),
+			  accRejHisto_(0), accRejParameter_(0)
+			{setup();}
 
 		~RapidDecay() {}
 		
 		void setMaxGen(int mg) { maxgen_ = mg; }
-		void loadParentKinematics(TH1F* ptHisto, TH1F* etaHisto);
+		void setParentKinematics(TH1F* ptHisto, TH1F* etaHisto);
+		void setAcceptRejectHist(TH1F* histo, RapidParam* param);
 		
 		bool generate();
 
-		void saveHistos();
-
 	private:
-		void loadDecay(TString filename, bool saveTree);
+		void setup();
 
-		void setAcceptRejectHist(TH1F* histo, RapidParam* param);
 		bool loadSmearing(TString category);
 		void setupMasses();
 
@@ -66,13 +54,5 @@ class RapidDecay {
 		TH1F* accRejHisto_;
 		RapidParam* accRejParameter_;
 
-		//particle data lookup
-		RapidParticleData* particleData_;
-
-		//config loader
-		RapidConfig config_;
-
-		//histogram writer
-		RapidHistWriter writer_;
 };
 #endif
