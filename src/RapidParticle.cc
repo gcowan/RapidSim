@@ -38,6 +38,27 @@ void RapidParticle::smearMomentum() {
 	}
 }
 
+bool RapidParticle::hasFlavour(int flavour) {
+	int id = TMath::Abs(id_);
+
+	if(id==flavour) return true;
+	if(id<100) return false;
+
+	if((id/10) %10 == flavour) return true;
+	if((id/100) %10 == flavour) return true;
+	if((id/1000) %10 == flavour) return true;
+
+	return false;
+}
+
+bool RapidParticle::hasCharm() {
+	return hasFlavour(4);
+}
+
+bool RapidParticle::hasBeauty() {
+	return hasFlavour(5);
+}
+
 RapidParticle* RapidParticle::daughter(unsigned int i) {
 	if(daughters_.size()>i) {
 		return daughters_[i];

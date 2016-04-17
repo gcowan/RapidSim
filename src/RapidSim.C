@@ -10,18 +10,21 @@
 #include "RapidDecay.h"
 #include "RapidHistWriter.h"
 
-void rapidSim(const TString mode, const int nEvtToGen, const TString path, bool saveTree=false) {
-
-	// load the fonll stuff
-	TFile* fonll = new TFile(path + "/fonll/fonll.root");
-	TH1F* ptHisto = (TH1F*) fonll->Get("pthisto");
-	TH1F* etaHisto = (TH1F*) fonll->Get("etahisto");
+int rapidSim(const TString mode, const int nEvtToGen, bool saveTree=false) {
 
 	RapidConfig config;
-	config.load(mode);
+	if(!config.load(mode)) {
+		std::cout << "ERROR in rapidSim : failed to load configuration for decay mode " << mode << std::endl
+			  << "                    Terminating" << std::endl;
+		return 1;
+	}
 
 	RapidDecay* decay = config.getDecay();
-	decay->setParentKinematics(ptHisto,etaHisto);
+	if(!decay) {
+		std::cout << "ERROR in rapidSim : failed to setup decay for decay mode " << mode << std::endl
+			  << "                    Terminating" << std::endl;
+		return 1;
+	}
 
 	RapidAcceptance* acceptance = config.getAcceptance();
 
@@ -43,24 +46,25 @@ void rapidSim(const TString mode, const int nEvtToGen, const TString path, bool 
 	std::cout << "Generated " << ngenerated << std::endl;
 	std::cout << "Selected " << nselected << std::endl;
 
+	return 0;
 }
 
 int main(int argc, char * argv[])
 {
-	if (argc < 4) {
-		printf("Usage: %s mode numberToGenerate pathToFiles [saveTree=false]\n", argv[0]);
+	if (argc < 3) {
+		printf("Usage: %s mode numberToGenerate [saveTree=false]\n", argv[0]);
 		return 1;
 	}
 
 	const TString mode = argv[1];
 	const int number = atoi(argv[2]);
-	const TString path = argv[3];
 	bool saveTree = false;
 
-	if(argc>4) {
-		saveTree = atoi(argv[4]);
+	if(argc>3) {
+		saveTree = atoi(argv[3]);
 	}
 
-	rapidSim(mode, number, path, saveTree);
-	return 0;
+	int status = rapidSim(mode, number, saveTree);
+
+	return status;
 }

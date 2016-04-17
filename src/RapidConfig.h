@@ -20,20 +20,22 @@ class RapidConfig {
 		RapidConfig()
 			: fileName_(""), accRejHisto_(0), accRejParameter_(0),
 			  acceptanceType_(RapidAcceptance::ANY),
+			  ppEnergy_(7.), motherFlavour_("b"),
+			  ptHisto_(0), etaHisto_(0),
 			  decay_(0), acceptance_(0), writer_(0)
 		{}
 
 		~RapidConfig();
 
-		void load(TString fileName);
+		bool load(TString fileName);
 
 		RapidDecay* getDecay();
 		RapidAcceptance* getAcceptance();
 		RapidHistWriter* getWriter(bool saveTree=false);
 
 	private:
-		void loadDecay();
-		void loadConfig();
+		bool loadDecay();
+		bool loadConfig();
 		void writeConfig();
 
 		void configParticle(unsigned int part, TString command, TString value);
@@ -44,6 +46,7 @@ class RapidConfig {
 		bool loadSmearing(TString category);
 
 		void loadAcceptRejectHist(TString histFile, TString histName, RapidParam* param);
+		bool loadParentKinematics();
 
 		TString fileName_;
 
@@ -59,6 +62,14 @@ class RapidConfig {
 
 		//type of geometric acceptance to apply
 		RapidAcceptance::AcceptanceType acceptanceType_;
+
+		//parameters to determine parent kinematics
+		double ppEnergy_;
+		TString motherFlavour_;
+
+		//parent kinematic distributions
+		TH1F* ptHisto_;
+		TH1F* etaHisto_;
 
 		RapidDecay* decay_;
 		RapidAcceptance* acceptance_;

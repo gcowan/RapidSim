@@ -36,17 +36,17 @@ RapidConfig::~RapidConfig() {
 	if(accRejParameter_) delete accRejParameter_;
 }
 
-void RapidConfig::load(TString fileName) {
+bool RapidConfig::load(TString fileName) {
 	fileName_ = fileName;
 
-	loadDecay();
-	loadConfig();
+	if(!loadDecay()) return false;
+	if(!loadConfig()) return false;
 
 	//automatically add the corrected mass variable if we have any invisible particles
 	for(unsigned int i=0; i<parts_.size(); ++i) {
 		if(parts_[i]->invisible()) {
-			std::cout << "INFO in RapidConfig::loadDecay : invisible daughter found." << std::endl
-				  << "                                 Adding corrected mass variable for mother particle." << std::endl;
+			std::cout << "INFO in RapidConfig::load : invisible daughter found." << std::endl
+				  << "                            Adding corrected mass variable for mother particle." << std::endl;
 			std::vector<int> mother;
 			mother.push_back(0);
 			RapidParam* param = new RapidParam("MCorr", RapidParam::MCORR, parts_[0], false);
@@ -54,11 +54,24 @@ void RapidConfig::load(TString fileName) {
 			break;
 		}
 	}
+
+	return true;
 }
 
 RapidDecay* RapidConfig::getDecay() {
 	if(!decay_) {
+		//check we have a particle to decay
+		if(parts_.empty()) return 0;
+
 		decay_ = new RapidDecay(parts_);
+
+		//check that we have an FONLL model for the parent kinematics
+		if(!loadParentKinematics()) {
+			return 0;
+		}
+		decay_->setParentKinematics(ptHisto_,etaHisto_);
+
+		//load any PDF to generate
 		if(accRejHisto_ && accRejParameter_) {
 			decay_->setAcceptRejectHist(accRejHisto_,accRejParameter_);
 		}
@@ -82,15 +95,23 @@ RapidHistWriter* RapidConfig::getWriter(bool saveTree) {
 	return writer_;
 }
 
-void RapidConfig::loadDecay() {
-	std::cout << "INFO in RapidConfig::loadDecay : loading decay descriptor from file: " << fileName_+".decay" << std::endl;
+bool RapidConfig::loadDecay() {
+	std::cout << "INFO in RapidConfig::loadDecay : loading decay descriptor from file: " << fileName_ << ".decay" << std::endl;
 	TString decayStr;
 	std::queue<TString> decays;
+	std::queue<RapidParticle*> mothers;
 
 	std::ifstream fin;
 	fin.open(fileName_+".decay");
+	if(!fin.good()) {
+		std::cout << "ERROR in RapidConfig::loadDecay : file " << fileName_ << ".decay not found." << std::endl;
+		return false;
+	}
 	decayStr.ReadLine(fin);
 	fin.close();
+
+	std::cout << "INFO in RapidConfig::loadDecay : Decay descriptor is:" << std::endl
+		  << "                                 " << decayStr << std::endl;
 
 	decays.push(decayStr);
 
@@ -99,8 +120,6 @@ void RapidConfig::loadDecay() {
 	while(!decays.empty()) {
 
 		decayStr = decays.front();
-		std::cout << "INFO in RapidConfig::loadDecay : Decay descriptor is:" << std::endl
-			  << "                                 " << decayStr << std::endl;
 		decays.pop();
 
 		//first strip out any subdecays and add them to the queue
@@ -108,8 +127,9 @@ void RapidConfig::loadDecay() {
 			int start = decayStr.Index('{');
 			int end = decayStr.Index('}',start);
 			if(end < 0) {
-				std::cout << "WARNING in RapidConfig::loadDecay : malformed decay descriptor." << std::endl
-					  << "                                    Mismatched brackets in:" << decayStr << std::endl;
+				std::cout << "ERROR in RapidConfig::loadDecay : malformed decay descriptor." << std::endl
+					  << "                                  Mismatched brackets in:" << decayStr << std::endl;
+				return false;
 			}
 
 			//move sub decay into its own string
@@ -125,18 +145,15 @@ void RapidConfig::loadDecay() {
 			//add to the queue and label the mother so we know which particle to decay
 			decays.push(subDecay);
 			std::cout << "INFO in RapidConfig::loadDecay : Found sub-decay:" << std::endl
-				  << "                                " << subDecay << std::endl;
+				  << "                                 " << subDecay << std::endl;
 			decayStr.Replace(start,end-start+1,"^"+subDecay(0,subDecay.First(" ")));
 		}
 
-		//the decaying particle is the first unstable particle with no daughters
+		//the decaying particle is the first particle remaining in the mothers list
 		RapidParticle* theMother(0);
-		for(unsigned int i=0; i<parts_.size(); ++i) {
-			RapidParticle* part = parts_[i];
-			if(!part->stable() && part->nDaughters()==0) {
-				theMother = part;
-				break;
-			}
+		if(!mothers.empty()) {
+			theMother = mothers.front();
+			mothers.pop();
 		}
 
 		//now get info from decay string
@@ -149,6 +166,17 @@ void RapidConfig::loadDecay() {
 		if(parts_.empty()) {
 			theMother = particleData->makeParticle(token, 0);
 			parts_.push_back(theMother);
+
+			//get flavour of mother for FONLL
+			if(theMother->hasBeauty()) {
+				motherFlavour_ = "b";
+			} else if(theMother->hasCharm()) {
+				motherFlavour_ = "c";
+			} else {
+				std::cout << "WARNING in RapidConfig::loadDecay : Mother has neither beauty nor charm." << std::endl;
+				std::cout << "                                    defaulting to b-quark kinematics." << std::endl;
+				motherFlavour_ = "b";
+			}
 		}
 
 		//second should be ->
@@ -160,16 +188,18 @@ void RapidConfig::loadDecay() {
 				stable = false;//flags it to edit later
 			}
 			RapidParticle* part = particleData->makeParticle(token, theMother);
-			part->setStable(stable);
+			if(!stable) mothers.push(part);
 			parts_.push_back(part);
 			theMother->addDaughter(part);
 
 		}
 
 	}
+
+	return true;
 }
 
-void RapidConfig::loadConfig() {
+bool RapidConfig::loadConfig() {
 	std::cout << "INFO in RapidConfig::loadConfig : attempting to load configuration from file: " << fileName_+".config" << std::endl;
 
 	std::ifstream fin;
@@ -209,6 +239,8 @@ void RapidConfig::loadConfig() {
 	}
 	std::cout << "INFO in RapidConfig::loadConfig : finished loading configuration." << std::endl;
 	fin.close();
+
+	return true;
 }
 
 void RapidConfig::writeConfig() {
@@ -265,6 +297,10 @@ void RapidConfig::configGlobal(TString command, TString value) {
 		          << "                                    seed is now " << gRandom->GetSeed() << "." << std::endl;
 	} else if(command=="acceptance") {
 		acceptanceType_ = RapidAcceptance::typeFromString(value);
+	} else if(command=="energy") {
+		ppEnergy_ = value.Atof();
+	} else if(command=="mother") {
+		motherFlavour_ = value;
 	} else if(command=="param") {
 		RapidParam* param = loadParam(value);
 		if(param) params_.push_back(param);
@@ -438,7 +474,6 @@ void RapidConfig::loadAcceptRejectHist(TString histFile, TString histName, Rapid
 	}
 	accRejHisto_ = dynamic_cast<TH1F*>(file->Get(histName));
 	if(!accRejHisto_) {
-		std::cout << histName << std::endl;
 		std::cout << "WARNING in RapidConfig::loadAcceptRejectHist : could not load histogram " << histName << "." << std::endl
 			  << "                                               accept/reject histogram not set." << std::endl;
 		return;
@@ -446,4 +481,23 @@ void RapidConfig::loadAcceptRejectHist(TString histFile, TString histName, Rapid
 
 	std::cout << "INFO in RapidConfig::loadAcceptRejectHist : setting the required kinematic distribution." << std::endl;
 	accRejParameter_ = param;
+}
+
+bool RapidConfig::loadParentKinematics() {
+	TString fileName("../rootfiles/fonll/lhc_");
+	fileName += motherFlavour_; fileName += "_";
+	fileName += ppEnergy_; fileName += "tev";
+	fileName += ".root";
+	TFile* file = TFile::Open(fileName);
+
+	if(!file) {
+		std::cout << "ERROR in RapidConfig::loadParentKinematics : unknown kinematics " << motherFlavour_ << "-quark from " << ppEnergy_ << " TeV pp collision." << std::endl;
+		std::cout << "                                             file " << fileName << " not found." << std::endl;
+		return false;
+	}
+
+	ptHisto_ = dynamic_cast<TH1F*>(file->Get("pthisto"));
+	etaHisto_ = dynamic_cast<TH1F*>(file->Get("etahisto"));
+
+	return true;
 }

@@ -20,11 +20,11 @@ make
 
 To run an example try
 
-src/RapidSim.exe ../src/Bs2Jpsiphi 10000 ../rootfiles 1
+src/RapidSim.exe ../src/Bs2Jpsiphi 10000 1
 
 TODO
 
 Add 2D accept/reject option
-Add option to change FONLL configuration (e.g. D decays or 13 TeV)
+Add alternative FONLL configurations (e.g. D decays or 13 TeV)
 Add validation scripts
 Add more particles to particles.dat

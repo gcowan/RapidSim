@@ -15,7 +15,7 @@ class RapidParticle {
 	public:
 		RapidParticle(int id, TString name, double mass, double charge, RapidParticle* mother)
 			: index_(0), id_(id), name_(name), mass_(mass), charge_(charge),
-			  mother_(mother), next_(0), stable_(true), invisible_(false),
+			  mother_(mother), next_(0), invisible_(false),
 			  massData_(0), minMass_(mass), maxMass_(mass)
 			{}
 
@@ -39,20 +39,20 @@ class RapidParticle {
 
 		unsigned int nDaughters() { return daughters_.size(); }
 
+		bool hasCharm();
+		bool hasBeauty();
+
 		RapidParticle* daughter(unsigned int i);
 		RapidParticle* next() { return next_; }
 		RapidParticle* mother() { return mother_; }
 
-		double* daughterMasses() { return &daughterMasses_[0]; }
+		double const * daughterMasses() { return &daughterMasses_[0]; }
 
-		bool stable() { return stable_; }
+		bool stable() { return daughters_.empty(); }
 		bool invisible() { return invisible_; }
 
-		void setId(int id) { id_=id; }
 		void setName(TString name) { name_=name; }
-		void setMass(double mass);
 
-		void setStable(bool stable=true) { stable_ = stable; }
 		void setInvisible(bool invisible=true) { invisible_ = invisible; }
 		void setSmearing(RapidMomentumSmear* momSmear) { momSmear_ = momSmear; }
 
@@ -65,6 +65,9 @@ class RapidParticle {
 		void floatMass();
 
 	private:
+		bool hasFlavour(int flavour);
+
+		void setMass(double mass);
 		void updateDaughterMass(unsigned int index);
 
 		unsigned int index_;
@@ -82,7 +85,6 @@ class RapidParticle {
 		TLorentzVector p_;
 		TLorentzVector pSmeared_;
 
-		bool stable_;
 		bool invisible_;
 		
 		RapidMomentumSmear* momSmear_;
