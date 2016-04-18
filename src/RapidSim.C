@@ -1,8 +1,5 @@
 #include <iostream>
 
-#include "TFile.h"
-#include "TH1F.h"
-#include "TMath.h"
 #include "TString.h"
 
 #include "RapidAcceptance.h"
@@ -52,7 +49,7 @@ int rapidSim(const TString mode, const int nEvtToGen, bool saveTree=false) {
 int main(int argc, char * argv[])
 {
 	if (argc < 3) {
-		printf("Usage: %s mode numberToGenerate [saveTree=false]\n", argv[0]);
+		printf("Usage: %s mode numberToGenerate [saveTree=0]\n", argv[0]);
 		return 1;
 	}
 

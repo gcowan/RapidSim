@@ -4,7 +4,8 @@
 #include <map>
 #include <vector>
 
-#include "TH1F.h"
+#include "TH1.h"
+#include "TH2.h"
 #include "TString.h"
 
 #include "RapidAcceptance.h"
@@ -18,7 +19,8 @@ class RapidParticle;
 class RapidConfig {
 	public:
 		RapidConfig()
-			: fileName_(""), accRejHisto_(0), accRejParameter_(0),
+			: fileName_(""), accRejHisto_(0),
+			  accRejParameterX_(0), accRejParameterY_(0),
 			  acceptanceType_(RapidAcceptance::ANY),
 			  ppEnergy_(7.), motherFlavour_("b"),
 			  ptHisto_(0), etaHisto_(0),
@@ -38,15 +40,20 @@ class RapidConfig {
 		bool loadConfig();
 		void writeConfig();
 
-		void configParticle(unsigned int part, TString command, TString value);
-		void configGlobal(TString command, TString value);
+		bool configParticle(unsigned int part, TString command, TString value);
+		bool configGlobal(TString command, TString value);
 		RapidParam* loadParam(TString paramStr);
+
+		RapidParam* findParam(TString name);
 
 		void setSmearing(unsigned int particle, TString category);
 		bool loadSmearing(TString category);
 
-		void loadAcceptRejectHist(TString histFile, TString histName, RapidParam* param);
+		bool loadAcceptRejectHist(TString histFile, TString histName, RapidParam* paramX, RapidParam* paramY);
 		bool loadParentKinematics();
+
+		bool check1D(TH1* hist) { return (dynamic_cast<TH1F*>(hist) || dynamic_cast<TH1D*>(hist)); }
+		bool check2D(TH1* hist) { return (dynamic_cast<TH2F*>(hist) || dynamic_cast<TH2D*>(hist)); }
 
 		TString fileName_;
 
@@ -57,8 +64,9 @@ class RapidConfig {
 		std::map<TString, RapidMomentumSmear*> momSmearCategories_;
 
 		//accept reject hist to sculpt kinematics
-		TH1F* accRejHisto_;
-		RapidParam* accRejParameter_;
+		TH1* accRejHisto_;
+		RapidParam* accRejParameterX_;
+		RapidParam* accRejParameterY_;
 
 		//type of geometric acceptance to apply
 		RapidAcceptance::AcceptanceType acceptanceType_;
@@ -68,8 +76,8 @@ class RapidConfig {
 		TString motherFlavour_;
 
 		//parent kinematic distributions
-		TH1F* ptHisto_;
-		TH1F* etaHisto_;
+		TH1* ptHisto_;
+		TH1* etaHisto_;
 
 		RapidDecay* decay_;
 		RapidAcceptance* acceptance_;

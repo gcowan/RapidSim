@@ -17,7 +17,7 @@ run-kee:
     script:
         - cd build
         - echo "B+ -> K+ e+ e-" > ../src/B2Kee.decay
-        - src/RapidSim.exe ../src/B2Kee 100000 ../rootfiles
+        - src/RapidSim.exe ../src/B2Kee 100000
     stage: test
     artifacts:
         paths:
@@ -27,7 +27,7 @@ run-kee-tree:
     script:
         - cd build
         - echo "B+ -> K+ e+ e-" > ../src/B2Kee.decay
-        - src/RapidSim.exe ../src/B2Kee 1000 ../rootfiles 1
+        - src/RapidSim.exe ../src/B2Kee 1000 1
     stage: test
     artifacts:
         paths:
@@ -37,7 +37,7 @@ run-phi2kk:
     script:
         - cd build
         - echo "phi -> K+ K-" > ../src/phi2KK.decay
-        - src/RapidSim.exe ../src/phi2KK 100000 ../rootfiles
+        - src/RapidSim.exe ../src/phi2KK 100000
     stage: test
     artifacts:
         paths:
@@ -47,7 +47,7 @@ run-rho2pipi:
     script:
         - cd build
         - echo "rho0 -> pi+ pi-" > ../src/rho2pipi.decay
-        - src/RapidSim.exe ../src/rho2pipi 100000 ../rootfiles
+        - src/RapidSim.exe ../src/rho2pipi 100000
     stage: test
     artifacts:
         paths:

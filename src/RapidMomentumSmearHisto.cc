@@ -32,7 +32,7 @@ TLorentzVector RapidMomentumSmearHisto::smearMomentum(TLorentzVector p) {
 
 }
 
-void RapidMomentumSmearHisto::init(std::vector<double> thresholds, std::vector<TH1F*> histos) {
+void RapidMomentumSmearHisto::init(std::vector<double> thresholds, std::vector<TH1*> histos) {
 	if(thresholds.size() < histos.size()) {
 		std::cout << "WARNING in RapidMomentumSmearHisto::init : too many histograms provided. Number of histograms should match number of thresholds." << std::endl;
 		std::cout << "                                      excess histograms ignored." << std::endl;

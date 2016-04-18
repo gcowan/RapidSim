@@ -3,21 +3,21 @@
 
 #include <vector>
 
-#include "TH1F.h"
+#include "TH1.h"
 
 #include "RapidMomentumSmear.h"
 
 class RapidMomentumSmearHisto : public RapidMomentumSmear {
 	public:
-		RapidMomentumSmearHisto(std::vector<double> thresholds, std::vector<TH1F*> histos) { init(thresholds, histos); }
+		RapidMomentumSmearHisto(std::vector<double> thresholds, std::vector<TH1*> histos) { init(thresholds, histos); }
 
 		TLorentzVector smearMomentum(TLorentzVector p);
 
 	private:
-		void init(std::vector<double> thresholds, std::vector<TH1F*> histos);
+		void init(std::vector<double> thresholds, std::vector<TH1*> histos);
 
 		std::vector<double> thresholds_;
-		std::vector<TH1F*> histos_;
+		std::vector<TH1*> histos_;
 };
 
 #endif

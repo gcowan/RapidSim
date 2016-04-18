@@ -25,7 +25,8 @@ class RapidParam {
 			RAPIDITY, //Rapidity
 			GAMMA,    //Relitivistic gamma
 			BETA,     //velocity
-			THETA,    //angle from other particle
+			THETA,    //angle between particles
+			COSTHETA, //cosine of angle between particles
 			MCORR     //corrected mass
 
 		};

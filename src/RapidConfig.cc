@@ -33,7 +33,6 @@ RapidConfig::~RapidConfig() {
 	}
 
 	if(accRejHisto_) delete accRejHisto_;
-	if(accRejParameter_) delete accRejParameter_;
 }
 
 bool RapidConfig::load(TString fileName) {
@@ -72,8 +71,13 @@ RapidDecay* RapidConfig::getDecay() {
 		decay_->setParentKinematics(ptHisto_,etaHisto_);
 
 		//load any PDF to generate
-		if(accRejHisto_ && accRejParameter_) {
-			decay_->setAcceptRejectHist(accRejHisto_,accRejParameter_);
+		if(accRejHisto_ && accRejParameterX_) {
+			if(accRejParameterY_) {
+				decay_->setAcceptRejectHist(accRejHisto_,accRejParameterX_,accRejParameterY_);
+			}
+			else {
+				decay_->setAcceptRejectHist(accRejHisto_,accRejParameterX_);
+			}
 		}
 	}
 
@@ -232,8 +236,18 @@ bool RapidConfig::loadConfig() {
 				TString value = buffer(colon+1, buffer.Length()-colon-1);
 				value = value.Strip(TString::kBoth);
 
-				if(currentPart==parts_.size()) configGlobal(command, value);
-				else configParticle(currentPart, command, value);
+				if(currentPart==parts_.size()) {
+					if(!configGlobal(command, value)) {
+						fin.close();
+						return false;
+					}
+				}
+				else {
+					if(!configParticle(currentPart, command, value)) {
+						fin.close();
+						return false;
+					}
+				}
 				break;
 		}
 	}
@@ -270,10 +284,11 @@ void RapidConfig::writeConfig() {
 	fout.close();
 }
 
-void RapidConfig::configParticle(unsigned int part, TString command, TString value) {
+bool RapidConfig::configParticle(unsigned int part, TString command, TString value) {
 	if(part > parts_.size()) {
-		std::cout << "WARNING in RapidConfig::configParticle : no particle at index " << part << std::endl;
-		return;
+		std::cout << "ERROR in RapidConfig::configParticle : no particle at index " << part << std::endl
+			  << "                                       fix your configuration file." << std::endl;
+		return false;
 	}
 
 	if(command=="name") {
@@ -287,36 +302,68 @@ void RapidConfig::configParticle(unsigned int part, TString command, TString val
 			parts_[part]->setInvisible(true);
 		}
 	}
+
+	return true;
 }
 
-void RapidConfig::configGlobal(TString command, TString value) {
+bool RapidConfig::configGlobal(TString command, TString value) {
 	if(command=="seed") {
 		int seed = value.Atoi();
 		gRandom->SetSeed(seed);
 		std::cout << "INFO in RapidConfig::configGlobal : setting seed for random number generation to " << seed << "." << std::endl
 		          << "                                    seed is now " << gRandom->GetSeed() << "." << std::endl;
 	} else if(command=="acceptance") {
+		std::cout << "INFO in RapidConfig::configGlobal : setting acceptance type to " << value << "." << std::endl;
 		acceptanceType_ = RapidAcceptance::typeFromString(value);
 	} else if(command=="energy") {
 		ppEnergy_ = value.Atof();
+		std::cout << "INFO in RapidConfig::configGlobal : pp CoM energy set to be " << ppEnergy_ << " TeV." << std::endl;
 	} else if(command=="mother") {
 		motherFlavour_ = value;
+		std::cout << "INFO in RapidConfig::configGlobal : mother flavour forced to be " << motherFlavour_ << "." << std::endl;
 	} else if(command=="param") {
 		RapidParam* param = loadParam(value);
-		if(param) params_.push_back(param);
+		if(!param) {
+			std::cout << "ERROR in RapidConfig::configGlobal : failed to load parameter." << std::endl
+			          << "                                     fix your configuration file." << std::endl;
+			return false;
+		} else {
+			params_.push_back(param);
+		}
 	} else if(command=="shape") {
 		int from(0);
 		TString histName, histFile;
+
 		value.Tokenize(histFile,from," ");
 		value.Tokenize(histName,from," ");
-		TString paramStr = value(from, value.Length()-from);
+
 		histFile = histFile.Strip(TString::kBoth);
 		histName = histName.Strip(TString::kBoth);
-		paramStr = paramStr.Strip(TString::kBoth);
 
-		RapidParam* param = loadParam(paramStr);
-		if(param) loadAcceptRejectHist(histFile, histName, param);
+		TString paramNameX, paramNameY;
+		RapidParam *paramX(0), *paramY(0);
+
+		if(value.Tokenize(paramNameX,from," ")) {
+			paramNameX = paramNameX.Strip(TString::kBoth);
+			paramX = findParam(paramNameX);
+			if(!paramX) {
+				std::cout << "ERROR in RapidConfig::configGlobal : failed to setup shape PDF - unknown parameter." << std::endl;
+				return false;
+			}
+		}
+		if(value.Tokenize(paramNameY,from," ")) {
+			paramNameY = paramNameY.Strip(TString::kBoth);
+			paramY = findParam(paramNameY);
+			if(!paramY) {
+				std::cout << "ERROR in RapidConfig::configGlobal : failed to setup shape PDF - unknown parameter." << std::endl;
+				return false;
+			}
+		}
+
+		if(!loadAcceptRejectHist(histFile, histName, paramX, paramY)) return false;
 	}
+
+	return true;
 }
 
 RapidParam* RapidConfig::loadParam(TString paramStr) {
@@ -347,14 +394,26 @@ RapidParam* RapidConfig::loadParam(TString paramStr) {
 		}
 	}
 
-	if(type == RapidParam::THETA && partlist.size()!=2) {
-		std::cout << "WARNING in RapidConfig::loadParam : theta parameter expects two particles, " << partlist.size() << "were given." << std::endl
+	if((type == RapidParam::THETA || type == RapidParam::COSTHETA) && partlist.size()<2) {
+		std::cout << "WARNING in RapidConfig::loadParam : (cos)theta parameter expects at least two particles, " << partlist.size() << "were given." << std::endl
 			  << "                                    parameter " << name << " has not been added." << std::endl;
 		return 0;
 	}
 
 	RapidParam* param = new RapidParam(name,type,partlist,truth);
 	return param;
+}
+
+RapidParam* RapidConfig::findParam(TString name) {
+	std::vector<RapidParam*>::iterator it = params_.begin();
+
+	for( ; it!=params_.end(); ++it) {
+		RapidParam* param = *it;
+		if(param->name() == name) return param;
+	}
+
+	std::cout << "WARNING in RapidConfig::findParam : parameter " << name << " not found." << std::endl;
+	return 0;
 }
 
 bool RapidConfig::loadSmearing(TString category) {
@@ -395,22 +454,23 @@ bool RapidConfig::loadSmearing(TString category) {
 		double threshold(0.);
 		TString histname("");
 
-		std::vector<TH1F*> hists;
+		std::vector<TH1*> hists;
 		std::vector<double> thresholds;
 
 		while( true ) {
 			fin >> threshold;
 			histname.ReadToken(fin);
 			if(fin.good()) {
-				TH1F* hist = dynamic_cast<TH1F*>(file->Get(histname));
-				if(hist) {
-					hists.push_back(hist);
-					thresholds.push_back(threshold);
-				} else {
+				TH1* hist = dynamic_cast<TH1*>(file->Get(histname));
+
+				if(!hist || !check1D(hist)) {
 					std::cout << "WARNING in RapidConfig::loadSmearing : failed to load histogram " << histname << std::endl
 						  << "                                       threshold will be ignored." << std::endl;
-
 				}
+
+				hists.push_back(hist);
+				thresholds.push_back(threshold);
+
 			} else {
 				break;
 			}
@@ -459,28 +519,51 @@ void RapidConfig::setSmearing(unsigned int particle, TString category) {
 	parts_[particle]->setSmearing(momSmearCategories_[category]);
 }
 
-void RapidConfig::loadAcceptRejectHist(TString histFile, TString histName, RapidParam* param) {
+bool RapidConfig::loadAcceptRejectHist(TString histFile, TString histName, RapidParam* paramX, RapidParam* paramY) {
 	if(accRejHisto_) {
 		std::cout << "WARNING in RapidConfig::loadAcceptRejectHist : accept/reject histogram already set." << std::endl
 			  << "                                               original histogram will be used." << std::endl;
-		return;
+		return false;
 	}
 
 	TFile* file = TFile::Open(histFile);
 	if(!file) {
 		std::cout << "WARNING in RapidConfig::loadAcceptRejectHist : could not open file " << histFile << "." << std::endl
 			  << "                                               accept/reject histogram not set." << std::endl;
-		return;
+		return false;
 	}
-	accRejHisto_ = dynamic_cast<TH1F*>(file->Get(histName));
-	if(!accRejHisto_) {
+	TH1* hist = dynamic_cast<TH1*>(file->Get(histName));
+	if(!hist) {
 		std::cout << "WARNING in RapidConfig::loadAcceptRejectHist : could not load histogram " << histName << "." << std::endl
 			  << "                                               accept/reject histogram not set." << std::endl;
-		return;
+		return false;
+	}
+
+	if(paramX) {
+		if(paramY) {
+			//2 parameters - check we have a 2D histogram
+			if(!check2D(hist)) {
+				std::cout << "ERROR in RapidConfig::loadAcceptRejectHist : two parameters provided for shape PDF but histogram is neither TH2F nor TH2D." << std::endl;
+				return false;
+			}
+		} else {
+			//1 parameter - check we have a 1D histogram
+			if(!check1D(hist)) {
+				std::cout << "ERROR in RapidConfig::loadAcceptRejectHist : one parameter provided for shape PDF but histogram is neither TH1F nor TH1D." << std::endl;
+				return false;
+			}
+		}
+	} else {
+		std::cout << "ERROR in RapidConfig::loadAcceptRejectHist : no parameters provided for shape PDF." << std::endl;
+		return false;
 	}
 
 	std::cout << "INFO in RapidConfig::loadAcceptRejectHist : setting the required kinematic distribution." << std::endl;
-	accRejParameter_ = param;
+	accRejHisto_ = hist;
+	accRejParameterX_ = paramX;
+	accRejParameterY_ = paramY;
+
+	return true;
 }
 
 bool RapidConfig::loadParentKinematics() {
@@ -496,8 +579,18 @@ bool RapidConfig::loadParentKinematics() {
 		return false;
 	}
 
-	ptHisto_ = dynamic_cast<TH1F*>(file->Get("pthisto"));
-	etaHisto_ = dynamic_cast<TH1F*>(file->Get("etahisto"));
+	ptHisto_ = dynamic_cast<TH1*>(file->Get("pthisto"));
+	etaHisto_ = dynamic_cast<TH1*>(file->Get("etahisto"));
+
+	if(!ptHisto_ || !check1D(ptHisto_)) {
+		std::cout << "ERROR in RapidConfig::loadParentKinematics : pT histogram is neither TH1F nor TH1D." << std::endl;
+		return false;
+	}
+
+	if(!etaHisto_ || !check1D(etaHisto_)) {
+		std::cout << "ERROR in RapidConfig::loadParentKinematics : eta histogram is neither TH1F nor TH1D." << std::endl;
+		return false;
+	}
 
 	return true;
 }

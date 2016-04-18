@@ -12,18 +12,30 @@
 #include "RapidParticle.h"
 #include "RapidParticleData.h"
 
-void RapidDecay::setParentKinematics(TH1F* ptHisto, TH1F* etaHisto) {
+void RapidDecay::setParentKinematics(TH1* ptHisto, TH1* etaHisto) {
 	std::cout << "INFO in RapidDecay::setParentKinematics : setting kinematics of the parent." << std::endl;
 	ptHisto_=ptHisto;
 	etaHisto_=etaHisto;
 }
 
-void RapidDecay::setAcceptRejectHist(TH1F* histo, RapidParam* param) {
-	accRejParameter_ = param;
-	accRejHisto_     = histo;
+void RapidDecay::setAcceptRejectHist(TH1* histo, RapidParam* param) {
+	accRejParameterX_ = param;
+	accRejParameterY_ = 0;
+	accRejHisto_      = histo;
 
 	//correct the histogram to account for the the phasespace distribution
-	TH1F* denom = generateAccRejDenominator();
+	TH1* denom = generateAccRejDenominator1D();
+	accRejHisto_->Divide(denom);
+	delete denom;
+}
+
+void RapidDecay::setAcceptRejectHist(TH1* histo, RapidParam* paramX, RapidParam* paramY) {
+	accRejParameterX_ = paramX;
+	accRejParameterY_ = paramY;
+	accRejHisto_      = histo;
+
+	//correct the histogram to account for the the phasespace distribution
+	TH2* denom = generateAccRejDenominator2D();
 	accRejHisto_->Divide(denom);
 	delete denom;
 }
@@ -80,7 +92,12 @@ void RapidDecay::setupMasses() {
 }
 
 bool RapidDecay::runAcceptReject() {
-	double val = accRejParameter_->eval();
+	if(accRejParameterY_) return runAcceptReject2D();
+	else return runAcceptReject1D();
+}
+
+bool RapidDecay::runAcceptReject1D() {
+	double val = accRejParameterX_->eval();
 	int bin = accRejHisto_->FindBin(val);
 
 	double score(0.);
@@ -92,8 +109,22 @@ bool RapidDecay::runAcceptReject() {
 	return false;
 }
 
-TH1F* RapidDecay::generateAccRejDenominator() {
-	TH1F* denomHisto = dynamic_cast<TH1F*>(accRejHisto_->Clone("denom"));
+bool RapidDecay::runAcceptReject2D() {
+	double valX = accRejParameterX_->eval();
+	double valY = accRejParameterY_->eval();
+	int bin = accRejHisto_->FindBin(valX,valY);
+
+	double score(0.);
+	if(!accRejHisto_->IsBinOverflow(bin) && !accRejHisto_->IsBinUnderflow(bin)) {
+		score = accRejHisto_->Interpolate(valX,valY);
+	}
+	double max = accRejHisto_->GetMaximum();
+	if(score > gRandom->Uniform(max)) return true;
+	return false;
+}
+
+TH1* RapidDecay::generateAccRejDenominator1D() {
+	TH1* denomHisto = dynamic_cast<TH1*>(accRejHisto_->Clone("denom"));
 	denomHisto->Reset();
 
 	std::cout << "INFO in RapidDecay::generateAccRejDenominator : generating 1M decays to remove the \"phasespace\" distribution..." << std::endl;
@@ -101,7 +132,21 @@ TH1F* RapidDecay::generateAccRejDenominator() {
 		floatMasses();
 		genParent();
 		if(!genDecay(true)) continue;
-		denomHisto->Fill(accRejParameter_->eval());
+		denomHisto->Fill(accRejParameterX_->eval());
+	}
+	return denomHisto;
+}
+
+TH2* RapidDecay::generateAccRejDenominator2D() {
+	TH2* denomHisto = dynamic_cast<TH2*>(accRejHisto_->Clone("denom"));
+	denomHisto->Reset();
+
+	std::cout << "INFO in RapidDecay::generateAccRejDenominator : generating 1M decays to remove the \"phasespace\" distribution..." << std::endl;
+	for(int i=0; i<1000000; ++i) {
+		floatMasses();
+		genParent();
+		if(!genDecay(true)) continue;
+		denomHisto->Fill(accRejParameterX_->eval(), accRejParameterY_->eval());
 	}
 	return denomHisto;
 }

@@ -151,7 +151,7 @@ void RapidHistWriter::setupHistos() {
 
 void RapidHistWriter::setupTree() {
 	std::cout << "INFO in RapidHistWriter::setupTree : tree will be saved to file: " << name_ << "_tree.root" << std::endl;
-	std::cout << "                                   : This will slow down generation." << std::endl;
+	std::cout << "                                     This will slow down generation." << std::endl;
 
 	varsPerPart_ = 19;
 	treeFile_ = new TFile(name_+"_tree.root", "RECREATE");

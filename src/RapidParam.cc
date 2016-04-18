@@ -6,7 +6,7 @@
 
 double RapidParam::eval() {
 
-	if(type_ == RapidParam::THETA) return evalTheta();
+	if(type_ == RapidParam::THETA || type_ == RapidParam::COSTHETA) return evalTheta();
 	if(type_ == RapidParam::MCORR) return evalCorrectedMass();
 
 	TLorentzVector mom;
@@ -51,6 +51,7 @@ double RapidParam::eval() {
 		case RapidParam::BETA:
 			return mom.Beta();
 		case RapidParam::THETA: //dealt with separately above - included to appease compiler
+		case RapidParam::COSTHETA: //dealt with separately above - included to appease compiler
 		case RapidParam::MCORR: //dealt with separately above - included to appease compiler
 		default:
 			std::cout << "WARNING in RapidParam::eval : unknown parameter type " << type_ << std::endl
@@ -102,23 +103,34 @@ double RapidParam::evalCorrectedMass() {
 }
 
 double RapidParam::evalTheta() {
-	if(particles_.size()!=2) {
+	if(particles_.size()<2) {
 		return -99.;
 	}
 
-	TVector3 pA, pB;
+	TLorentzVector pA, pB, pBoost;
 
 	if(truth_) {
-		pA = particles_[0]->getP().Vect();
-		pB = particles_[1]->getP().Vect();
+		pA = particles_[0]->getP();
+		pB = particles_[1]->getP();
+		for(unsigned int i=2; i<particles_.size(); ++i) {
+			pBoost += particles_[i]->getP();
+		}
 	} else {
-		pA = particles_[0]->getPSmeared().Vect();
-		pB = particles_[1]->getPSmeared().Vect();
+		pA = particles_[0]->getPSmeared();
+		pB = particles_[1]->getPSmeared();
+		for(unsigned int i=2; i<particles_.size(); ++i) {
+			pBoost += particles_[i]->getPSmeared();
+		}
 	}
 
-	double theta = pA.Angle(pB);
+	pA.Boost(-pBoost.BoostVector());
+	pB.Boost(-pBoost.BoostVector());
 
-	return theta;
+	if(type_ == RapidParam::THETA) {
+		return pA.Angle(pB.Vect());
+	} else {
+		return pA.Vect().Dot(pB.Vect())/(pA.P()*pB.P());
+	}
 }
 
 TString RapidParam::typeName() {
@@ -155,6 +167,8 @@ TString RapidParam::typeName() {
 			return "beta";
 		case RapidParam::THETA:
 			return "theta";
+		case RapidParam::COSTHETA:
+			return "costheta";
 		case RapidParam::MCORR:
 			return "Mcorr";
 		default:
@@ -197,6 +211,8 @@ RapidParam::ParamType RapidParam::typeFromString(TString str) {
 		return RapidParam::BETA;
 	} else if(str=="theta") {
 		return RapidParam::THETA;
+	} else if(str=="costheta") {
+		return RapidParam::COSTHETA;
 	} else if(str=="Mcorr") {
 		return RapidParam::MCORR;
 	} else {
@@ -251,6 +267,10 @@ void RapidParam::setDefaultMinMax() {
 		case RapidParam::THETA:
 			minVal_ = 0.0;
 			maxVal_ = 3.5;
+			break;
+		case RapidParam::COSTHETA:
+			minVal_ = -1.0;
+			maxVal_ =  1.0;
 			break;
 	}
 }

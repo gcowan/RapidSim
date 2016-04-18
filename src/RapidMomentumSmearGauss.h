@@ -2,7 +2,6 @@
 #define RAPIDMOMENTUMSMEARGAUSS_H
 
 #include "TGraphErrors.h"
-#include "TH1F.h"
 
 #include "RapidMomentumSmear.h"
 
