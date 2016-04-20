@@ -82,6 +82,13 @@ param :
 	and the optional TRUE argument means the parameter will be calculated using the true unsmeared momenta of the particles
 	e.g. "param : mSq12 M2 1 2 TRUE"
 
+cut :
+	Applys a cut on a given parameter
+	Syntax is "cut : <param> <type> <min/max> [<max>]"
+	where <param> is the name of a parameter (must be defined using param)
+	<type> is one of "min", "max", "range" or "veto"
+	and <min> and/or <max> define(s) the cut value(s)
+
 shape :
 	Sets a 1D or 2D PDF to generate events according to
 	Syntax is "shape : <file> <hist> <paramX> [<paramY>]
@@ -141,7 +148,6 @@ MCORR :		The corrected mass of the combination of the given particles
 
 ---TODO---
 
-Introduce functionality to apply cuts
 Add alternative FONLL configurations (e.g. D decays or 13 TeV)
 Add validation scripts
 Add more particles to particles.dat

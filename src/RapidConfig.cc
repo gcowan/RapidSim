@@ -8,6 +8,7 @@
 #include "TRandom.h"
 
 #include "RapidAcceptance.h"
+#include "RapidCut.h"
 #include "RapidDecay.h"
 #include "RapidHistWriter.h"
 #include "RapidMomentumSmearGauss.h"
@@ -86,7 +87,7 @@ RapidDecay* RapidConfig::getDecay() {
 
 RapidAcceptance* RapidConfig::getAcceptance() {
 	if(!acceptance_) {
-		acceptance_ = new RapidAcceptance(acceptanceType_, parts_);
+		acceptance_ = new RapidAcceptance(acceptanceType_, parts_, cuts_);
 	}
 	return acceptance_;
 }
@@ -328,7 +329,18 @@ bool RapidConfig::configGlobal(TString command, TString value) {
 			          << "                                     fix your configuration file." << std::endl;
 			return false;
 		} else {
+			std::cout << "INFO in RapidConfig::configGlobal : adding parameter " << param->name() << std::endl;
 			params_.push_back(param);
+		}
+	} else if(command=="cut") {
+		RapidCut* cut = loadCut(value);
+		if(!cut) {
+			std::cout << "ERROR in RapidConfig::configGlobal : failed to load cut." << std::endl
+			          << "                                     fix your configuration file." << std::endl;
+			return false;
+		} else {
+			std::cout << "INFO in RapidConfig::configGlobal : adding cut " << cut->name() << std::endl;
+			cuts_.push_back(cut);
 		}
 	} else if(command=="shape") {
 		int from(0);
@@ -402,6 +414,58 @@ RapidParam* RapidConfig::loadParam(TString paramStr) {
 
 	RapidParam* param = new RapidParam(name,type,partlist,truth);
 	return param;
+}
+
+RapidCut* RapidConfig::loadCut(TString cutStr) {
+	int from(0);
+	TString paramName, cutType, buffer;
+	double min(0.), max(0.);
+
+	cutStr.Tokenize(paramName,from," ");
+	RapidParam* param = findParam(paramName);
+	if(!param) {
+		std::cout << "ERROR in RapidConfig::loadCut : failed to setup cut - unknown parameter." << std::endl;
+		return 0;
+	}
+
+	if(!cutStr.Tokenize(cutType,from," ")) {
+		std::cout << "ERROR in RapidConfig::loadCut : failed to setup cut - no cut type given." << std::endl;
+		return 0;
+	}
+
+	if(cutType!="max") {
+		if(cutStr.Tokenize(buffer,from," ")) {
+			min = buffer.Atof();
+		} else {
+			std::cout << "ERROR in RapidConfig::loadCut : failed to setup cut - no minimum given." << std::endl;
+			return 0;
+		}
+	}
+	if(cutType!="min") {
+		if(cutStr.Tokenize(buffer,from," ")) {
+			max = buffer.Atof();
+		} else {
+			std::cout << "ERROR in RapidConfig::loadCut : failed to setup cut - no maximum given." << std::endl;
+			return 0;
+		}
+	}
+
+	RapidCut* cut(0);
+
+	if(cutType=="min") {
+		cut = new RapidCut(param,min,RapidCut::NOLIMIT);
+	} else if(cutType=="max") {
+		cut = new RapidCut(param,RapidCut::NOLIMIT,max);
+	} else if(cutType=="range") {
+		cut = new RapidCut(param,min,max);
+	} else if(cutType=="veto") {
+		cut = new RapidCut(param,min,max,true);
+	} else {
+		std::cout << "ERROR in RapidConfig::loadCut : failed to setup cut - unknown cut type " << cutType << "." << std::endl;
+	}
+
+	return cut;
+
 }
 
 RapidParam* RapidConfig::findParam(TString name) {

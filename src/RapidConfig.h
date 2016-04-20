@@ -10,6 +10,7 @@
 
 #include "RapidAcceptance.h"
 
+class RapidCut;
 class RapidDecay;
 class RapidHistWriter;
 class RapidMomentumSmear;
@@ -43,6 +44,7 @@ class RapidConfig {
 		bool configParticle(unsigned int part, TString command, TString value);
 		bool configGlobal(TString command, TString value);
 		RapidParam* loadParam(TString paramStr);
+		RapidCut* loadCut(TString cutStr);
 
 		RapidParam* findParam(TString name);
 
@@ -59,6 +61,8 @@ class RapidConfig {
 
 		std::vector<RapidParticle*> parts_;
 		std::vector<RapidParam*> params_;
+
+		std::vector<RapidCut*> cuts_;
 
 		//mometum smearing lookup for each smearing category
 		std::map<TString, RapidMomentumSmear*> momSmearCategories_;

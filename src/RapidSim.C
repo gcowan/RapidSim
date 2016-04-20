@@ -32,7 +32,7 @@ int rapidSim(const TString mode, const int nEvtToGen, bool saveTree=false) {
 		if (!decay->generate()) continue;
 		++ngenerated;
 
-		if(!acceptance->inAcceptance()) continue;
+		if(!acceptance->isSelected()) continue;
 		++nselected;
 
 		writer->fill();

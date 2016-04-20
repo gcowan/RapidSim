@@ -5,6 +5,7 @@
 
 #include "TLorentzVector.h"
 
+class RapidCut;
 class RapidParticle;
 
 class RapidAcceptance {
@@ -18,17 +19,20 @@ class RapidAcceptance {
 
 		static RapidAcceptance::AcceptanceType typeFromString(TString str);
 
-		RapidAcceptance(AcceptanceType type, const std::vector<RapidParticle*>& parts)
+		RapidAcceptance(AcceptanceType type, const std::vector<RapidParticle*>& parts, const std::vector<RapidCut*>& cuts)
 			: type_(type),
+			  cuts_(cuts),
 			  zC_(5.4), ptkick_(1.2), zTracker_(9.5),
 			  xSizeTracker_(9.5*0.3), ySizeTracker_(9.5*0.25),
 			  xMinTracker_(9.5*0.001), yMinTracker_(9.5*0.001)
 		{setup(parts);}
 
-		bool inAcceptance();
+		bool isSelected();
 
 	private:
 		void setup(std::vector<RapidParticle*> parts);
+
+		bool inAcceptance();
 
 		bool motherInAcceptance();
 		bool allInAcceptance();
@@ -44,6 +48,8 @@ class RapidAcceptance {
 		RapidParticle* top_;
 
 		std::vector<RapidParticle*> parts_;
+
+		std::vector<RapidCut*> cuts_;
 
 		//parameters for determining whether a track remains in acceptance after the magnet
 

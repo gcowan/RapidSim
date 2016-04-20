@@ -4,6 +4,7 @@
 
 #include "TMath.h"
 
+#include "RapidCut.h"
 #include "RapidParticle.h"
 
 RapidAcceptance::AcceptanceType RapidAcceptance::typeFromString(TString str) {
@@ -20,6 +21,21 @@ RapidAcceptance::AcceptanceType RapidAcceptance::typeFromString(TString str) {
 			  << "                                             returning \"accept any event\" type." << std::endl;
 		return RapidAcceptance::ANY;
 	}
+}
+
+bool RapidAcceptance::isSelected() {
+	if(!inAcceptance()) {
+		return false;
+	}
+
+	std::vector<RapidCut*>::iterator it = cuts_.begin();
+	for( ; it!= cuts_.end(); ++it) {
+		if(!(*it)->passCut()) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 bool RapidAcceptance::inAcceptance() {
