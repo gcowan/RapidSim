@@ -20,6 +20,7 @@
 RapidConfig::~RapidConfig() {
 	std::map<TString, RapidMomentumSmear*>::iterator itr = momSmearCategories_.begin();
 	while (itr != momSmearCategories_.end()) {
+		delete itr->second;
 		momSmearCategories_.erase(itr++);
 	}
 
@@ -33,7 +34,16 @@ RapidConfig::~RapidConfig() {
 		params_.pop_back();
 	}
 
+	while(!cuts_.empty()) {
+		delete cuts_[cuts_.size()-1];
+		cuts_.pop_back();
+	}
+
 	if(accRejHisto_) delete accRejHisto_;
+
+	if(acceptance_) delete acceptance_;
+	if(decay_) delete decay_;
+	if(writer_) delete writer_;
 }
 
 bool RapidConfig::load(TString fileName) {

@@ -5,6 +5,13 @@
 #include "TMath.h"
 #include "TRandom.h"
 
+RapidMomentumSmearHisto::~RapidMomentumSmearHisto() {
+	while(!histos_.empty()) {
+		delete histos_[histos_.size()-1];
+		histos_.pop_back();
+	}
+}
+
 TLorentzVector RapidMomentumSmearHisto::smearMomentum(TLorentzVector p) {
 
     double kp, kptx, kpty, norm, smear;

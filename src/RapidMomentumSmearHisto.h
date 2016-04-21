@@ -11,6 +11,8 @@ class RapidMomentumSmearHisto : public RapidMomentumSmear {
 	public:
 		RapidMomentumSmearHisto(std::vector<double> thresholds, std::vector<TH1*> histos) { init(thresholds, histos); }
 
+		~RapidMomentumSmearHisto();
+
 		TLorentzVector smearMomentum(TLorentzVector p);
 
 	private:

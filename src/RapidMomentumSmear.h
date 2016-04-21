@@ -5,6 +5,8 @@
 
 class RapidMomentumSmear {
 	public:
+		virtual ~RapidMomentumSmear() {}
+
 		virtual TLorentzVector smearMomentum(TLorentzVector p)=0;
 };
 

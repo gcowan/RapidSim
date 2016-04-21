@@ -3,6 +3,10 @@
 #include "TMath.h"
 #include "TRandom.h"
 
+RapidMomentumSmearGauss::~RapidMomentumSmearGauss() {
+	if(graph_) delete graph_;
+}
+
 TLorentzVector RapidMomentumSmearGauss::smearMomentum(TLorentzVector p) {
 
     double kp, kptx, kpty, norm, smear;

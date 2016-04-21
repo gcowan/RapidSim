@@ -9,6 +9,8 @@ class RapidMomentumSmearGauss : public RapidMomentumSmear {
 	public:
 		RapidMomentumSmearGauss(TGraphErrors* graph) : graph_(graph) {}
 
+		~RapidMomentumSmearGauss();
+
 		TLorentzVector smearMomentum(TLorentzVector p);
 
 	private:
