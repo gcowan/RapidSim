@@ -2,7 +2,6 @@
 
 #include <iostream>
 
-#include "TGenPhaseSpace.h"
 #include "TMath.h"
 #include "TRandom.h"
 
@@ -162,21 +161,20 @@ bool RapidDecay::genDecay(bool acceptAny) {
 	for(unsigned int i=0; i<parts_.size(); ++i) {
 		RapidParticle* part = parts_[i];
 		if(part->nDaughters()>0) {
-			TGenPhaseSpace event;
 			// check decay kinematics valid
-			if(!event.SetDecay(part->getP(), part->nDaughters(), part->daughterMasses())) {
+			if(!decay_.SetDecay(part->getP(), part->nDaughters(), part->daughterMasses())) {
 				std::cout << "ERROR in RapidDecay::genDecay : decay of " << part->name() << " is kinematically forbidden." << std::endl;
 				return false;
 			}
 
 			// make an event
 			if(acceptAny) {
-				event.Generate();
+				decay_.Generate();
 			} else {
 				int nGen(0);
 				bool accept(false);
 				while (nGen < maxgen_ && accept == false){
-					accept = event.Generate() > gRandom->Uniform();
+					accept = decay_.Generate() > gRandom->Uniform();
 					++nGen;
 				} // while
 
@@ -188,7 +186,7 @@ bool RapidDecay::genDecay(bool acceptAny) {
 
 			int j=0;
 			for(RapidParticle* jDaug=part->daughter(0); jDaug!=0; jDaug=jDaug->next()) {
-				jDaug->setP(*event.GetDecay(j++));
+				jDaug->setP(*decay_.GetDecay(j++));
 			}
 		}
 	}

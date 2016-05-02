@@ -7,6 +7,8 @@
 #include "TH2.h"
 #include "TString.h"
 
+#include "TGenPhaseSpace.h"
+
 class RapidParticle;
 class RapidParam;
 
@@ -59,6 +61,9 @@ class RapidDecay {
 		TH1* accRejHisto_;
 		RapidParam* accRejParameterX_;
 		RapidParam* accRejParameterY_;
+
+		//TGenPhaseSpace object to perform the decays
+		TGenPhaseSpace decay_;
 
 };
 #endif
