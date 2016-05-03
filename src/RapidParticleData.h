@@ -36,11 +36,14 @@ class RapidParticleData {
 		RapidParticle* makeParticle(TString name, RapidParticle* mother);
 
 		void setupMass(RapidParticle* part);
+		void setNarrowWidth(double narrowWidth) { narrowWidth_ = narrowWidth; }
 
 	private:
 		static RapidParticleData* instance_;
 
-		RapidParticleData() {}
+		RapidParticleData()
+		: narrowWidth_(0.001) {}
+
 		~RapidParticleData() {}
 
 		//copy constructor and copy assignment operator not implemented
@@ -64,6 +67,8 @@ class RapidParticleData {
 
 		//register of particle names that have been used
 		std::set<TString> usedNames_;
+
+		double narrowWidth_;
 };
 
 #endif

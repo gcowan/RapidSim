@@ -74,6 +74,11 @@ mother :
 	Overrides to determined flavour of the mother particle used to get the correct mother kinematics
 	n.b. currently only "b" is supported but more types may be added in rootfiles/fonll
 
+minWidth :
+	Sets the minimum resonance width (in GeV) to be generated
+	Narrower resonances will be generated with a fixed mass
+	n.b. defaults to 0.001 GeV
+
 param :
 	Defines a new parameter to be added to the histograms/tree
 	Syntax is "param : <name> <type> <particles> [TRUE]"

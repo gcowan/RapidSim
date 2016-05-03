@@ -332,6 +332,9 @@ bool RapidConfig::configGlobal(TString command, TString value) {
 	} else if(command=="mother") {
 		motherFlavour_ = value;
 		std::cout << "INFO in RapidConfig::configGlobal : mother flavour forced to be " << motherFlavour_ << "." << std::endl;
+	} else if(command=="minWidth") {
+		RapidParticleData::getInstance()->setNarrowWidth(value.Atof());
+		std::cout << "INFO in RapidConfig::configGlobal : minimum resonance width to be generated set to " << value.Atof() << " GeV." << std::endl;
 	} else if(command=="param") {
 		RapidParam* param = loadParam(value);
 		if(!param) {

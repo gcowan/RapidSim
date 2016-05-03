@@ -162,6 +162,11 @@ void RapidParticleData::setupMass(RapidParticle* part) {
 	double width = getWidth(id);
 	double spin = getSpin(id);
 
+	if(width<narrowWidth_) {
+		std::cout << "INFO in RapidParticleData::setupMass : resonance " << name << " is narrow (" << width << " GeV) and will generated using a fixed mass." << std::endl;
+		return;
+	}
+
 	double mmin = mass - 100.*width;
 	double mmax = mass + 100.*width;
 
