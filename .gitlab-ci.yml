@@ -13,42 +13,41 @@ build:
         paths:
             - build/src/RapidSim.exe
 
-run-kee:
+run-B2Kee:
     script:
         - cd build
-        - echo "B+ -> K+ e+ e-" > ../src/B2Kee.decay
-        - src/RapidSim.exe ../src/B2Kee 100000
+        - src/RapidSim.exe ../validation/B2Kee 100000
+        - root -b -q -l "../validation/compareHistograms.C(\"B2Kee\")"
     stage: test
     artifacts:
         paths:
-            - build/myHistos.root
+            - ../validation/B2Kee_hists.root
 
-run-kee-tree:
+run-B2Kee-tree:
     script:
         - cd build
-        - echo "B+ -> K+ e+ e-" > ../src/B2Kee.decay
-        - src/RapidSim.exe ../src/B2Kee 1000 1
+        - src/RapidSim.exe ../validation/B2Kee 1000 1
     stage: test
     artifacts:
         paths:
-            - build/myTree.root
+            - ../validation/B2Kee_tree.root
 
-run-phi2kk:
+run-Bs2Jpsiphi:
     script:
         - cd build
-        - echo "phi -> K+ K-" > ../src/phi2KK.decay
-        - src/RapidSim.exe ../src/phi2KK 100000
+        - src/RapidSim.exe ../validation/Bs2Jpsiphi 100000
+        - root -b -q -l "../validation/compareHistograms.C(\"Bs2Jpsiphi\")"
     stage: test
     artifacts:
         paths:
-            - build/myHistos.root
+            - ../validation/Bs2Jpsiphi_hists.root
 
-run-rho2pipi:
+run-Bd2D0rho0:
     script:
         - cd build
-        - echo "rho0 -> pi+ pi-" > ../src/rho2pipi.decay
-        - src/RapidSim.exe ../src/rho2pipi 100000
+        - src/RapidSim.exe ../validation/Bd2D0rho0 100000
+        - root -b -q -l "../validation/compareHistograms.C(\"Bd2D0rho0\")"
     stage: test
     artifacts:
         paths:
-            - build/myHistos.root
+            - ../validation/Bd2D0rho0_hists.root

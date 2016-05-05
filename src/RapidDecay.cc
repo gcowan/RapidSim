@@ -39,6 +39,19 @@ void RapidDecay::setAcceptRejectHist(TH1* histo, RapidParam* paramX, RapidParam*
 	delete denom;
 }
 
+bool RapidDecay::checkDecay() {
+	for(unsigned int i=0; i<parts_.size(); ++i) {
+		RapidParticle* part = parts_[i];
+		if(part->nDaughters()>0) {
+			if(!decay_.SetDecay(part->getP(), part->nDaughters(), part->daughterMasses())) {
+				std::cout << "ERROR in RapidDecay::checkDecay : decay of " << part->name() << " is kinematically forbidden." << std::endl;
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
 bool RapidDecay::generate() {
 	//keep resonance masses and parent kinematics independent of the accept/reject decision
 	//these will only be biased if the function is very inefficient for certain values
@@ -163,7 +176,12 @@ bool RapidDecay::genDecay(bool acceptAny) {
 		if(part->nDaughters()>0) {
 			// check decay kinematics valid
 			if(!decay_.SetDecay(part->getP(), part->nDaughters(), part->daughterMasses())) {
-				std::cout << "ERROR in RapidDecay::genDecay : decay of " << part->name() << " is kinematically forbidden." << std::endl;
+				if(!suppressKinematicWarning_) {
+					std::cout << "WARNING in RapidDecay::genDecay : decay of " << part->name() << " is kinematically forbidden for some events due to resonance mass shapes." << std::endl
+						  << "                                  these events will not be generated." << std::endl
+						  << "                                  further warnings will be suppressed." << std::endl;
+					suppressKinematicWarning_ = true;
+				}
 				return false;
 			}
 
@@ -179,7 +197,12 @@ bool RapidDecay::genDecay(bool acceptAny) {
 				} // while
 
 				if(!accept) {
-					std::cout << "ERROR in RapidDecay::genDecay : rejected all " << maxgen_ << " attempts to decay " << part->name() << "." << std::endl;
+					if(!suppressAttemptsWarning_) {
+						std::cout << "WARNING in RapidDecay::genDecay : rejected all " << maxgen_ << " attempts to decay " << part->name() << "." << std::endl
+							  << "                                  this event will not be generated." << std::endl
+							  << "                                  further warnings will be suppressed." << std::endl;
+					suppressAttemptsWarning_ = true;
+					}
 					return false;
 				}
 			}
@@ -206,7 +229,12 @@ bool RapidDecay::genDecayAccRej() {
 	} while(!passAccRej && ntry<maxgen_);
 
 	if(!passAccRej) {
-		std::cout << "WARNING in RapidDecay::genDecayAccRej : no events found with required kinematics." << std::endl;
+		if(!suppressAttemptsWarning_) {
+			std::cout << "WARNING in RapidDecay::genDecayAccRej : no events found with required kinematics." << std::endl
+				  << "                                        this event will not be generated." << std::endl
+				  << "                                        further warnings will be suppressed." << std::endl;
+			suppressAttemptsWarning_ = true;
+		}
 		return false;
 	}
 

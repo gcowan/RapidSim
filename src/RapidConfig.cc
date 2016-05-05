@@ -75,6 +75,11 @@ RapidDecay* RapidConfig::getDecay() {
 
 		decay_ = new RapidDecay(parts_);
 
+		//check decay
+		if(!decay_->checkDecay()) {
+			return 0;
+		}
+
 		//check that we have an FONLL model for the parent kinematics
 		if(!loadParentKinematics()) {
 			return 0;

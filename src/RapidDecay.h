@@ -17,7 +17,8 @@ class RapidDecay {
 		RapidDecay(const std::vector<RapidParticle*>& parts)
 			: parts_(parts), maxgen_(1000),
 			  ptHisto_(0), etaHisto_(0),
-			  accRejHisto_(0), accRejParameterX_(0), accRejParameterY_(0)
+			  accRejHisto_(0), accRejParameterX_(0), accRejParameterY_(0),
+			  suppressKinematicWarning_(false), suppressAttemptsWarning_(false)
 			{setup();}
 
 		~RapidDecay() {}
@@ -26,7 +27,8 @@ class RapidDecay {
 		void setParentKinematics(TH1* ptHisto, TH1* etaHisto);
 		void setAcceptRejectHist(TH1* histo, RapidParam* param);
 		void setAcceptRejectHist(TH1* histo, RapidParam* paramX, RapidParam* paramY);
-		
+
+		bool checkDecay();
 		bool generate();
 
 	private:
@@ -64,6 +66,10 @@ class RapidDecay {
 
 		//TGenPhaseSpace object to perform the decays
 		TGenPhaseSpace decay_;
+
+		//flags to suppress generation warnings
+		bool suppressKinematicWarning_;
+		bool suppressAttemptsWarning_;
 
 };
 #endif

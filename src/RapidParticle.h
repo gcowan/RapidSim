@@ -17,7 +17,7 @@ class RapidParticle {
 			: index_(0), id_(id), name_(name), mass_(mass), charge_(charge),
 			  mother_(mother), next_(0), invisible_(false),
 			  massData_(0), minMass_(mass), maxMass_(mass)
-			{}
+			{setPtEtaPhi(0,0,0);}
 
 
 		~RapidParticle() {}
