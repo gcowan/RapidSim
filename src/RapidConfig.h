@@ -24,7 +24,7 @@ class RapidConfig {
 			  accRejParameterX_(0), accRejParameterY_(0),
 			  acceptanceType_(RapidAcceptance::ANY),
 			  ppEnergy_(7.), motherFlavour_("b"),
-			  ptHisto_(0), etaHisto_(0),
+			  ptHisto_(0), etaHisto_(0), maxgen_(1000),
 			  decay_(0), acceptance_(0), writer_(0)
 		{}
 
@@ -82,6 +82,9 @@ class RapidConfig {
 		//parent kinematic distributions
 		TH1* ptHisto_;
 		TH1* etaHisto_;
+
+		//max attempts to generate
+		double maxgen_;
 
 		RapidDecay* decay_;
 		RapidAcceptance* acceptance_;

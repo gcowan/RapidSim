@@ -79,6 +79,10 @@ minWidth :
 	Narrower resonances will be generated with a fixed mass
 	n.b. defaults to 0.001 GeV
 
+maxAttempts :
+	Sets the maximum number of attempts allowed to generate each decay
+	n.b. defaults to 1000
+
 param :
 	Defines a new parameter to be added to the histograms/tree
 	Syntax is "param : <name> <type> <particles> [TRUE]"

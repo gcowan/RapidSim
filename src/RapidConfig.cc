@@ -86,6 +86,8 @@ RapidDecay* RapidConfig::getDecay() {
 		}
 		decay_->setParentKinematics(ptHisto_,etaHisto_);
 
+		decay_->setMaxGen(maxgen_);
+
 		//load any PDF to generate
 		if(accRejHisto_ && accRejParameterX_) {
 			if(accRejParameterY_) {
@@ -340,6 +342,9 @@ bool RapidConfig::configGlobal(TString command, TString value) {
 	} else if(command=="minWidth") {
 		RapidParticleData::getInstance()->setNarrowWidth(value.Atof());
 		std::cout << "INFO in RapidConfig::configGlobal : minimum resonance width to be generated set to " << value.Atof() << " GeV." << std::endl;
+	} else if(command=="maxAttempts") {
+		maxgen_ = value.Atof();
+		std::cout << "INFO in RapidConfig::configGlobal : maximum number of attempts to generated an event set to " << maxgen_ << "." << std::endl;
 	} else if(command=="param") {
 		RapidParam* param = loadParam(value);
 		if(!param) {
