@@ -21,7 +21,7 @@ run-B2Kee:
     stage: test
     artifacts:
         paths:
-            - ../validation/B2Kee_hists.root
+            - validation/B2Kee_hists.root
 
 run-B2Kee-tree:
     script:
@@ -30,7 +30,7 @@ run-B2Kee-tree:
     stage: test
     artifacts:
         paths:
-            - ../validation/B2Kee_tree.root
+            - validation/B2Kee_tree.root
 
 run-Bs2Jpsiphi:
     script:
@@ -40,7 +40,7 @@ run-Bs2Jpsiphi:
     stage: test
     artifacts:
         paths:
-            - ../validation/Bs2Jpsiphi_hists.root
+            - validation/Bs2Jpsiphi_hists.root
 
 run-Bd2D0rho0:
     script:
@@ -50,7 +50,7 @@ run-Bd2D0rho0:
     stage: test
     artifacts:
         paths:
-            - ../validation/Bd2D0rho0_hists.root
+            - validation/Bd2D0rho0_hists.root
 
 run-Bs2D0Kpi:
     script:
@@ -60,4 +60,4 @@ run-Bs2D0Kpi:
     stage: test
     artifacts:
         paths:
-            - ../validation/Bs2D0Kpi_hists.root
+            - validation/Bs2D0Kpi_hists.root

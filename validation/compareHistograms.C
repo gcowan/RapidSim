@@ -32,6 +32,6 @@ int compareHistograms(TString mode) {
 		}
 	}
 
-	return 0;
+	return status;
 }
 
