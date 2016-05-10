@@ -61,3 +61,13 @@ run-Bs2D0Kpi:
     artifacts:
         paths:
             - validation/Bs2D0Kpi_hists.root
+
+run-D02Kpi:
+    script:
+        - cd build
+        - src/RapidSim.exe ../validation/D02Kpi 100000
+        - root -b -q -l "../validation/compareHistograms.C(\"D02Kpi\")"
+    stage: test
+    artifacts:
+        paths:
+            - validation/D02Kpi_hists.root

@@ -192,8 +192,12 @@ bool RapidConfig::loadDecay() {
 			//get flavour of mother for FONLL
 			if(theMother->hasBeauty()) {
 				motherFlavour_ = "b";
+				std::cout << "INFO in RapidConfig::loadDecay : Mother has beauty." << std::endl;
+				std::cout << "                                 setting b-quark kinematics." << std::endl;
 			} else if(theMother->hasCharm()) {
 				motherFlavour_ = "c";
+				std::cout << "INFO in RapidConfig::loadDecay : Mother has charm." << std::endl;
+				std::cout << "                                 setting c-quark kinematics." << std::endl;
 			} else {
 				std::cout << "WARNING in RapidConfig::loadDecay : Mother has neither beauty nor charm." << std::endl;
 				std::cout << "                                    defaulting to b-quark kinematics." << std::endl;
@@ -654,9 +658,9 @@ bool RapidConfig::loadAcceptRejectHist(TString histFile, TString histName, Rapid
 }
 
 bool RapidConfig::loadParentKinematics() {
-	TString fileName("../rootfiles/fonll/lhc_");
-	fileName += motherFlavour_; fileName += "_";
-	fileName += ppEnergy_; fileName += "tev";
+	TString fileName("../rootfiles/fonll/LHC");
+	fileName += motherFlavour_;
+	fileName += ppEnergy_;
 	fileName += ".root";
 	TFile* file = TFile::Open(fileName);
 
@@ -666,8 +670,8 @@ bool RapidConfig::loadParentKinematics() {
 		return false;
 	}
 
-	ptHisto_ = dynamic_cast<TH1*>(file->Get("pthisto"));
-	etaHisto_ = dynamic_cast<TH1*>(file->Get("etahisto"));
+	ptHisto_ = dynamic_cast<TH1*>(file->Get("pT"));
+	etaHisto_ = dynamic_cast<TH1*>(file->Get("eta"));
 
 	if(!ptHisto_ || !check1D(ptHisto_)) {
 		std::cout << "ERROR in RapidConfig::loadParentKinematics : pT histogram is neither TH1F nor TH1D." << std::endl;

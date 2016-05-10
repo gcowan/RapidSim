@@ -23,7 +23,7 @@ class RapidConfig {
 			: fileName_(""), accRejHisto_(0),
 			  accRejParameterX_(0), accRejParameterY_(0),
 			  acceptanceType_(RapidAcceptance::ANY),
-			  ppEnergy_(7.), motherFlavour_("b"),
+			  ppEnergy_(8.), motherFlavour_("b"),
 			  ptHisto_(0), etaHisto_(0), maxgen_(1000),
 			  decay_(0), acceptance_(0), writer_(0)
 		{}

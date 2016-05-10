@@ -157,6 +157,4 @@ MCORR :		The corrected mass of the combination of the given particles
 
 ---TODO---
 
-Add alternative FONLL configurations (e.g. D decays or 13 TeV)
-Add validation scripts
 Add more particles to particles.dat
