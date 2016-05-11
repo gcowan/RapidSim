@@ -68,11 +68,13 @@ acceptance :
 
 energy :
 	Sets the pp collision energy (in TeV) used to get the correct mother kinematics
-	n.b. currently only "7" is supported but more types may be added in rootfiles/fonll
+	n.b. currently "7", "8", "13" and "14" are supported
+	more types may be added in rootfiles/fonll
 
 mother :
 	Overrides to determined flavour of the mother particle used to get the correct mother kinematics
-	n.b. currently only "b" is supported but more types may be added in rootfiles/fonll
+	n.b. currently only "b" and "c" are supported
+	more types may be added in rootfiles/fonll
 
 minWidth :
 	Sets the minimum resonance width (in GeV) to be generated
@@ -82,6 +84,38 @@ minWidth :
 maxAttempts :
 	Sets the maximum number of attempts allowed to generate each decay
 	n.b. defaults to 1000
+
+paramsStable :
+	Defines the set of parameters to be added to the histograms/tree
+	for each stable particle in the decay.
+	Syntax is "paramsStable : <params>"
+	where params is a space separated list of the types defined 
+	in the PARAMETERS section.
+	e.g. "paramsStable : P PT"
+
+paramsDecaying :
+	Defines the set of parameters to be added to the histograms/tree
+	for each decaying particle in the decay.
+	Syntax is "paramsDecaying : <params>"
+	where params is a space separated list of the types defined 
+	in the PARAMETERS section.
+	e.g. "paramsDecaying : M P PT"
+
+paramsTwoBody :
+	Defines the set of parameters to be added to the histograms/tree
+	for each two-body combination of particles in a 3+-body decay.
+	Syntax is "paramsTwoBody : <params>"
+	where params is a space separated list of the types defined 
+	in the PARAMETERS section.
+	e.g. "paramsTwoBody : M M2"
+
+paramsThreeBody :
+	Defines the set of parameters to be added to the histograms/tree
+	for each three-body combination of particles in a 4+-body decay.
+	Syntax is "paramsThreeBody : <params>"
+	where params is a space separated list of the types defined 
+	in the PARAMETERS section.
+	e.g. "paramsThreeBody : M M2"
 
 param :
 	Defines a new parameter to be added to the histograms/tree
@@ -158,3 +192,5 @@ MCORR :		The corrected mass of the combination of the given particles
 ---TODO---
 
 Add more particles to particles.dat
+Add derived class for particle specific parameters to simplify RapidParam interface
+Add possible mass mis-IDs to parameters

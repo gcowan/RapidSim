@@ -27,7 +27,8 @@ class RapidParam {
 			BETA,     //velocity
 			THETA,    //angle between particles
 			COSTHETA, //cosine of angle between particles
-			MCORR     //corrected mass
+			MCORR,    //corrected mass
+			UNKNOWN   //unused
 
 		};
 
@@ -42,25 +43,45 @@ class RapidParam {
 			  truth_(truth), minVal_(0.), maxVal_(0.) 
 			{particles_.push_back(part); setDefaultMinMax();}
 
+		RapidParam(ParamType type, bool truth)
+			: name_(""), type_(type),
+			  truth_(truth), minVal_(0.), maxVal_(0.)
+			{setDefaultMinMax();}
+
 		~RapidParam() {}
 
-		double eval();
+		double eval();//TODO make virtual and give a warning in the base class
+		double eval(const TLorentzVector& mom);
 
-		TString name() { return name_; }
+		TString name();
 		TString typeName();
-		double min() { return minVal_; }
-		double max() { return maxVal_; }
+		bool truth() { return truth_; }
+		double min() { return minVal_; }//TODO make virtual and give a warning in the base class
+		double max() { return maxVal_; }//TODO make virtual and give a warning in the base class
+
+		void getMinMax(const std::vector<RapidParticle*>& parts, double& min, double& max);
+
+		//convenience functions for 1, 2 or 3-body parameters
+		void getMinMax(RapidParticle* part, double& min, double& max);
+		void getMinMax(RapidParticle* partA, RapidParticle* partB, double& min, double& max);
+		void getMinMax(RapidParticle* partA, RapidParticle* partB, RapidParticle* partC, double& min, double& max);
 
 	private:
 		double evalCorrectedMass();
 		double evalTheta();
 
-		void setDefaultMinMax();
+		void setDefaultMinMax() {setDefaultMinMax(particles_,minVal_,maxVal_);}//TODO remove/make virtual and give a warning in the base class
+
+		void setDefaultMinMax(const std::vector<RapidParticle*>& parts, double& min, double& max);
+		void setMassMinMax(const std::vector<RapidParticle*>& parts, double& min, double& max);
 
 		TString name_;
 		ParamType type_;
-		std::vector<RapidParticle*> particles_;
 		bool truth_;
+
+		//the following are only used for specific parameters
+		////TODO refactor into an inherited class RapidParamSpecific
+		std::vector<RapidParticle*> particles_;
 		double minVal_;
 		double maxVal_;
 };

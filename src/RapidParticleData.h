@@ -29,7 +29,7 @@ class RapidParticleData {
 		double getCharge(int id);
 		TString getName(int id);
 		TString getSanitisedName(int id);
-		
+
 		int pdgCode(TString name);
 
 		RapidParticle* makeParticle(int id, RapidParticle* mother);
@@ -37,6 +37,18 @@ class RapidParticleData {
 
 		void setupMass(RapidParticle* part);
 		void setNarrowWidth(double narrowWidth) { narrowWidth_ = narrowWidth; }
+
+		bool checkHierarchy(const std::vector<RapidParticle*>& parts);
+		bool checkHierarchy(RapidParticle* part, RapidParticle* ancestor);
+
+		RapidParticle* findCommonAncestor(const std::vector<RapidParticle*>& parts);
+
+		void findStableDaughters(const std::vector<RapidParticle*>& parts, std::vector<RapidParticle*>& daughters);
+		void findStableDaughters(RapidParticle* parts, std::vector<RapidParticle*>& daughters);
+
+		void findOtherDaughters(RapidParticle* ancestor, const std::vector<RapidParticle*>& parts, std::vector<RapidParticle*>& others);
+
+		void combineCompleteAncestors(const std::vector<RapidParticle*>& parts, std::vector<RapidParticle*>& partsCombined);
 
 	private:
 		static RapidParticleData* instance_;

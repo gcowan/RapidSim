@@ -276,3 +276,140 @@ RooGounarisSakurai* RapidParticleData::makeGS(RooRealVar& m, double mean, double
 	
 	return new RooGounarisSakurai(name,name, m,*m0,*g0,*spin, *radius,*ma,*mb);
 }
+
+bool RapidParticleData::checkHierarchy(const std::vector<RapidParticle*>& parts) {
+	std::vector<RapidParticle*>::const_iterator it1 = parts.begin();
+
+	for( ; it1!=parts.end(); ++it1) {
+		RapidParticle* part1 = *it1;
+
+		std::vector<RapidParticle*>::const_iterator it2 = parts.begin();
+		for( ; it2!=parts.end(); ++it2) {
+			if(it1==it2) continue;
+			RapidParticle* part2 = *it2;
+
+			//check hierarchy for each pair of particles in both orders
+			if(checkHierarchy(part1,part2)) return true;
+		}
+	}
+
+	return false;
+}
+
+bool RapidParticleData::checkHierarchy(RapidParticle* part, RapidParticle* ancestor) {
+	while(part) {
+		//search the hierarchy of part until we either find ancestor or 0
+		if(ancestor == part) return true;
+		part = part->mother();
+	}
+
+	return false;
+}
+
+RapidParticle* RapidParticleData::findCommonAncestor(const std::vector<RapidParticle*>& parts) {
+	std::vector<RapidParticle*>::const_iterator it = parts.begin();
+
+	//common ancestor of the first particle is itself
+	RapidParticle* ancestor = *it;
+
+	for( ; it!=parts.end(); ++it) {
+		RapidParticle* part = *it;
+		//if the current ancestor is not an ancestor of the next particle then search upwards until we find one that is
+		while(!checkHierarchy(part,ancestor)) {
+			ancestor = ancestor->mother();
+			if(!ancestor) {
+				//if we arrive here then the particles do not belong to the same decay chain
+				std::cout << "WARNING in RapidParticlleData::findCommonAncestor : some of the particles have no common ancestors." << std::endl;
+				return 0;
+			}
+		}
+	}
+
+	return ancestor;
+
+}
+
+void RapidParticleData::findStableDaughters(const std::vector<RapidParticle*>& parts, std::vector<RapidParticle*>& daughters) {
+	std::vector<RapidParticle*>::const_iterator it = parts.begin();
+
+	for( ; it!=parts.end(); ++it) {
+		RapidParticle* part = *it;
+		//add the stable daughters of each particle into daughters
+		findStableDaughters(part, daughters);
+	}
+}
+
+void RapidParticleData::findStableDaughters(RapidParticle* part, std::vector<RapidParticle*>& daughters) {
+	if(part->nDaughters()==0) {
+		//if the particle is stable then keep it
+		daughters.push_back(part);
+	} else {
+		//otherwise iterate over all daughters
+		RapidParticle* daug = part->daughter(0);
+		while(daug) {
+			findStableDaughters(daug,daughters);
+			daug = daug->next();
+		}
+	}
+}
+
+void RapidParticleData::findOtherDaughters(RapidParticle* ancestor, const std::vector<RapidParticle*>& parts, std::vector<RapidParticle*>& others) {
+	std::vector<RapidParticle*> all;
+	std::vector<RapidParticle*> sel;
+
+	//find all daughters of the ancestor
+	findStableDaughters(ancestor, all);
+
+	//find all daughters of the particles
+	findStableDaughters(parts, sel);
+
+	//sort the vectors so we can diff them
+	std::sort(all.begin(), all.end());
+	std::sort(sel.begin(), sel.end());
+
+	//fill others with all elements that are in all but not sel
+	std::set_difference( all.begin(), all.end(), sel.begin(), sel.end(),std::back_inserter( others ) );
+}
+
+void RapidParticleData::combineCompleteAncestors(const std::vector<RapidParticle*>& parts, std::vector<RapidParticle*>& partsCombined) {
+
+	bool updated(false);
+
+	std::map<RapidParticle*,unsigned int> daughtersFound;
+
+	//conut the number of daughters found for the mother of each particle
+	std::vector<RapidParticle*>::const_iterator it = parts.begin();
+	for( ; it!=parts.end(); ++it) {
+		RapidParticle* mother = (*it)->mother();
+		if(mother) {
+			++daughtersFound[mother];
+		}
+	}
+
+	//add in any mothers which are complete
+	std::map<RapidParticle*,unsigned int>::iterator mit = daughtersFound.begin();
+	for( ; mit!=daughtersFound.end(); ++mit) {
+		RapidParticle* mother = (*mit).first;
+		if(mother->nDaughters() == (*mit).second) {
+			partsCombined.push_back(mother);
+			updated = true;
+		}
+	}
+
+	//now add in the particles whose mothers are not complete
+	it = parts.begin();
+	for( ; it!=parts.end(); ++it) {
+		RapidParticle* part = (*it);
+		RapidParticle* mother = part->mother();
+		if(!mother || mother->nDaughters()!=daughtersFound[mother]) {
+			partsCombined.push_back(part);
+		}
+	}
+
+	//if we successfully combined any particles then we may also be able to combine their parents so iterate
+	if(updated) {
+		std::vector<RapidParticle*> partsUpdated;
+		std::swap(partsCombined,partsUpdated);//TODO C++11 - can use std::move
+		combineCompleteAncestors(partsUpdated,partsCombined);
+	}
+}

@@ -16,7 +16,7 @@ RapidHistWriter::~RapidHistWriter() {
 
 void RapidHistWriter::setup(bool saveTree) {
 	setupHistos();
-	if(saveTree) setupTree();
+	if(saveTree) setupTree(); //called after setupHistos so we know the number of parameters
 }
 
 void RapidHistWriter::fill() {
@@ -39,110 +39,90 @@ void RapidHistWriter::save() {
 }
 
 void RapidHistWriter::setupHistos() {
+	std::vector<RapidParam*>::iterator itParam;
+
+	TString baseName;
+	TString histName;
+	TString axisTitle;
+	TH1F* hist(0);
+
+	double min(0), max(0);
+
 	for(unsigned int i=0; i<parts_.size(); ++i) {
 		RapidParticle* part = parts_[i];
+		baseName = part->name();
 
-		if(part->nDaughters() < 2) continue;
-		// for each subdecay include:
-		// parent mass
-		// all 2- and 3-body daughter combinations
-		// smeared versions of histograms
-		TString baseName = part->name();
-		TString histName;
-		TString axisTitle;
-		TH1F* hist(0);
+		if(part->nDaughters() < 2) {
+			for(itParam=paramsStable_.begin(); itParam!=paramsStable_.end(); ++itParam) {
+				RapidParam* param = *itParam;
+				histName = baseName+"_"+param->name();
+				axisTitle = param->name() + "(" + baseName + ")";
+				param->getMinMax(part,min,max);
+				hist = new TH1F(histName, "", 100, min, max);
+				hist->GetXaxis()->SetTitle(axisTitle);
+				histos_.push_back(hist);
+			}
+		} else {
+			for(itParam=paramsDecaying_.begin(); itParam!=paramsDecaying_.end(); ++itParam) {
+				RapidParam* param = *itParam;
+				histName = baseName+"_"+param->name();
+				axisTitle = param->name() + "(" + baseName + ")";
+				param->getMinMax(part,min,max);
+				hist = new TH1F(histName, "", 100, min, max);
+				hist->GetXaxis()->SetTitle(axisTitle);
+				histos_.push_back(hist);
+			}
 
-		//for the mother mass
-		double mmin = part->minMass();
-		double mmax = part->maxMass();
-		mmin -= 0.1;
-		mmax += 0.1;
+			//2-body IMs
+			if(part->nDaughters() > 2) {
+				RapidParticle* jDaug = part->daughter(0);
 
-		axisTitle = "m(" + baseName + ")";
-		histName = baseName+"_M";
-		hist = new TH1F(histName, "", 100, mmin, mmax);
-		hist->GetXaxis()->SetTitle(axisTitle);
-		histos_.push_back(hist);
-
-		histName += "_smeared";
-		hist = new TH1F(histName, "", 100, mmin, mmax);
-		hist->GetXaxis()->SetTitle(axisTitle);
-		histos_.push_back(hist);
-
-		//2-body IMs
-		if(part->nDaughters() > 2) {
-			RapidParticle* jDaug = part->daughter(0);
-
-			for( ; jDaug!=0; jDaug=jDaug->next()) {
-				for(RapidParticle* kDaug=jDaug->next(); kDaug!=0; kDaug=kDaug->next()) {
-					mmin = jDaug->mass() + kDaug->mass();
-					mmax = part->mass();
-					RapidParticle* daug = part->daughter(0);
-					for( ; daug!=0; daug = daug->next()) {
-						if(daug==jDaug || daug==kDaug) continue;
-						mmax -= daug->mass();
+				for( ; jDaug!=0; jDaug=jDaug->next()) {
+					for(RapidParticle* kDaug=jDaug->next(); kDaug!=0; kDaug=kDaug->next()) {
+						for(itParam=paramsTwoBody_.begin(); itParam!=paramsTwoBody_.end(); ++itParam) {
+							RapidParam* param = *itParam;
+							histName  = jDaug->name()+"_";
+							histName += kDaug->name()+"_";
+							histName += param->name();
+							axisTitle = param->name() + "(" + jDaug->name() + "_" + kDaug->name() + ")";
+							param->getMinMax(jDaug,kDaug,min,max);
+							hist = new TH1F(histName, "", 100, min, max);
+							hist->GetXaxis()->SetTitle(axisTitle);
+							histos_.push_back(hist);
+						}
 					}
-					axisTitle = "m(";
-					axisTitle += jDaug->name();
-					axisTitle += kDaug->name();
-					axisTitle += ")";
-					histName = baseName+"_M";
-					histName += jDaug->name();
-					histName += kDaug->name();
-					hist = new TH1F(histName, "", 100, mmin, mmax);
-					hist->GetXaxis()->SetTitle(axisTitle);
-					histos_.push_back(hist);
-
-					histName += "_smeared";
-					hist = new TH1F(histName, "", 100, mmin, mmax);
-					hist->GetXaxis()->SetTitle(axisTitle);
-					histos_.push_back(hist);
-
 				}
 			}
-		}
 
-		//3-body IMs
-		if(part->nDaughters() > 3) {
-			RapidParticle* jDaug = part->daughter(0);
+			//3-body IMs
+			if(part->nDaughters() > 3) {
+				RapidParticle* jDaug = part->daughter(0);
 
-			for( ; jDaug!=0; jDaug=jDaug->next()) {
-				for(RapidParticle* kDaug=jDaug->next(); kDaug!=0; kDaug=kDaug->next()) {
-					for(RapidParticle* lDaug=kDaug->next(); lDaug!=0; lDaug=lDaug->next()) {
-						mmin = jDaug->mass() + kDaug->mass() + lDaug->mass();
-						mmax = part->mass();
-						RapidParticle* daug = part->daughter(0);
-						for( ; daug!=0; daug = daug->next()) {
-							if(daug==jDaug || daug==kDaug || daug==lDaug) continue;
-							mmax -= daug->mass();
+				for( ; jDaug!=0; jDaug=jDaug->next()) {
+					for(RapidParticle* kDaug=jDaug->next(); kDaug!=0; kDaug=kDaug->next()) {
+						for(RapidParticle* lDaug=kDaug->next(); lDaug!=0; lDaug=lDaug->next()) {
+							for(itParam=paramsThreeBody_.begin(); itParam!=paramsThreeBody_.end(); ++itParam) {
+								RapidParam* param = *itParam;
+								histName  = jDaug->name()+"_";
+								histName += kDaug->name()+"_";
+								histName += lDaug->name()+"_";
+								histName += param->name();
+								axisTitle = param->name() + "(" + jDaug->name() + "_" + kDaug->name() + "_" + lDaug->name() + ")";
+								param->getMinMax(jDaug,kDaug,lDaug,min,max);
+								hist = new TH1F(histName, "", 100, min, max);
+								hist->GetXaxis()->SetTitle(axisTitle);
+								histos_.push_back(hist);
+							}
 						}
-						axisTitle = "m(";
-						axisTitle += jDaug->name();
-						axisTitle += kDaug->name();
-						axisTitle += lDaug->name();
-						axisTitle += ")";
-						histName = baseName+"_M";
-						histName += jDaug->name();
-						histName += kDaug->name();
-						histName += lDaug->name();
-						hist = new TH1F(histName, "", 100, mmin, mmax);
-						hist->GetXaxis()->SetTitle(axisTitle);
-						histos_.push_back(hist);
 
-						histName += "_smeared";
-						hist = new TH1F(histName, "", 100, mmin, mmax);
-						hist->GetXaxis()->SetTitle(axisTitle);
-						histos_.push_back(hist);
 					}
-
 				}
 			}
 		}
 	}
 
-	std::vector<RapidParam*>::iterator it = params_.begin();
-	for( ; it!= params_.end(); ++it) {
-		RapidParam* param = (*it);
+	for( itParam=params_.begin(); itParam!= params_.end(); ++itParam) {
+		RapidParam* param = (*itParam);
 		TH1F* hist = new TH1F(param->name(), "", 100, param->min(), param->max());
 		histos_.push_back(hist);
 	}
@@ -153,82 +133,92 @@ void RapidHistWriter::setupTree() {
 	std::cout << "INFO in RapidHistWriter::setupTree : tree will be saved to file: " << name_ << "_tree.root" << std::endl;
 	std::cout << "                                     This will slow down generation." << std::endl;
 
-	varsPerPart_ = 19;
 	treeFile_ = new TFile(name_+"_tree.root", "RECREATE");
 	tree_ = new TTree("DecayTree","DecayTree");
 	tree_->SetDirectory(treeFile_);
-	treeVars_ = std::vector<double>(parts_.size()*varsPerPart_ + params_.size(), 0);
 
-	for(unsigned int i=0; i<parts_.size(); ++i) {
-		TString baseName = parts_[i]->name();
-		tree_->Branch(baseName+"_ID"      ,    &treeVars_[varsPerPart_*i+0] );
-		tree_->Branch(baseName+"_M"       ,    &treeVars_[varsPerPart_*i+1] );
-		tree_->Branch(baseName+"_E"       ,    &treeVars_[varsPerPart_*i+2] );
-		tree_->Branch(baseName+"_P"       ,    &treeVars_[varsPerPart_*i+3] );
-		tree_->Branch(baseName+"_PX"      ,    &treeVars_[varsPerPart_*i+4] );
-		tree_->Branch(baseName+"_PY"      ,    &treeVars_[varsPerPart_*i+5] );
-		tree_->Branch(baseName+"_PZ"      ,    &treeVars_[varsPerPart_*i+6] );
-		tree_->Branch(baseName+"_PT"      ,    &treeVars_[varsPerPart_*i+7] );
-		tree_->Branch(baseName+"_ETA"     ,    &treeVars_[varsPerPart_*i+8] );
-		tree_->Branch(baseName+"_PHI"     ,    &treeVars_[varsPerPart_*i+9] );
-		tree_->Branch(baseName+"_TRUEM"   ,    &treeVars_[varsPerPart_*i+10]);
-		tree_->Branch(baseName+"_TRUEE"   ,    &treeVars_[varsPerPart_*i+11]);
-		tree_->Branch(baseName+"_TRUEP"   ,    &treeVars_[varsPerPart_*i+12]);
-		tree_->Branch(baseName+"_TRUEPX"  ,    &treeVars_[varsPerPart_*i+13]);
-		tree_->Branch(baseName+"_TRUEPY"  ,    &treeVars_[varsPerPart_*i+14]);
-		tree_->Branch(baseName+"_TRUEPZ"  ,    &treeVars_[varsPerPart_*i+15]);
-		tree_->Branch(baseName+"_TRUEPT"  ,    &treeVars_[varsPerPart_*i+16]);
-		tree_->Branch(baseName+"_TRUEETA" ,    &treeVars_[varsPerPart_*i+17]);
-		tree_->Branch(baseName+"_TRUEPHI" ,    &treeVars_[varsPerPart_*i+18]);
+	treeVars_ = std::vector<double>(histos_.size(), 0);
+	for(unsigned int i=0; i<histos_.size(); ++i) {
+		tree_->Branch(histos_[i]->GetName(), &treeVars_[i]);
 	}
-	for(unsigned int i=0; i<params_.size(); ++i) {
-		tree_->Branch(params_[i]->name(), &treeVars_[varsPerPart_*parts_.size() + i]);
-	}
+
 }
 
 void RapidHistWriter::fillHistos() {
 
 	int iHist(0);
+	std::vector<RapidParam*>::iterator itParam;
+	TLorentzVector pSumTruth;
+	TLorentzVector pSum;
+
+	double val;
 
 	for(unsigned int i=0; i<parts_.size(); ++i) {
 		RapidParticle* part = parts_[i];
-		if(part->nDaughters() < 2) continue;
-		// for each subdecay include:
-		// parent mass
-		// all 2- and 3-body daughter combinations
-		// smeared versions of histograms
 
-		//for the mother mass
-		histos_[iHist++]->Fill(parts_[i]->getP().M());
-		histos_[iHist++]->Fill(parts_[i]->getPSmeared().M());
+		if(part->nDaughters() < 2) {
+			for(itParam=paramsStable_.begin(); itParam!=paramsStable_.end(); ++itParam) {
+				RapidParam* param = *itParam;
+				if(param->truth()) {
+					val = param->eval(part->getP());
+				} else {
+					val = param->eval(part->getPSmeared());
+				}
+				histos_[iHist++]->Fill(val);
+			}
+		} else {
+			for(itParam=paramsDecaying_.begin(); itParam!=paramsDecaying_.end(); ++itParam) {
+				RapidParam* param = *itParam;
+				if(param->truth()) {
+					val = param->eval(part->getP());
+				} else {
+					val = param->eval(part->getPSmeared());
+				}
+				histos_[iHist++]->Fill(val);
+			}
 
-		//2-body IMs
-		if(part->nDaughters() > 2) {
-			RapidParticle* jDaug = part->daughter(0);
+			//2-body IMs
+			if(part->nDaughters() > 2) {
+				RapidParticle* jDaug = part->daughter(0);
 
-			for( ; jDaug!=0; jDaug=jDaug->next()) {
-				for(RapidParticle* kDaug=jDaug->next(); kDaug!=0; kDaug=kDaug->next()) {
-					TLorentzVector pSum = jDaug->getP() + kDaug->getP();
-					histos_[iHist++]->Fill(pSum.M());
+				for( ; jDaug!=0; jDaug=jDaug->next()) {
+					for(RapidParticle* kDaug=jDaug->next(); kDaug!=0; kDaug=kDaug->next()) {
+						pSumTruth = jDaug->getP() + kDaug->getP();
+						pSum = jDaug->getPSmeared() + kDaug->getPSmeared();
 
-					pSum = jDaug->getPSmeared() + kDaug->getPSmeared();
-					histos_[iHist++]->Fill(pSum.M());
+						for(itParam=paramsTwoBody_.begin(); itParam!=paramsTwoBody_.end(); ++itParam) {
+							RapidParam* param = *itParam;
+							if(param->truth()) {
+								val = param->eval(pSumTruth);
+							} else {
+								val = param->eval(pSum);
+							}
+							histos_[iHist++]->Fill(val);
+						}
+					}
 				}
 			}
-		}
 
-		//3-body IMs
-		if(part->nDaughters() > 3) {
-			RapidParticle* jDaug = part->daughter(0);
+			//3-body IMs
+			if(part->nDaughters() > 3) {
+				RapidParticle* jDaug = part->daughter(0);
 
-			for( ; jDaug!=0; jDaug=jDaug->next()) {
-				for(RapidParticle* kDaug=jDaug->next(); kDaug!=0; kDaug=kDaug->next()) {
-					for(RapidParticle* lDaug=kDaug->next(); lDaug!=0; lDaug=lDaug->next()) {
-						TLorentzVector pSum = jDaug->getP() + kDaug->getP() + lDaug->getP();
-						histos_[iHist++]->Fill(pSum.M());
+				for( ; jDaug!=0; jDaug=jDaug->next()) {
+					for(RapidParticle* kDaug=jDaug->next(); kDaug!=0; kDaug=kDaug->next()) {
+						for(RapidParticle* lDaug=kDaug->next(); lDaug!=0; lDaug=lDaug->next()) {
+							pSumTruth = jDaug->getP() + kDaug->getP() + lDaug->getP();
+							pSum = jDaug->getPSmeared() + kDaug->getPSmeared() + lDaug->getPSmeared();
 
-						pSum = jDaug->getPSmeared() + kDaug->getPSmeared() + lDaug->getPSmeared();
-						histos_[iHist++]->Fill(pSum.M());
+							for(itParam=paramsTwoBody_.begin(); itParam!=paramsTwoBody_.end(); ++itParam) {
+								RapidParam* param = *itParam;
+								if(param->truth()) {
+									val = param->eval(pSumTruth);
+								} else {
+									val = param->eval(pSum);
+								}
+								histos_[iHist++]->Fill(val);
+							}
+						}
 					}
 				}
 			}
@@ -242,33 +232,82 @@ void RapidHistWriter::fillHistos() {
 }
 
 void RapidHistWriter::fillTree() {
+	int iVar(0);
+	std::vector<RapidParam*>::iterator itParam;
+	TLorentzVector pSumTruth;
+	TLorentzVector pSum;
 
 	for(unsigned int i=0; i<parts_.size(); ++i) {
-		TLorentzVector mom = parts_[i]->getPSmeared();
-		treeVars_[varsPerPart_*i+0] = parts_[i]->id();
-		treeVars_[varsPerPart_*i+1] = mom.M();
-		treeVars_[varsPerPart_*i+2] = mom.E();
-		treeVars_[varsPerPart_*i+3] = mom.P();
-		treeVars_[varsPerPart_*i+4] = mom.Px();
-		treeVars_[varsPerPart_*i+5] = mom.Py();
-		treeVars_[varsPerPart_*i+6] = mom.Pz();
-		treeVars_[varsPerPart_*i+7] = mom.Pt();
-		treeVars_[varsPerPart_*i+8] = mom.Eta();
-		treeVars_[varsPerPart_*i+9] = mom.Phi();
-		mom = parts_[i]->getP();
-		treeVars_[varsPerPart_*i+10] = mom.M();
-		treeVars_[varsPerPart_*i+11] = mom.E();
-		treeVars_[varsPerPart_*i+12] = mom.P();
-		treeVars_[varsPerPart_*i+13] = mom.Px();
-		treeVars_[varsPerPart_*i+14] = mom.Py();
-		treeVars_[varsPerPart_*i+15] = mom.Pz();
-		treeVars_[varsPerPart_*i+16] = mom.Pt();
-		treeVars_[varsPerPart_*i+17] = mom.Eta();
-		treeVars_[varsPerPart_*i+18] = mom.Phi();
+		RapidParticle* part = parts_[i];
+
+		if(part->nDaughters() < 2) {
+			for(itParam=paramsStable_.begin(); itParam!=paramsStable_.end(); ++itParam) {
+				RapidParam* param = *itParam;
+				if(param->truth()) {
+					treeVars_[iVar++] = param->eval(part->getP());
+				} else {
+					treeVars_[iVar++] = param->eval(part->getPSmeared());
+				}
+			}
+		} else {
+			for(itParam=paramsDecaying_.begin(); itParam!=paramsDecaying_.end(); ++itParam) {
+				RapidParam* param = *itParam;
+				if(param->truth()) {
+					treeVars_[iVar++] = param->eval(part->getP());
+				} else {
+					treeVars_[iVar++] = param->eval(part->getPSmeared());
+				}
+			}
+
+			//2-body IMs
+			if(part->nDaughters() > 2) {
+				RapidParticle* jDaug = part->daughter(0);
+
+				for( ; jDaug!=0; jDaug=jDaug->next()) {
+					for(RapidParticle* kDaug=jDaug->next(); kDaug!=0; kDaug=kDaug->next()) {
+						pSumTruth = jDaug->getP() + kDaug->getP();
+						pSum = jDaug->getPSmeared() + kDaug->getPSmeared();
+
+						for(itParam=paramsTwoBody_.begin(); itParam!=paramsTwoBody_.end(); ++itParam) {
+							RapidParam* param = *itParam;
+							if(param->truth()) {
+								treeVars_[iVar++] = param->eval(pSumTruth);
+							} else {
+								treeVars_[iVar++] = param->eval(pSum);
+							}
+						}
+					}
+				}
+			}
+
+			//3-body IMs
+			if(part->nDaughters() > 3) {
+				RapidParticle* jDaug = part->daughter(0);
+
+				for( ; jDaug!=0; jDaug=jDaug->next()) {
+					for(RapidParticle* kDaug=jDaug->next(); kDaug!=0; kDaug=kDaug->next()) {
+						for(RapidParticle* lDaug=kDaug->next(); lDaug!=0; lDaug=lDaug->next()) {
+							pSumTruth = jDaug->getP() + kDaug->getP() + lDaug->getP();
+							pSum = jDaug->getPSmeared() + kDaug->getPSmeared() + lDaug->getPSmeared();
+
+							for(itParam=paramsTwoBody_.begin(); itParam!=paramsTwoBody_.end(); ++itParam) {
+								RapidParam* param = *itParam;
+								if(param->truth()) {
+									treeVars_[iVar++] = param->eval(pSumTruth);
+								} else {
+									treeVars_[iVar++] = param->eval(pSum);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
-	for(unsigned int i=0; i<params_.size(); ++i) {
-		treeVars_[varsPerPart_*parts_.size() + i] = params_[i]->eval();
+	std::vector<RapidParam*>::iterator it = params_.begin();
+	for( ; it!= params_.end(); ++it) {
+		treeVars_[iVar++] = (*it)->eval();
 	}
 
 	tree_->Fill();

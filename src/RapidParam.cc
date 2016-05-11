@@ -3,12 +3,14 @@
 #include "TRandom.h"
 
 #include "RapidParticle.h"
+#include "RapidParticleData.h"
 
 double RapidParam::eval() {
 
 	if(type_ == RapidParam::THETA || type_ == RapidParam::COSTHETA) return evalTheta();
 	if(type_ == RapidParam::MCORR) return evalCorrectedMass();
 
+	//TODO check if it's quicker to keep mom and reset to 0,0,0,0 each time
 	TLorentzVector mom;
 	if(truth_) {
 		for(unsigned int i=0; i<particles_.size(); ++i) {
@@ -19,6 +21,11 @@ double RapidParam::eval() {
 			mom += particles_[i]->getPSmeared();
 		}
 	}
+
+	return eval(mom);
+}
+
+double RapidParam::eval(const TLorentzVector& mom) {
 	switch(type_) {
 		case RapidParam::M:
 			return mom.M();
@@ -50,9 +57,12 @@ double RapidParam::eval() {
 			return mom.Gamma();
 		case RapidParam::BETA:
 			return mom.Beta();
-		case RapidParam::THETA: //dealt with separately above - included to appease compiler
-		case RapidParam::COSTHETA: //dealt with separately above - included to appease compiler
-		case RapidParam::MCORR: //dealt with separately above - included to appease compiler
+		case RapidParam::THETA:
+		case RapidParam::COSTHETA:
+		case RapidParam::MCORR:
+			std::cout << "WARNING in RapidParam::eval : parameter type " << type_ << " cannot be used with a single momentum." << std::endl
+				  << "                              returning 0." << std::endl;
+			break;
 		default:
 			std::cout << "WARNING in RapidParam::eval : unknown parameter type " << type_ << std::endl
 				  << "                              returning 0." << std::endl;
@@ -131,6 +141,25 @@ double RapidParam::evalTheta() {
 	} else {
 		return pA.Vect().Dot(pB.Vect())/(pA.P()*pB.P());
 	}
+}
+
+TString RapidParam::name() {
+	if(name_.Length()==0) {
+		//construct default name
+		std::vector<RapidParticle*>::iterator it = particles_.begin();
+		for( ; it!= particles_.end(); ++it) {
+			name_ += (*it)->name();
+			name_ += "_";
+		}
+
+		name_ += typeName();
+
+		if(truth_) {
+			name_ += "_TRUE";
+		}
+	}
+
+	return name_;
 }
 
 TString RapidParam::typeName() {
@@ -222,17 +251,48 @@ RapidParam::ParamType RapidParam::typeFromString(TString str) {
 	}
 }
 
-void RapidParam::setDefaultMinMax() {
+void RapidParam::getMinMax(const std::vector<RapidParticle*>& parts, double& min, double& max) {
+	setDefaultMinMax(parts,min,max);
+}
+
+void RapidParam::getMinMax(RapidParticle* part, double& min, double& max) {
+	std::vector<RapidParticle*> parts;
+	parts.push_back(part);
+	setDefaultMinMax(parts,min,max);
+}
+
+void RapidParam::getMinMax(RapidParticle* partA, RapidParticle* partB, double& min, double& max) {
+	std::vector<RapidParticle*> parts;
+	parts.push_back(partA);
+	parts.push_back(partB);
+	setDefaultMinMax(parts,min,max);
+}
+
+void RapidParam::getMinMax(RapidParticle* partA, RapidParticle* partB, RapidParticle* partC, double& min, double& max) {
+	std::vector<RapidParticle*> parts;
+	parts.push_back(partA);
+	parts.push_back(partB);
+	parts.push_back(partC);
+	setDefaultMinMax(parts,min,max);
+}
+
+void RapidParam::setDefaultMinMax(const std::vector<RapidParticle*>& parts, double& min, double& max) {
 	switch(type_) {
 		case RapidParam::M:
-		case RapidParam::MCORR:
+			setMassMinMax(parts,min,max);
+			break;
 		case RapidParam::MT:
-			minVal_ = 0.;
-			maxVal_ = 7.;
+			setMassMinMax(parts,min,max);
+			min = 0.;
+			break;
+		case RapidParam::MCORR:
+			setMassMinMax(parts,min,max);
+			min = -max;
 			break;
 		case RapidParam::M2:
-			minVal_ = 0.;
-			maxVal_ = 30.;
+			setMassMinMax(parts,min,max);
+			min = min*min;
+			max = max*max;
 			break;
 		case RapidParam::E:
 		case RapidParam::ET:
@@ -241,36 +301,100 @@ void RapidParam::setDefaultMinMax() {
 		case RapidParam::PY:
 		case RapidParam::PZ:
 		case RapidParam::PT:
-			minVal_ = 0.;
-			maxVal_ = 100.;
+			min = 0.;
+			max = 100.;
 			break;
 		case RapidParam::ETA:
-			minVal_ = -7.;
-			maxVal_ =  7.;
+			min = -7.;
+			max =  7.;
 			break;
 		case RapidParam::PHI:
-			minVal_ = -3.5;
-			maxVal_ =  3.5;
+			min = -3.5;
+			max =  3.5;
 			break;
 		case RapidParam::RAPIDITY:
-			minVal_ = 0.;
-			maxVal_ = 10.;
+			min = 0.;
+			max = 10.;
 			break;
 		case RapidParam::GAMMA:
-			minVal_ = 1.;
-			maxVal_ = 50.;
+			min = 1.;
+			max = 50.;
 			break;
 		case RapidParam::BETA:
-			minVal_ = 0.;
-			maxVal_ = 1.;
+			min = 0.;
+			max = 1.;
 			break;
 		case RapidParam::THETA:
-			minVal_ = 0.0;
-			maxVal_ = 3.5;
+			min = 0.0;
+			max = 3.5;
 			break;
 		case RapidParam::COSTHETA:
-			minVal_ = -1.0;
-			maxVal_ =  1.0;
+			min = -1.0;
+			max =  1.0;
 			break;
+		case RapidParam::UNKNOWN:
+		default:
+			return;
+	}
+}
+
+void RapidParam::setMassMinMax(const std::vector<RapidParticle*>& parts, double& min, double& max) {
+	if(parts.size()==0) {
+		//no particles so mass is 0
+		return;
+	} else if(parts.size()==1) {
+		//single particle is easy
+		min = parts[0]->minMass() - 0.1;
+		max = parts[0]->maxMass() + 0.1;
+	} else {
+		RapidParticleData* rpd = RapidParticleData::getInstance();
+
+		//first check whether any of the particles we've been given have a hierarchical relationship
+		if(rpd->checkHierarchy(parts)) {
+			std::cout << "WARNING in RapidParam::setMassMinMax : some of the particles used in parameter " << name() << " are repeated or have a hierarchical relationship." << std::endl
+			          << "                                       setting default mass range." << std::endl;
+			min=0.;
+			max=10.;
+			return;
+		}
+
+		//find the most recent common ancestor of all our particles
+		RapidParticle* commonAncestor = rpd->findCommonAncestor(parts);
+
+		//this shouldn't happen
+		if(!commonAncestor) {
+			std::cout << "WARNING in RapidParam::setMassMinMax : some of the particles used in parameter " << name() << " have no common ancestors." << std::endl
+			          << "                                       setting default mass range." << std::endl;
+			min=0.;
+			max=10.;
+			return;
+		}
+
+		//get the list of stable particles descended from our particles
+		std::vector<RapidParticle*> selStableParts;
+		rpd->findStableDaughters(parts,selStableParts);
+
+		//now compare against the list of stable particles from the ancestor to get the list of particles we did not include
+		std::vector<RapidParticle*> otherParts;
+		rpd->findOtherDaughters(commonAncestor, selStableParts, otherParts);
+
+		//now combine any particles where all of the daughters are in this list as the breakup mass is also lost
+		std::vector<RapidParticle*> otherPartsCombined;
+		rpd->combineCompleteAncestors(otherParts, otherPartsCombined);
+
+		//minimum mass is the sum of the masses of the included particles
+		min = -0.1;
+		std::vector<RapidParticle*>::const_iterator cit = parts.begin();
+		for( ; cit!=parts.end(); ++cit) {
+			min += (*cit)->minMass();
+		}
+
+		//maximum mass is the mass of the parent minus the sum of the masses of the missing daughters
+		max = commonAncestor->maxMass() + 0.1;
+		std::vector<RapidParticle*>::iterator it = otherPartsCombined.begin();
+		for( ; it!=otherPartsCombined.end(); ++it) {
+			max -= (*it)->minMass();
+		}
+
 	}
 }

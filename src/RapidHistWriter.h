@@ -13,8 +13,8 @@ class RapidParticle;
 
 class RapidHistWriter {
 	public:
-		RapidHistWriter(const std::vector<RapidParticle*>& parts, const std::vector<RapidParam*>& params, TString name, bool saveTree)
-			: name_(name), parts_(parts), params_(params), treeFile_(0), tree_(0), varsPerPart_(0)
+		RapidHistWriter(const std::vector<RapidParticle*>& parts, const std::vector<RapidParam*>& params, const std::vector<RapidParam*>& paramsStable, const std::vector<RapidParam*>& paramsDecaying, const std::vector<RapidParam*>& paramsTwoBody, const std::vector<RapidParam*>& paramsThreeBody, TString name, bool saveTree)
+			: name_(name), parts_(parts), params_(params), paramsStable_(paramsStable), paramsDecaying_(paramsDecaying), paramsTwoBody_(paramsTwoBody), paramsThreeBody_(paramsThreeBody), treeFile_(0), tree_(0)
 		{setup(saveTree);}
 
 		~RapidHistWriter();
@@ -34,7 +34,15 @@ class RapidHistWriter {
 		TString name_;
 
 		std::vector<RapidParticle*> parts_;
+
+		//particle specific parameters
 		std::vector<RapidParam*> params_;
+
+		//default parameter sets
+		std::vector<RapidParam*> paramsStable_;
+		std::vector<RapidParam*> paramsDecaying_;
+		std::vector<RapidParam*> paramsTwoBody_;
+		std::vector<RapidParam*> paramsThreeBody_;
 
 		//histograms to store parameters in
 		std::vector<TH1F*> histos_;
@@ -43,7 +51,6 @@ class RapidHistWriter {
 		TFile* treeFile_;
 		TTree* tree_;
 		std::vector<double> treeVars_;
-		int varsPerPart_;
 };
 
 #endif

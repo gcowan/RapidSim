@@ -54,13 +54,30 @@ class RapidConfig {
 		bool loadAcceptRejectHist(TString histFile, TString histName, RapidParam* paramX, RapidParam* paramY);
 		bool loadParentKinematics();
 
+		void setupDefaultParams();
+		void setupDefaultParams(TString paramStr, std::vector<RapidParam*>& params);
+
 		bool check1D(TH1* hist) { return (dynamic_cast<TH1F*>(hist) || dynamic_cast<TH1D*>(hist)); }
 		bool check2D(TH1* hist) { return (dynamic_cast<TH2F*>(hist) || dynamic_cast<TH2D*>(hist)); }
 
 		TString fileName_;
 
 		std::vector<RapidParticle*> parts_;
+
+		//particle specific parameters
 		std::vector<RapidParam*> params_;
+
+		//default parameter sets
+		std::vector<RapidParam*> paramsStable_;
+		std::vector<RapidParam*> paramsDecaying_;
+		std::vector<RapidParam*> paramsTwoBody_;
+		std::vector<RapidParam*> paramsThreeBody_;
+
+		//parameters to load
+		std::string paramStrStable_;
+		std::string paramStrDecaying_;
+		std::string paramStrTwoBody_;
+		std::string paramStrThreeBody_;
 
 		std::vector<RapidCut*> cuts_;
 

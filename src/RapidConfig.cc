@@ -34,6 +34,26 @@ RapidConfig::~RapidConfig() {
 		params_.pop_back();
 	}
 
+	while(!paramsStable_.empty()) {
+		delete paramsStable_[paramsStable_.size()-1];
+		paramsStable_.pop_back();
+	}
+
+	while(!paramsDecaying_.empty()) {
+		delete paramsDecaying_[paramsDecaying_.size()-1];
+		paramsDecaying_.pop_back();
+	}
+
+	while(!paramsTwoBody_.empty()) {
+		delete paramsTwoBody_[paramsTwoBody_.size()-1];
+		paramsTwoBody_.pop_back();
+	}
+
+	while(!paramsThreeBody_.empty()) {
+		delete paramsThreeBody_[paramsThreeBody_.size()-1];
+		paramsThreeBody_.pop_back();
+	}
+
 	while(!cuts_.empty()) {
 		delete cuts_[cuts_.size()-1];
 		cuts_.pop_back();
@@ -110,8 +130,10 @@ RapidAcceptance* RapidConfig::getAcceptance() {
 }
 
 RapidHistWriter* RapidConfig::getWriter(bool saveTree) {
+	setupDefaultParams();
+
 	if(!writer_) {
-		writer_ = new RapidHistWriter(parts_, params_, fileName_, saveTree);
+		writer_ = new RapidHistWriter(parts_, params_, paramsStable_, paramsDecaying_, paramsTwoBody_, paramsThreeBody_, fileName_, saveTree);
 	}
 
 	return writer_;
@@ -283,6 +305,25 @@ void RapidConfig::writeConfig() {
 	std::ofstream fout;
 	fout.open(fileName_+".config", std::ofstream::out);
 
+	fout << "paramsDecaying : M, P, PT\n";
+	fout << "paramsStable : P, PT\n";
+
+	std::vector<RapidParticle*>::iterator it = parts_.begin();
+	for( ; it!=parts_.end(); ++it) {
+		if((*it)->nDaughters() > 2) {
+			fout << "paramsTwoBody : M2\n";
+			break;
+		}
+	}
+
+	it = parts_.begin();
+	for( ; it!=parts_.end(); ++it) {
+		if((*it)->nDaughters() > 3) {
+			fout << "paramsThreeBody : M2\n";
+			break;
+		}
+	}
+
 	for(unsigned int i=0; i<parts_.size(); ++i) {
 		RapidParticle* part = parts_[i];
 
@@ -349,6 +390,22 @@ bool RapidConfig::configGlobal(TString command, TString value) {
 	} else if(command=="maxAttempts") {
 		maxgen_ = value.Atof();
 		std::cout << "INFO in RapidConfig::configGlobal : maximum number of attempts to generated an event set to " << maxgen_ << "." << std::endl;
+	} else if(command=="paramsStable") {
+		paramStrStable_ = value;
+		std::cout << "INFO in RapidConfig::configGlobal : will use the following parameters for all stable particles:" << std::endl
+			  << "                                    " << paramStrStable_ << "." << std::endl;
+	} else if(command=="paramsDecaying") {
+		paramStrDecaying_ = value;
+		std::cout << "INFO in RapidConfig::configGlobal : will use the following parameters for all decaying particles:" << std::endl
+			  << "                                    " << paramStrDecaying_ << "." << std::endl;
+	} else if(command=="paramsTwoBody") {
+		paramStrTwoBody_ = value;
+		std::cout << "INFO in RapidConfig::configGlobal : will use the following parameters for all two-body daughter combinations:" << std::endl
+			  << "                                    " << paramStrTwoBody_ << "." << std::endl;
+	} else if(command=="paramsThreeBody") {
+		paramStrThreeBody_ = value;
+		std::cout << "INFO in RapidConfig::configGlobal : will use the following parameters for all three-body daughter combinations:" << std::endl
+			  << "                                    " << paramStrThreeBody_ << "." << std::endl;
 	} else if(command=="param") {
 		RapidParam* param = loadParam(value);
 		if(!param) {
@@ -684,4 +741,31 @@ bool RapidConfig::loadParentKinematics() {
 	}
 
 	return true;
+}
+
+void RapidConfig::setupDefaultParams() {
+	setupDefaultParams(paramStrStable_, paramsStable_);
+	setupDefaultParams(paramStrDecaying_, paramsDecaying_);
+	setupDefaultParams(paramStrTwoBody_, paramsTwoBody_);
+	setupDefaultParams(paramStrThreeBody_, paramsThreeBody_);
+}
+
+void RapidConfig::setupDefaultParams(TString paramStr, std::vector<RapidParam*>& params) {
+	int from(0);
+	TString buffer;
+	RapidParam* param(0);
+
+	while(paramStr.Tokenize(buffer,from," ")) {
+		buffer = buffer.Strip(TString::kBoth,',');
+		RapidParam::ParamType type = RapidParam::typeFromString(buffer);
+		if(type==RapidParam::UNKNOWN) {
+			std::cout << "WARNING in RapidConfig::setDefaultParams : Unknown parameter type " << buffer << "ignored." << std::endl;
+			continue;
+		} else {
+			param = new RapidParam(type, false);
+			params.push_back(param);
+			param = new RapidParam(type, true);
+			params.push_back(param);
+		}
+	}
 }
