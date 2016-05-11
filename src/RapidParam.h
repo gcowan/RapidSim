@@ -35,8 +35,8 @@ class RapidParam {
 		static RapidParam::ParamType typeFromString(TString str);
 
 		RapidParam(TString name, ParamType type, const std::vector<RapidParticle*>& particles, bool truth)
-			: name_(name), type_(type), particles_(particles),
-			  truth_(truth), minVal_(0.), maxVal_(0.) {setDefaultMinMax();}
+			: name_(name), type_(type), truth_(truth), particles_(particles),
+			  minVal_(0.), maxVal_(0.) {setDefaultMinMax();}
 
 		RapidParam(TString name, ParamType type, RapidParticle* part, bool truth)
 			: name_(name), type_(type),
