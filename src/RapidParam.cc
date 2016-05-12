@@ -10,19 +10,18 @@ double RapidParam::eval() {
 	if(type_ == RapidParam::THETA || type_ == RapidParam::COSTHETA) return evalTheta();
 	if(type_ == RapidParam::MCORR) return evalCorrectedMass();
 
-	//TODO check if it's quicker to keep mom and reset to 0,0,0,0 each time
-	TLorentzVector mom;
+	mom_.SetPxPyPzE(0.,0.,0.,0.);
 	if(truth_) {
 		for(unsigned int i=0; i<particles_.size(); ++i) {
-			mom += particles_[i]->getP();
+			mom_ += particles_[i]->getP();
 		}
 	} else {
 		for(unsigned int i=0; i<particles_.size(); ++i) {
-			mom += particles_[i]->getPSmeared();
+			mom_ += particles_[i]->getPSmeared();
 		}
 	}
 
-	return eval(mom);
+	return eval(mom_);
 }
 
 double RapidParam::eval(const TLorentzVector& mom) {

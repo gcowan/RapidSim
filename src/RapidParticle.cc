@@ -49,7 +49,7 @@ void RapidParticle::smearMomentum() {
 	if(nDaughters() == 0) {
 		//smear momentum
 		if(invisible_) {
-			pSmeared_.SetXYZM(0.,0.,0.,0.);//TODO run callgrind with this switched to SetPxPyPzE to see effect
+			pSmeared_.SetPxPyPzE(0.,0.,0.,0.);
 		} else if(momSmear_) {
 			pSmeared_ = momSmear_->smearMomentum(p_);
 		} else {
@@ -57,7 +57,7 @@ void RapidParticle::smearMomentum() {
 		}
 	} else {
 		//reconstruct mothers from their daughters
-		pSmeared_ = TLorentzVector();//TODO run callgrind with this switched to SetPxPyPzE to see effect
+		pSmeared_.SetPxPyPzE(0.,0.,0.,0.);
 		RapidParticle* daug = daughter(0);
 		for( ; daug!=0; daug = daug->next()) {
 			pSmeared_ += daug->pSmeared_;

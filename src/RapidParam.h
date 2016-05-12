@@ -85,6 +85,8 @@ class RapidParam {
 		std::vector<RapidParticle*> particles_;
 		double minVal_;
 		double maxVal_;
+
+		TLorentzVector mom_;
 };
 
 #endif
