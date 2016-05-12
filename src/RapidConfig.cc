@@ -364,6 +364,25 @@ bool RapidConfig::configParticle(unsigned int part, TString command, TString val
 		} else if(value=="true") {
 			parts_[part]->setInvisible(true);
 		}
+	} else if(command=="altMass") {
+		RapidParticleData* rpd = RapidParticleData::getInstance();
+
+		int from(0);
+		TString buffer;
+
+		while(value.Tokenize(buffer,from," ")) {
+			int altId = rpd->pdgCode(buffer);
+			if(altId==0) {
+				std::cout << "WARNING in RapidConfig::configParticle : unknown particle type, " << buffer << ", in alternative mass hypothesis for " << parts_[part]->name() << std::endl;
+				std::cout << "                                         this hypothesis will be ignored." << std::endl;
+				continue;
+			}
+			TString altName = rpd->getSanitisedName(altId);
+			double altMass = rpd->getMass(altId);
+
+			parts_[part]->addMassHypothesis(altName, altMass);
+			std::cout << "INFO in RapidConfig::configParticle : added alternative mass hypothesis of " << buffer << " for particle " << parts_[part]->name() << std::endl;
+		}
 	}
 
 	return true;

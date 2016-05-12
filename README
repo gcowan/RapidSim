@@ -162,6 +162,14 @@ invisible :
 	A corrected mass parameter will be added automatically if any particles are invisible
 	n.b. defaults to "true" for neutrinos, otherwise "false"
 
+altMass :
+	Adds alternative mass hypotheses for this particle
+	Syntax is "altMass : <particles>"
+	where particles is a space separated list of particle type
+	names as listed in config/particles.dat
+	If alternative hypotheses are defined for multiple particles
+	then parameters will be calculated for all combinations of
+	one or two mis-identifications
 
 ---PARAMETERS---
 
@@ -193,4 +201,4 @@ MCORR :		The corrected mass of the combination of the given particles
 
 Add more particles to particles.dat
 Add derived class for particle specific parameters to simplify RapidParam interface
-Add possible mass mis-IDs to parameters
+Combine .decay and .config files to simplify interface

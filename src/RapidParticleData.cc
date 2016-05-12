@@ -413,3 +413,25 @@ void RapidParticleData::combineCompleteAncestors(const std::vector<RapidParticle
 		combineCompleteAncestors(partsUpdated,partsCombined);
 	}
 }
+
+void RapidParticleData::getMaxAltHypothesisMassShifts(const std::vector<RapidParticle*>& parts, double& deltaDown, double& deltaUp) {
+	std::vector<RapidParticle*>::const_iterator it = parts.begin();
+	for( ; it!=parts.end(); ++it) {
+		RapidParticle* part = (*it);
+		getMaxAltHypothesisMassShifts(part,deltaDown,deltaUp);
+	}
+}
+
+void RapidParticleData::getMaxAltHypothesisMassShifts(RapidParticle* part, double& deltaDown, double& deltaUp) {
+	double deltaMass = part->deltaMass();
+
+	if(deltaMass<deltaDown) deltaDown=deltaMass;
+	else if(deltaMass>deltaUp) deltaUp=deltaMass;
+
+	//now iterate over all daughters
+	RapidParticle* daug = part->daughter(0);
+	while(daug) {
+		getMaxAltHypothesisMassShifts(daug,deltaDown,deltaUp);
+		daug = daug->next();
+	}
+}

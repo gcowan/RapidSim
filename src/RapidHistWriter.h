@@ -26,14 +26,17 @@ class RapidHistWriter {
 		void setup(bool saveTree);
 
 		void setupHistos();
+		void setupSingleHypothesis(TString suffix="");
 		void setupTree();
 
-		void fillHistos();
-		void fillTree();
+		unsigned int fillSingleHypothesis(unsigned int offset=0);
 
 		TString name_;
 
 		std::vector<RapidParticle*> parts_;
+
+		//particles with alternative mass hypotheses
+		std::vector<RapidParticle*> altHypothesisParts_;
 
 		//particle specific parameters
 		std::vector<RapidParam*> params_;
@@ -50,7 +53,7 @@ class RapidHistWriter {
 		//tree to store parameters in
 		TFile* treeFile_;
 		TTree* tree_;
-		std::vector<double> treeVars_;
+		std::vector<double> vars_;
 };
 
 #endif

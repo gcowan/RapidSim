@@ -16,28 +16,36 @@ class RapidParticle {
 		RapidParticle(int id, TString name, double mass, double charge, RapidParticle* mother)
 			: index_(0), id_(id), name_(name), mass_(mass), charge_(charge),
 			  mother_(mother), next_(0), invisible_(false),
-			  massData_(0), minMass_(mass), maxMass_(mass)
+			  massData_(0), minMass_(mass), maxMass_(mass),
+			  currentHypothesis_(0)
 			{setPtEtaPhi(0,0,0);}
 
 
 		~RapidParticle() {}
-		
+
 		void addDaughter(RapidParticle* part);
-		
+
+		void addMassHypothesis(TString name, double mass);
+		void setMassHypothesis(unsigned int i);
+
 		bool generate();
 		TLorentzVector& getP() { return p_; }
 		TLorentzVector& getPSmeared() { return pSmeared_; }
-		
+
 		void smearMomentum();
 
 		int id() { return id_; }
 		TString name() { return name_; }
 		double mass() { return mass_; }
+		double deltaMass();
 		double charge() { return charge_; }
 		double minMass() { return minMass_; }
 		double maxMass() { return maxMass_; }
 
 		unsigned int nDaughters() { return daughters_.size(); }
+
+		unsigned int nMassHypotheses() { return altMasses_.size()+1; }
+		TString massHypothesisName();
 
 		bool hasCharm();
 		bool hasBeauty();
@@ -70,13 +78,15 @@ class RapidParticle {
 		void setMass(double mass);
 		void updateDaughterMass(unsigned int index);
 
+		void updateMomenta();
+
 		unsigned int index_;
 
 		int id_;
 		TString name_;
 		double mass_;
 		double charge_;
-		
+
 		RapidParticle* mother_;
 		std::vector<RapidParticle*> daughters_;
 		RapidParticle* next_;
@@ -86,12 +96,18 @@ class RapidParticle {
 		TLorentzVector pSmeared_;
 
 		bool invisible_;
-		
+
 		RapidMomentumSmear* momSmear_;
 
 		RooDataSet* massData_;
 		double minMass_;
 		double maxMass_;
 		TString varName_;
+
+		//store alternative mass hypotheses
+		std::vector<TString> massHypothesisNames_;
+		std::vector<double> altMasses_;
+
+		unsigned int currentHypothesis_;
 };
 #endif

@@ -15,14 +15,41 @@ void RapidParticle::addDaughter(RapidParticle* part) {
 	}
 	part->index_ = daughters_.size();
 	daughters_.push_back(part);
-	daughterMasses_.push_back(part->mass());
+	daughterMasses_.push_back(part->mass_);
+}
+
+void RapidParticle::addMassHypothesis(TString name, double mass) {
+	altMasses_.push_back(mass);
+	massHypothesisNames_.push_back(name);
+}
+
+void RapidParticle::setMassHypothesis(unsigned int i) {
+	if(currentHypothesis_==i) {
+		return;
+	}
+	if(i >= nMassHypotheses()) {
+		std::cout << "WARNING in RapidParticle::setMassHypothesis : " << name() << " does not have mass hypothesis " << i << std::endl;
+		return;
+	}
+
+	currentHypothesis_ = i;
+	if(currentHypothesis_==0) {
+		p_.SetXYZM(p_.Px(), p_.Py(), p_.Pz(), mass_);
+		pSmeared_.SetXYZM(pSmeared_.Px(), pSmeared_.Py(), pSmeared_.Pz(), mass_);
+	} else {
+		p_.SetXYZM(p_.Px(), p_.Py(), p_.Pz(), altMasses_[i-1]);
+		pSmeared_.SetXYZM(pSmeared_.Px(), pSmeared_.Py(), pSmeared_.Pz(), altMasses_[i-1]);
+	}
+	if(mother_) {
+		mother_->updateMomenta();
+	}
 }
 
 void RapidParticle::smearMomentum() {
 	if(nDaughters() == 0) {
 		//smear momentum
 		if(invisible_) {
-			pSmeared_.SetXYZM(0.,0.,0.,0.);
+			pSmeared_.SetXYZM(0.,0.,0.,0.);//TODO run callgrind with this switched to SetPxPyPzE to see effect
 		} else if(momSmear_) {
 			pSmeared_ = momSmear_->smearMomentum(p_);
 		} else {
@@ -30,12 +57,25 @@ void RapidParticle::smearMomentum() {
 		}
 	} else {
 		//reconstruct mothers from their daughters
-		pSmeared_ = TLorentzVector();
+		pSmeared_ = TLorentzVector();//TODO run callgrind with this switched to SetPxPyPzE to see effect
 		RapidParticle* daug = daughter(0);
 		for( ; daug!=0; daug = daug->next()) {
 			pSmeared_ += daug->pSmeared_;
 		}
 	}
+}
+
+double RapidParticle::deltaMass() {
+	if(currentHypothesis_==0) {
+		return 0.;
+	} else {
+		return altMasses_[currentHypothesis_-1] - mass_;
+	}
+}
+
+TString RapidParticle::massHypothesisName() {
+	if(currentHypothesis_==0) return "";
+	else return massHypothesisNames_[currentHypothesis_-1];
 }
 
 bool RapidParticle::hasFlavour(int flavour) {
@@ -106,5 +146,20 @@ void RapidParticle::floatMass() {
 void RapidParticle::updateDaughterMass(unsigned int index) {
 	if(index<daughters_.size()) {
 		daughterMasses_[index] = daughters_[index]->mass_;
+	}
+}
+
+void RapidParticle::updateMomenta() {
+	p_.SetPxPyPzE(0.,0.,0.,0.);
+	pSmeared_.SetPxPyPzE(0.,0.,0.,0.);
+
+	RapidParticle* daug = daughter(0);
+
+	for( ; daug!=0; daug = daug->next()) {
+		p_ += daug->p_;
+		pSmeared_ += daug->pSmeared_;
+	}
+	if(mother_) {
+		mother_->updateMomenta();
 	}
 }

@@ -255,6 +255,15 @@ void RapidParam::getMinMax(const std::vector<RapidParticle*>& parts, double& min
 	setDefaultMinMax(parts,min,max);
 }
 
+void RapidParam::getMinMax(double& min, double& max, bool recalculate) {
+	if(!recalculate) {
+		min = minVal_;
+		max = maxVal_;
+	} else {
+		setDefaultMinMax(particles_,min,max);
+	}
+}
+
 void RapidParam::getMinMax(RapidParticle* part, double& min, double& max) {
 	std::vector<RapidParticle*> parts;
 	parts.push_back(part);
@@ -346,6 +355,17 @@ void RapidParam::setMassMinMax(const std::vector<RapidParticle*>& parts, double&
 		//single particle is easy
 		min = parts[0]->minMass() - 0.1;
 		max = parts[0]->maxMass() + 0.1;
+
+		//now check to see if we've used any alternative mass hypotheses and extend range if necessary
+		double deltaDown(0.), deltaUp(0.);
+
+		RapidParticleData::getInstance()->getMaxAltHypothesisMassShifts(parts,deltaDown,deltaUp);
+
+		//TODO factor of 2. is arbitrary - there is probably a better way to calculate these
+		min+=2.*deltaDown;
+		max+=2.*deltaUp;
+
+		if(min<0.) min=0.;
 	} else {
 		RapidParticleData* rpd = RapidParticleData::getInstance();
 
@@ -396,5 +416,15 @@ void RapidParam::setMassMinMax(const std::vector<RapidParticle*>& parts, double&
 			max -= (*it)->minMass();
 		}
 
+		//now check to see if we've used any alternative mass hypotheses and extend range if necessary
+		double deltaDown(0.), deltaUp(0.);
+
+		RapidParticleData::getInstance()->getMaxAltHypothesisMassShifts(parts,deltaDown,deltaUp);
+
+		//TODO factor of 2. is arbitrary - there is probably a better way to calculate these
+		min+=2.*deltaDown;
+		max+=2.*deltaUp;
+
+		if(min<0.) min=0.;
 	}
 }

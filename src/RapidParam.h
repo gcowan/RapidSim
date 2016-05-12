@@ -60,6 +60,7 @@ class RapidParam {
 		double max() { return maxVal_; }//TODO make virtual and give a warning in the base class
 
 		void getMinMax(const std::vector<RapidParticle*>& parts, double& min, double& max);
+		void getMinMax(double& min, double& max, bool recalculate=false);
 
 		//convenience functions for 1, 2 or 3-body parameters
 		void getMinMax(RapidParticle* part, double& min, double& max);

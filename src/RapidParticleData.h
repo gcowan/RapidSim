@@ -50,6 +50,9 @@ class RapidParticleData {
 
 		void combineCompleteAncestors(const std::vector<RapidParticle*>& parts, std::vector<RapidParticle*>& partsCombined);
 
+		void getMaxAltHypothesisMassShifts(const std::vector<RapidParticle*>& parts, double& deltaDown, double& deltaUp);
+		void getMaxAltHypothesisMassShifts(RapidParticle* parts, double& deltaDown, double& deltaUp);
+
 	private:
 		static RapidParticleData* instance_;
 
