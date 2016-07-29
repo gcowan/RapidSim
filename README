@@ -183,17 +183,17 @@ PX :		The X momentum of the combination of the given particles
 PY :		The Y momentum of the combination of the given particles
 PZ :		The Z momentum of the combination of the given particles
 PT :		The transverse momentum of the combination of the given particles
-ETA :		The pseudorapidity of the combination
-PHI :		The azimuthal angle of the combination
-RAPIDITY :	The rapidity of the combination
-GAMMA :		The relitivistic gamma factor of the combination
-BETA :		The velocity of the combination
-THETA :		The angle between the first two particles in the rest frame of 
+eta :		The pseudorapidity of the combination
+phi :		The azimuthal angle of the combination
+rapidity :	The rapidity of the combination
+gamma :		The relitivistic gamma factor of the combination
+beta :		The velocity of the combination
+theta :		The angle between the first two particles in the rest frame of 
 			the combination of the remaining particles
 			e.g. 1 2 1 3 would give the angle between 1 and 2 in the rest frame 
 			of a resonance in m_13 (i.e. theta_13 in a 3-body decay)
-COSTHETA :	The cosine of THETA
-MCORR :		The corrected mass of the combination of the given particles
+costheta :	The cosine of theta
+Mcorr :		The corrected mass of the combination of the given particles
 			correcting for any invisible particles
 
 
