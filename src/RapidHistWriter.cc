@@ -299,7 +299,7 @@ unsigned int RapidHistWriter::fillSingleHypothesis(unsigned int offset) {
 							pSumTruth = jDaug->getP() + kDaug->getP() + lDaug->getP();
 							pSum = jDaug->getPSmeared() + kDaug->getPSmeared() + lDaug->getPSmeared();
 
-							for(itParam=paramsTwoBody_.begin(); itParam!=paramsTwoBody_.end(); ++itParam) {
+							for(itParam=paramsThreeBody_.begin(); itParam!=paramsThreeBody_.end(); ++itParam) {
 								RapidParam* param = *itParam;
 								if(param->truth()) {
 									vars_[offset] = param->eval(pSumTruth);
