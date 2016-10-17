@@ -39,9 +39,9 @@ void RapidParticleData::loadData(TString file) {
 		buffer.ReadToken(fin);
 		width = buffer.Atof();
 		buffer.ReadToken(fin);
-		spin = buffer.Atof();
-		buffer.ReadToken(fin);
 		charge = buffer.Atof();
+		buffer.ReadToken(fin);
+		spin = buffer.Atof();
 		lineshape.ReadToken(fin);
 
 		if(!fin.good()) break;
