@@ -188,7 +188,7 @@ TString RapidParam::typeName() {
 		case RapidParam::PHI:
 			return "phi";
 		case RapidParam::RAPIDITY:
-			return "rapidity";
+			return "y";
 		case RapidParam::GAMMA:
 			return "gamma";
 		case RapidParam::BETA:
@@ -231,7 +231,7 @@ RapidParam::ParamType RapidParam::typeFromString(TString str) {
 		return RapidParam::ETA;
 	} else if(str=="phi") {
 		return RapidParam::PHI;
-	} else if(str=="rapidity") {
+	} else if(str=="y") {
 		return RapidParam::RAPIDITY;
 	} else if(str=="gamma") {
 		return RapidParam::GAMMA;

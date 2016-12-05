@@ -83,7 +83,7 @@ void RapidDecay::setup() {
 	setupMasses();
 
 	std::cout << "INFO in RapidDecay::setup : Particle summary follows:" << std::endl;
-	printf("index\tlabel\t\t   ID\t\tmass (GeV/c^2)\tmother\t\t# daughters\tdaughters\n");
+	printf("index\tlabel\t\t   ID\t\tmass (GeV/c^2)\tparent\t\t# children\tchildren\n");
 	for(unsigned int i=0; i<parts_.size(); ++i) {
 		parts_[i]->print(i);
 	}

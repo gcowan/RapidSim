@@ -76,7 +76,7 @@ bool RapidConfig::load(TString fileName) {
 	for(unsigned int i=0; i<parts_.size(); ++i) {
 		if(parts_[i]->invisible()) {
 			std::cout << "INFO in RapidConfig::load : invisible daughter found." << std::endl
-				  << "                            Adding corrected mass variable for mother particle." << std::endl;
+				  << "                            Adding corrected mass variable for parent particle." << std::endl;
 			std::vector<int> mother;
 			mother.push_back(0);
 			RapidParam* param = new RapidParam("MCorr", RapidParam::MCORR, parts_[0], false);
@@ -214,14 +214,14 @@ bool RapidConfig::loadDecay() {
 			//get flavour of mother for FONLL
 			if(theMother->hasBeauty()) {
 				motherFlavour_ = "b";
-				std::cout << "INFO in RapidConfig::loadDecay : Mother has beauty." << std::endl;
+				std::cout << "INFO in RapidConfig::loadDecay : Parent has beauty." << std::endl;
 				std::cout << "                                 setting b-quark kinematics." << std::endl;
 			} else if(theMother->hasCharm()) {
 				motherFlavour_ = "c";
-				std::cout << "INFO in RapidConfig::loadDecay : Mother has charm." << std::endl;
+				std::cout << "INFO in RapidConfig::loadDecay : Parent has charm." << std::endl;
 				std::cout << "                                 setting c-quark kinematics." << std::endl;
 			} else {
-				std::cout << "WARNING in RapidConfig::loadDecay : Mother has neither beauty nor charm." << std::endl;
+				std::cout << "WARNING in RapidConfig::loadDecay : Parent has neither beauty nor charm." << std::endl;
 				std::cout << "                                    defaulting to b-quark kinematics." << std::endl;
 				motherFlavour_ = "b";
 			}
@@ -400,9 +400,9 @@ bool RapidConfig::configGlobal(TString command, TString value) {
 	} else if(command=="energy") {
 		ppEnergy_ = value.Atof();
 		std::cout << "INFO in RapidConfig::configGlobal : pp CoM energy set to be " << ppEnergy_ << " TeV." << std::endl;
-	} else if(command=="mother") {
+	} else if(command=="parent") {
 		motherFlavour_ = value;
-		std::cout << "INFO in RapidConfig::configGlobal : mother flavour forced to be " << motherFlavour_ << "." << std::endl;
+		std::cout << "INFO in RapidConfig::configGlobal : parent flavour forced to be " << motherFlavour_ << "." << std::endl;
 	} else if(command=="minWidth") {
 		RapidParticleData::getInstance()->setNarrowWidth(value.Atof());
 		std::cout << "INFO in RapidConfig::configGlobal : minimum resonance width to be generated set to " << value.Atof() << " GeV." << std::endl;

@@ -63,16 +63,16 @@ seed :
 
 acceptance :
 	Sets the type of geometric acceptance to apply to the decay
-	Options are "Any", "MotherIn", "AllIn" and "AllDownstream"
+	Options are "Any", "ParentIn", "AllIn" and "AllDownstream"
 	n.b. defaults to "Any"
 
 energy :
-	Sets the pp collision energy (in TeV) used to get the correct mother kinematics
+	Sets the pp collision energy (in TeV) used to get the correct parent kinematics
 	n.b. currently "7", "8", "13" and "14" are supported
 	more types may be added in rootfiles/fonll
 
-mother :
-	Overrides to determined flavour of the mother particle used to get the correct mother kinematics
+parent :
+	Overrides to determined flavour of the parent particle used to get the correct parent kinematics
 	n.b. currently only "b" and "c" are supported
 	more types may be added in rootfiles/fonll
 
@@ -173,19 +173,19 @@ altMass :
 
 ---PARAMETERS---
 
-M :		The invariant mass of the combination of the given particles
+M :		    The invariant mass of the combination of the given particles
 M2 :		The squared invariant mass of the combination of the given particles
 MT :		The transverse mass of the combination of the given particles
-E :		The energy of the combination of the given particles
+E :		    The energy of the combination of the given particles
 ET :		The transverse energy of the combination of the given particles
-P :		The total momentum of the combination of the given particles
+P :		    The total momentum of the combination of the given particles
 PX :		The X momentum of the combination of the given particles
 PY :		The Y momentum of the combination of the given particles
 PZ :		The Z momentum of the combination of the given particles
 PT :		The transverse momentum of the combination of the given particles
 eta :		The pseudorapidity of the combination
 phi :		The azimuthal angle of the combination
-rapidity :	The rapidity of the combination
+y :	        The rapidity of the combination
 gamma :		The relitivistic gamma factor of the combination
 beta :		The velocity of the combination
 theta :		The angle between the first two particles in the rest frame of 

@@ -10,7 +10,7 @@
 RapidAcceptance::AcceptanceType RapidAcceptance::typeFromString(TString str) {
 	if(str=="Any") {
 		return RapidAcceptance::ANY;
-	} else if(str=="MotherIn") {
+	} else if(str=="ParentIn") {
 		return RapidAcceptance::MOTHERIN;
 	} else if(str=="AllIn") {
 		return RapidAcceptance::ALLIN;
