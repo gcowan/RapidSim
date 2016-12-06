@@ -17,31 +17,34 @@ class RapidAcceptance {
 			ALLDOWNSTREAM
 		};
 
+		enum DetectorType {
+			LHCB
+		};
+
 		static RapidAcceptance::AcceptanceType typeFromString(TString str);
+
+		static RapidAcceptance::DetectorType detectorFromString(TString str);
 
 		RapidAcceptance(AcceptanceType type, const std::vector<RapidParticle*>& parts, const std::vector<RapidCut*>& cuts)
 			: type_(type),
-			  cuts_(cuts),
-			  zC_(5.4), ptkick_(1.2), zTracker_(9.5),
-			  xSizeTracker_(9.5*0.3), ySizeTracker_(9.5*0.25),
-			  xMinTracker_(9.5*0.001), yMinTracker_(9.5*0.001)
+			  cuts_(cuts)
 		{setup(parts);}
 
-		bool isSelected();
+        virtual ~RapidAcceptance() {}
+
+		virtual bool isSelected();
 
 	private:
 		void setup(std::vector<RapidParticle*> parts);
 
-		bool inAcceptance();
+		virtual bool inAcceptance();
 
-		bool motherInAcceptance();
-		bool allInAcceptance();
-		bool allInDownstream();
+		virtual bool motherInAcceptance();
+		virtual bool allInAcceptance();
+		virtual bool allInDownstream();
 
-		bool partInAcceptance(RapidParticle* part);
-		bool partInDownstream(RapidParticle* part);
-
-		TLorentzVector magnetKick(TLorentzVector& vec, double charge);
+		virtual bool partInAcceptance(RapidParticle* part)=0;
+		virtual bool partInDownstream(RapidParticle* part)=0;
 
 		AcceptanceType type_;
 
@@ -50,25 +53,6 @@ class RapidAcceptance {
 		std::vector<RapidParticle*> parts_;
 
 		std::vector<RapidCut*> cuts_;
-
-		//parameters for determining whether a track remains in acceptance after the magnet
-
-		//distance from PV to the magnet centre
-		const double zC_;
-
-		//kick from the magnet
-		const double ptkick_;
-
-		//z-pos of the end of the tracker
-		const double zTracker_;
-
-		//transverse size of the tracker
-		const double xSizeTracker_;
-		const double ySizeTracker_;
-
-		//inner edge of the tracker
-		const double xMinTracker_;
-		const double yMinTracker_;
 };
 
 #endif

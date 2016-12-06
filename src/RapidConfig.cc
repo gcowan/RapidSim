@@ -7,7 +7,7 @@
 #include "TFile.h"
 #include "TRandom.h"
 
-#include "RapidAcceptance.h"
+#include "RapidAcceptanceLHCb.h"
 #include "RapidCut.h"
 #include "RapidDecay.h"
 #include "RapidHistWriter.h"
@@ -124,7 +124,11 @@ RapidDecay* RapidConfig::getDecay() {
 
 RapidAcceptance* RapidConfig::getAcceptance() {
 	if(!acceptance_) {
-		acceptance_ = new RapidAcceptance(acceptanceType_, parts_, cuts_);
+		switch(detectorGeometry_) {
+            case RapidAcceptance::LHCB:
+            default:
+                acceptance_ = new RapidAcceptanceLHCb(acceptanceType_, parts_, cuts_);
+        }
 	}
 	return acceptance_;
 }
@@ -397,6 +401,9 @@ bool RapidConfig::configGlobal(TString command, TString value) {
 	} else if(command=="acceptance") {
 		std::cout << "INFO in RapidConfig::configGlobal : setting acceptance type to " << value << "." << std::endl;
 		acceptanceType_ = RapidAcceptance::typeFromString(value);
+	} else if(command=="geometry") {
+		std::cout << "INFO in RapidConfig::configGlobal : setting detector geometry type to " << value << "." << std::endl;
+		detectorGeometry_ = RapidAcceptance::detectorFromString(value);
 	} else if(command=="energy") {
 		ppEnergy_ = value.Atof();
 		std::cout << "INFO in RapidConfig::configGlobal : pp CoM energy set to be " << ppEnergy_ << " TeV." << std::endl;

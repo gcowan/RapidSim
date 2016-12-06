@@ -23,6 +23,7 @@ class RapidConfig {
 			: fileName_(""), accRejHisto_(0),
 			  accRejParameterX_(0), accRejParameterY_(0),
 			  acceptanceType_(RapidAcceptance::ANY),
+              detectorGeometry_(RapidAcceptance::LHCB),
 			  ppEnergy_(8.), motherFlavour_("b"),
 			  ptHisto_(0), etaHisto_(0), maxgen_(1000),
 			  decay_(0), acceptance_(0), writer_(0)
@@ -91,6 +92,9 @@ class RapidConfig {
 
 		//type of geometric acceptance to apply
 		RapidAcceptance::AcceptanceType acceptanceType_;
+
+        //detector geometry to use
+        RapidAcceptance::DetectorType detectorGeometry_;
 
 		//parameters to determine parent kinematics
 		double ppEnergy_;
