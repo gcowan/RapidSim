@@ -23,10 +23,10 @@ class RapidConfig {
 			: fileName_(""), accRejHisto_(0),
 			  accRejParameterX_(0), accRejParameterY_(0),
 			  acceptanceType_(RapidAcceptance::ANY),
-              detectorGeometry_(RapidAcceptance::LHCB),
+			  detectorGeometry_(RapidAcceptance::LHCB),
 			  ppEnergy_(8.), motherFlavour_("b"),
-			  ptHisto_(0), etaHisto_(0), maxgen_(1000),
-			  decay_(0), acceptance_(0), writer_(0)
+			  ptHisto_(0), etaHisto_(0), ptMin_(0.), ptMax_(100.), etaMin_(1.), etaMax_(6.),
+			  maxgen_(1000), decay_(0), acceptance_(0), writer_(0)
 		{}
 
 		~RapidConfig();
@@ -44,6 +44,7 @@ class RapidConfig {
 
 		bool configParticle(unsigned int part, TString command, TString value);
 		bool configGlobal(TString command, TString value);
+		bool loadRange(TString name, TString str, double& min, double& max);
 		RapidParam* loadParam(TString paramStr);
 		RapidCut* loadCut(TString cutStr);
 
@@ -60,6 +61,8 @@ class RapidConfig {
 
 		bool check1D(TH1* hist) { return (dynamic_cast<TH1F*>(hist) || dynamic_cast<TH1D*>(hist)); }
 		bool check2D(TH1* hist) { return (dynamic_cast<TH2F*>(hist) || dynamic_cast<TH2D*>(hist)); }
+
+		TH1* reduceHistogram(TH1* histo, double min, double max);
 
 		TString fileName_;
 
@@ -93,8 +96,8 @@ class RapidConfig {
 		//type of geometric acceptance to apply
 		RapidAcceptance::AcceptanceType acceptanceType_;
 
-        //detector geometry to use
-        RapidAcceptance::DetectorType detectorGeometry_;
+		//detector geometry to use
+		RapidAcceptance::DetectorType detectorGeometry_;
 
 		//parameters to determine parent kinematics
 		double ppEnergy_;
@@ -103,6 +106,12 @@ class RapidConfig {
 		//parent kinematic distributions
 		TH1* ptHisto_;
 		TH1* etaHisto_;
+
+		//ranges to take from histograms
+		double ptMin_;
+		double ptMax_;
+		double etaMin_;
+		double etaMax_;
 
 		//max attempts to generate
 		double maxgen_;

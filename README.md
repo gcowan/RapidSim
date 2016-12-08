@@ -83,6 +83,16 @@ parent :
 	n.b. currently only "b" and "c" are supported
 	more types may be added in rootfiles/fonll
 
+ptRange :
+	Define the pT range to generate the parent in.
+	Syntax is "ptRange : <min> <max>"
+	n.b. defaults to 0 - 100
+
+etaRange :
+	Define the eta range to generate the parent in.
+	Syntax is "etaRange : <min> <max>"
+	n.b. defaults to 1 - 6
+
 minWidth :
 	Sets the minimum resonance width (in GeV) to be generated
 	Narrower resonances will be generated with a fixed mass

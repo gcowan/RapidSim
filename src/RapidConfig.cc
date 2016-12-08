@@ -125,10 +125,10 @@ RapidDecay* RapidConfig::getDecay() {
 RapidAcceptance* RapidConfig::getAcceptance() {
 	if(!acceptance_) {
 		switch(detectorGeometry_) {
-            case RapidAcceptance::LHCB:
-            default:
-                acceptance_ = new RapidAcceptanceLHCb(acceptanceType_, parts_, cuts_);
-        }
+			case RapidAcceptance::LHCB:
+			default:
+				acceptance_ = new RapidAcceptanceLHCb(acceptanceType_, parts_, cuts_);
+		}
 	}
 	return acceptance_;
 }
@@ -397,13 +397,27 @@ bool RapidConfig::configGlobal(TString command, TString value) {
 		int seed = value.Atoi();
 		gRandom->SetSeed(seed);
 		std::cout << "INFO in RapidConfig::configGlobal : setting seed for random number generation to " << seed << "." << std::endl
-		          << "                                    seed is now " << gRandom->GetSeed() << "." << std::endl;
+			  << "                                    seed is now " << gRandom->GetSeed() << "." << std::endl;
 	} else if(command=="acceptance") {
 		std::cout << "INFO in RapidConfig::configGlobal : setting acceptance type to " << value << "." << std::endl;
 		acceptanceType_ = RapidAcceptance::typeFromString(value);
 	} else if(command=="geometry") {
 		std::cout << "INFO in RapidConfig::configGlobal : setting detector geometry type to " << value << "." << std::endl;
 		detectorGeometry_ = RapidAcceptance::detectorFromString(value);
+	} else if(command=="ptRange") {
+		std::cout << "INFO in RapidConfig::configGlobal : setting pT range to " << value << "." << std::endl;
+		if(!loadRange("ptRange",value,ptMin_,ptMax_)) {
+			std::cout << "ERROR in RapidConfig::configGlobal : failed to load pT range." << std::endl
+				  << "                                     fix your configuration file." << std::endl;
+			return false;
+		}
+	} else if(command=="etaRange") {
+		std::cout << "INFO in RapidConfig::configGlobal : setting eta range to " << value << "." << std::endl;
+		if(!loadRange("etaRange",value,etaMin_,etaMax_)) {
+			std::cout << "ERROR in RapidConfig::configGlobal : failed to load eta range." << std::endl
+				  << "                                     fix your configuration file." << std::endl;
+			return false;
+		}
 	} else if(command=="energy") {
 		ppEnergy_ = value.Atof();
 		std::cout << "INFO in RapidConfig::configGlobal : pp CoM energy set to be " << ppEnergy_ << " TeV." << std::endl;
@@ -436,7 +450,7 @@ bool RapidConfig::configGlobal(TString command, TString value) {
 		RapidParam* param = loadParam(value);
 		if(!param) {
 			std::cout << "ERROR in RapidConfig::configGlobal : failed to load parameter." << std::endl
-			          << "                                     fix your configuration file." << std::endl;
+				  << "                                     fix your configuration file." << std::endl;
 			return false;
 		} else {
 			std::cout << "INFO in RapidConfig::configGlobal : adding parameter " << param->name() << std::endl;
@@ -446,7 +460,7 @@ bool RapidConfig::configGlobal(TString command, TString value) {
 		RapidCut* cut = loadCut(value);
 		if(!cut) {
 			std::cout << "ERROR in RapidConfig::configGlobal : failed to load cut." << std::endl
-			          << "                                     fix your configuration file." << std::endl;
+				  << "                                     fix your configuration file." << std::endl;
 			return false;
 		} else {
 			std::cout << "INFO in RapidConfig::configGlobal : adding cut " << cut->name() << std::endl;
@@ -485,6 +499,25 @@ bool RapidConfig::configGlobal(TString command, TString value) {
 		if(!loadAcceptRejectHist(histFile, histName, paramX, paramY)) return false;
 	}
 
+	return true;
+}
+
+bool RapidConfig::loadRange(TString name, TString str, double& min, double& max) {
+	int from(0);
+	TString buffer;
+
+	if(str.Tokenize(buffer,from," ")) {
+		min = buffer.Atof();
+	} else {
+		std::cout << "ERROR in RapidConfig::loadRange : failed to setup range \"" << name << "\" - no minimum given." << std::endl;
+		return false;
+	}
+	if(str.Tokenize(buffer,from," ")) {
+		max = buffer.Atof();
+	} else {
+		std::cout << "ERROR in RapidConfig::loadRange : failed to setup range \"" << name << "\" - no maximum given." << std::endl;
+		return false;
+	}
 	return true;
 }
 
@@ -753,18 +786,21 @@ bool RapidConfig::loadParentKinematics() {
 		return false;
 	}
 
-	ptHisto_ = dynamic_cast<TH1*>(file->Get("pT"));
-	etaHisto_ = dynamic_cast<TH1*>(file->Get("eta"));
+	TH1* ptHisto = dynamic_cast<TH1*>(file->Get("pT"));
+	TH1* etaHisto = dynamic_cast<TH1*>(file->Get("eta"));
 
-	if(!ptHisto_ || !check1D(ptHisto_)) {
+	if(!ptHisto || !check1D(ptHisto)) {
 		std::cout << "ERROR in RapidConfig::loadParentKinematics : pT histogram is neither TH1F nor TH1D." << std::endl;
 		return false;
 	}
 
-	if(!etaHisto_ || !check1D(etaHisto_)) {
+	if(!etaHisto || !check1D(etaHisto)) {
 		std::cout << "ERROR in RapidConfig::loadParentKinematics : eta histogram is neither TH1F nor TH1D." << std::endl;
 		return false;
 	}
+
+	ptHisto_ = reduceHistogram(ptHisto,ptMin_,ptMax_);
+	etaHisto_ = reduceHistogram(etaHisto,etaMin_,etaMax_);
 
 	return true;
 }
@@ -794,4 +830,76 @@ void RapidConfig::setupDefaultParams(TString paramStr, std::vector<RapidParam*>&
 			params.push_back(param);
 		}
 	}
+}
+
+TH1* RapidConfig::reduceHistogram(TH1* histo, double min, double max) {
+	TAxis* axis = histo->GetXaxis();
+
+	//first check if histogram is defined over the required range
+	if( min < axis->GetXmin() ) {
+		std::cout << "WARNING in RapidConfig::reduceHistogram : Minimum set to " << min << " but histogram " << histo->GetName() << " has minimum " << axis->GetXmin() << std::endl;
+		std::cout << "                                        : Minimum changed to " << axis->GetXmin() << std::endl;
+		min = axis->GetXmin();
+	}
+	if( max > axis->GetXmax() ) {
+		std::cout << "WARNING in RapidConfig::reduceHistogram : Maximum set to " << max << " but histogram " << histo->GetName() << " has maximum " << axis->GetXmax() << std::endl;
+		std::cout << "                                        : Maximum changed to " << axis->GetXmax() << std::endl;
+		max = axis->GetXmax();
+	}
+
+	//if we want the full histogram then just return it
+	if(min == axis->GetXmin() && max == axis->GetXmax() ) {
+		return histo;
+	}
+
+	//load the bin boundaries from the input histogram
+	int nbins = axis->GetNbins();
+	double* bounds = new double[nbins+1];
+	axis->GetLowEdge(bounds);
+	bounds[nbins] = axis->GetXmax();
+
+	int firstBin=0;
+	int lastBin=nbins;
+	bool partFirstBin=false;
+	bool partLastBin=false;
+
+	//find the first bin to copy and check if it's partially removed
+	for(int i=0; i<=nbins; ++i) {
+		if(bounds[i]>=min) {
+			firstBin=i;
+			if(bounds[i]!=min) partFirstBin=true;
+			break;
+		}
+	}
+	//find the final bin to copy and check if it's partially removed
+	for(int i=nbins; i>=0; --i) {
+		if(bounds[i]<=max) {
+			lastBin=i;
+			if(bounds[i]!=max) partLastBin=true;
+			break;
+		}
+	}
+
+	//set up the bin boundaries for the output histogram
+	int nbinsOut = lastBin - firstBin + partFirstBin + partLastBin;
+	double* boundsOut = new double[nbinsOut+1];
+
+	boundsOut[0] = min;
+	boundsOut[nbinsOut] = max;
+
+	for(int i=1; i<nbinsOut; ++i) {
+		boundsOut[i] = bounds[firstBin+i-partFirstBin];
+	}
+
+	//create histogram - clone everything except the bins
+	TH1* histoOut = dynamic_cast<TH1*>(histo->Clone());
+	histoOut->SetBins(nbinsOut,boundsOut);
+
+	//set bin contents - for partial bins, scale by the ratio of bin widths
+	for(int i=1; i<=nbinsOut; ++i) {
+		double value = histo->GetBinContent(firstBin+i-partFirstBin) * histoOut->GetBinWidth(i) / histo->GetBinWidth(firstBin+i-partFirstBin);
+		histoOut->SetBinContent(i,value);
+	}
+
+	return histoOut;
 }
