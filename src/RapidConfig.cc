@@ -901,5 +901,8 @@ TH1* RapidConfig::reduceHistogram(TH1* histo, double min, double max) {
 		histoOut->SetBinContent(i,value);
 	}
 
+	delete[] bounds;
+	delete[] boundsOut;
+
 	return histoOut;
 }
