@@ -1,4 +1,6 @@
 int compareHistograms(TString mode) {
+	TCanvas c1;
+
 	int status(0);
 
 	TFile *f1 = TFile::Open("../validation/rootfiles/"+mode+"_hists.root");
@@ -30,8 +32,18 @@ int compareHistograms(TString mode) {
 			std::cout << "WARNING in compareHistograms : Histograms do not match for " << h1->GetName() << std::endl;
 			status=1;
 		}
-	}
 
+		h1->Draw();
+		h2->SetLineColor(kRed);
+		h2->Draw("same");
+		TString pName = "plots/";
+		pName += mode;
+		pName += "_";
+		pName += h1->GetName();
+		pName += ".pdf";
+		c1.SaveAs(pName);
+
+	}
 	return status;
 }
 
