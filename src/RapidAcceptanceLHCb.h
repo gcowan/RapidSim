@@ -16,6 +16,9 @@ class RapidAcceptanceLHCb : public RapidAcceptance {
 			  xMinTracker_(9.5*0.001), yMinTracker_(9.5*0.001)
 		{}
 
+		virtual void getDefaultPtRange(double& min, double& max);
+		virtual void getDefaultEtaRange(double& min, double& max);
+
 	private:
 		virtual bool partInAcceptance(RapidParticle* part);
 		virtual bool partInDownstream(RapidParticle* part);

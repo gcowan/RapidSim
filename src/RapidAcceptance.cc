@@ -24,12 +24,14 @@ RapidAcceptance::AcceptanceType RapidAcceptance::typeFromString(TString str) {
 }
 
 RapidAcceptance::DetectorType RapidAcceptance::detectorFromString(TString str) {
-	if(str=="LHCb") {
+	if(str=="4pi") {
+		return RapidAcceptance::FOURPI;
+	} else if(str=="LHCb") {
 		return RapidAcceptance::LHCB;
 	} else {
 		std::cout << "WARNING in RapidAcceptance::detectorFromString : unknown detector name " << str << "." << std::endl
-			  << "                                                 returning \"LHCb\"." << std::endl;
-		return RapidAcceptance::LHCB;
+			  << "                                                 returning \"4pi\"." << std::endl;
+		return RapidAcceptance::FOURPI;
 	}
 }
 
@@ -46,6 +48,19 @@ bool RapidAcceptance::isSelected() {
 	}
 
 	return true;
+}
+
+void RapidAcceptance::getDefaultPtRange(double& min, double& max) {
+	std::cout << "INFO in RapidAcceptance::getDefaultPtRange : Getting pT range for 4pi geometry." << std::endl;
+	std::cout << "                                             Range is 0 - 300 GeV." << std::endl;
+	min=0.;
+	max=300.;
+}
+void RapidAcceptance::getDefaultEtaRange(double& min, double& max) {
+	std::cout << "INFO in RapidAcceptance::getDefaultEtaRange : Getting eta range for 4pi geometry." << std::endl;
+	std::cout << "                                              Range is -8.0 - 8.0." << std::endl;
+	min=-8.;
+	max=8.;
 }
 
 bool RapidAcceptance::inAcceptance() {

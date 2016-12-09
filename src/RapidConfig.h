@@ -23,9 +23,9 @@ class RapidConfig {
 			: fileName_(""), accRejHisto_(0),
 			  accRejParameterX_(0), accRejParameterY_(0),
 			  acceptanceType_(RapidAcceptance::ANY),
-			  detectorGeometry_(RapidAcceptance::LHCB),
+			  detectorGeometry_(RapidAcceptance::FOURPI),
 			  ppEnergy_(8.), motherFlavour_("b"),
-			  ptHisto_(0), etaHisto_(0), ptMin_(0.), ptMax_(100.), etaMin_(1.), etaMax_(6.),
+			  ptHisto_(0), etaHisto_(0), ptMin_(-999.), ptMax_(-999.), etaMin_(-999.), etaMax_(-999.),
 			  maxgen_(1000), decay_(0), acceptance_(0), writer_(0)
 		{}
 

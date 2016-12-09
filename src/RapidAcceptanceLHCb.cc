@@ -1,8 +1,23 @@
 #include "RapidAcceptanceLHCb.h"
 
+#include <iostream>
+
 #include "TMath.h"
 
 #include "RapidParticle.h"
+
+void RapidAcceptanceLHCb::getDefaultPtRange(double& min, double& max) {
+	std::cout << "INFO in RapidAcceptanceLHCb::getDefaultPtRange : Getting pT range for LHCb geometry." << std::endl;
+	std::cout << "                                                 Range is 0 - 100 GeV." << std::endl;
+	min=0.;
+	max=100.;
+}
+void RapidAcceptanceLHCb::getDefaultEtaRange(double& min, double& max) {
+	std::cout << "INFO in RapidAcceptanceLHCb::getDefaultEtaRange : Getting eta range for LHCb geometry." << std::endl;
+	std::cout << "                                                  Range is 1.0 - 6.0." << std::endl;
+	min=1.;
+	max=6.;
+}
 
 bool RapidAcceptanceLHCb::partInAcceptance(RapidParticle* part) {
 

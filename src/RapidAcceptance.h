@@ -18,6 +18,7 @@ class RapidAcceptance {
 		};
 
 		enum DetectorType {
+			FOURPI,
 			LHCB
 		};
 
@@ -30,9 +31,12 @@ class RapidAcceptance {
 			  cuts_(cuts)
 		{setup(parts);}
 
-        virtual ~RapidAcceptance() {}
+		virtual ~RapidAcceptance() {}
 
 		virtual bool isSelected();
+
+		virtual void getDefaultPtRange(double& min, double& max);
+		virtual void getDefaultEtaRange(double& min, double& max);
 
 	private:
 		void setup(std::vector<RapidParticle*> parts);
@@ -43,8 +47,8 @@ class RapidAcceptance {
 		virtual bool allInAcceptance();
 		virtual bool allInDownstream();
 
-		virtual bool partInAcceptance(RapidParticle* part)=0;
-		virtual bool partInDownstream(RapidParticle* part)=0;
+		virtual bool partInAcceptance(RapidParticle* /*part*/) { return true; }
+		virtual bool partInDownstream(RapidParticle* /*part*/) { return true; }
 
 		AcceptanceType type_;
 

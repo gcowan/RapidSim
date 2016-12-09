@@ -7,6 +7,7 @@
 #include "TFile.h"
 #include "TRandom.h"
 
+#include "RapidAcceptance.h"
 #include "RapidAcceptanceLHCb.h"
 #include "RapidCut.h"
 #include "RapidDecay.h"
@@ -126,8 +127,11 @@ RapidAcceptance* RapidConfig::getAcceptance() {
 	if(!acceptance_) {
 		switch(detectorGeometry_) {
 			case RapidAcceptance::LHCB:
-			default:
 				acceptance_ = new RapidAcceptanceLHCb(acceptanceType_, parts_, cuts_);
+				break;
+			case RapidAcceptance::FOURPI:
+			default:
+				acceptance_ = new RapidAcceptance(acceptanceType_, parts_, cuts_);
 		}
 	}
 	return acceptance_;
@@ -797,6 +801,19 @@ bool RapidConfig::loadParentKinematics() {
 	if(!etaHisto || !check1D(etaHisto)) {
 		std::cout << "ERROR in RapidConfig::loadParentKinematics : eta histogram is neither TH1F nor TH1D." << std::endl;
 		return false;
+	}
+
+	if( ptMin_==-999. || ptMax_==-999. ) {
+		std::cout << "INFO in RapidConfig::loadParentKinematics : pt range not defined by user." << std::endl;
+		std::cout << "                                            Will take default for detector geometry." << std::endl;
+
+		getAcceptance()->getDefaultPtRange(ptMin_,ptMax_);
+	}
+	if( etaMin_==-999. || etaMax_==-999. ) {
+		std::cout << "INFO in RapidConfig::loadParentKinematics : pseudorapidity range not defined by user." << std::endl;
+		std::cout << "                                            Will take default for detector geometry." << std::endl;
+
+		getAcceptance()->getDefaultEtaRange(etaMin_,etaMax_);
 	}
 
 	ptHisto_ = reduceHistogram(ptHisto,ptMin_,ptMax_);

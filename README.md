@@ -69,9 +69,9 @@ acceptance :
 	n.b. defaults to "Any"
 
 geometry :
-    Sets the detector geometry to apply acceptance for
-    Only "LHCb" is currently supported
-    n.b. defaults to "LHCb"
+	Sets the detector geometry to apply acceptance for
+	Options are "4pi" and "LHCb"
+	n.b. defaults to "4pi"
 
 energy :
 	Sets the pp collision energy (in TeV) used to get the correct parent kinematics
@@ -86,12 +86,12 @@ parent :
 ptRange :
 	Define the pT range to generate the parent in.
 	Syntax is "ptRange : <min> <max>"
-	n.b. defaults to 0 - 100
+	n.b. defaults to 0 - 300 for 4pi geometry and 0 - 100 for LHCb geometry
 
 etaRange :
 	Define the eta range to generate the parent in.
 	Syntax is "etaRange : <min> <max>"
-	n.b. defaults to 1 - 6
+	n.b. defaults to -8 - 8 for 4pi geometry and 1 - 6 for LHCb geometry
 
 minWidth :
 	Sets the minimum resonance width (in GeV) to be generated
@@ -190,28 +190,28 @@ altMass :
 
 ---PARAMETERS---
 
-M :		    The invariant mass of the combination of the given particles
+M :		The invariant mass of the combination of the given particles
 M2 :		The squared invariant mass of the combination of the given particles
 MT :		The transverse mass of the combination of the given particles
-E :		    The energy of the combination of the given particles
+E :		The energy of the combination of the given particles
 ET :		The transverse energy of the combination of the given particles
-P :		    The total momentum of the combination of the given particles
+P :		The total momentum of the combination of the given particles
 PX :		The X momentum of the combination of the given particles
 PY :		The Y momentum of the combination of the given particles
 PZ :		The Z momentum of the combination of the given particles
 PT :		The transverse momentum of the combination of the given particles
 eta :		The pseudorapidity of the combination
 phi :		The azimuthal angle of the combination
-y :	        The rapidity of the combination
+y :		The rapidity of the combination
 gamma :		The relitivistic gamma factor of the combination
 beta :		The velocity of the combination
 theta :		The angle between the first two particles in the rest frame of 
-			the combination of the remaining particles
-			e.g. 1 2 1 3 would give the angle between 1 and 2 in the rest frame 
-			of a resonance in m_13 (i.e. theta_13 in a 3-body decay)
+		the combination of the remaining particles
+		e.g. 1 2 1 3 would give the angle between 1 and 2 in the rest frame 
+		of a resonance in m_13 (i.e. theta_13 in a 3-body decay)
 costheta :	The cosine of theta
 Mcorr :		The corrected mass of the combination of the given particles
-			correcting for any invisible particles
+		correcting for any invisible particles
 
 
 ---TODO---
