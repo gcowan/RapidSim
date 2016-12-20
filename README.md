@@ -50,7 +50,8 @@ Bs0 -> { Jpsi -> mu+ mu- } { phi -> K+ K- }
 When RapidSim is first run for a new decay mode it will generate a simple `.config` file.
 These files allow properties of the particles and global settings to be configured for each decay.
 Run RapidSim with 0 events to generate if you just want to produce the `.config` file.
-
+The default values listed below are those obtained when using the automatically generated `.config` file. 
+Note that when lines are removed from the `.config` file this behaviour may change.
 
 ## Configuration
 
@@ -76,7 +77,7 @@ Particle settings should be defined after the corresponding `@#` tag using the s
 * `geometry`:
   * Sets the detector geometry to apply acceptance for
   * Options are `4pi` and `LHCb`
-  * Default: `4pi`
+  * Default: `LHCb`
 
 * `energy`:
   * Sets the pp collision energy (in TeV) used to get the correct parent 
@@ -176,9 +177,9 @@ Particle settings should be defined after the corresponding `@#` tag using the s
 
 * `smear`:
   * The type of momentum smearing to apply to this particle
-  * Supported: `generic` or `electron`
+  * Supported: `LHCbGeneric`, `LHCbElectron`, `AtlasMuon`, or `AtlasHadron`
     * More types may be defined in config/smear
-  * Default: `electron` (for electrons/positrons), otherwise `generic`
+  * Default: `LHCbElectron` (for electrons/positrons), otherwise `LHCbGeneric`
 
 * `invisible`:
   * Whether the particle should be treated as invisible
