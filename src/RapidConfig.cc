@@ -13,6 +13,7 @@
 #include "RapidDecay.h"
 #include "RapidHistWriter.h"
 #include "RapidMomentumSmearGauss.h"
+#include "RapidMomentumSmearGaussPtEtaDep.h"
 #include "RapidMomentumSmearHisto.h"
 #include "RapidParam.h"
 #include "RapidParticle.h"
@@ -313,6 +314,7 @@ void RapidConfig::writeConfig() {
 	std::ofstream fout;
 	fout.open(fileName_+".config", std::ofstream::out);
 
+	fout << "geometry : LHCb\n";
 	fout << "paramsDecaying : M, P, PT\n";
 	fout << "paramsStable : P, PT\n";
 
@@ -339,9 +341,9 @@ void RapidConfig::writeConfig() {
 		fout << "\tname : " << part->name() << "\n";
 		if(part->nDaughters()==0) {
 			if(TMath::Abs(part->id()) == 11) {
-				fout << "\tsmear : electron\n";
+				fout << "\tsmear : LHCbElectron\n";
 			} else {
-				fout << "\tsmear : generic\n";
+				fout << "\tsmear : LHCbGeneric\n";
 			}
 			if(TMath::Abs(part->id()) == 12 ||
 					TMath::Abs(part->id()) == 14 ||
@@ -660,6 +662,19 @@ bool RapidConfig::loadSmearing(TString category) {
 		}
 
 		momSmearCategories_[category] = new RapidMomentumSmearGauss(graph);
+
+	} else if(type=="GAUSSPTETA") {
+		TString histname("");
+		histname.ReadToken(fin);
+		TH2* hist = dynamic_cast<TH2*>(file->Get(histname));
+		if(!hist) {
+			std::cout << "WARNING in RapidConfig::loadSmearing : failed to load histogram " << histname << std::endl;
+			file->Close();
+			fin.close();
+			return false;
+		}
+
+		momSmearCategories_[category] = new RapidMomentumSmearGaussPtEtaDep(hist);
 
 	} else if(type=="HISTS") {
 		double threshold(0.);

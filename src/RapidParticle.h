@@ -15,7 +15,7 @@ class RapidParticle {
 	public:
 		RapidParticle(int id, TString name, double mass, double charge, RapidParticle* mother)
 			: index_(0), id_(id), name_(name), mass_(mass), charge_(charge),
-			  mother_(mother), next_(0), invisible_(false),
+			  mother_(mother), next_(0), invisible_(false), momSmear_(0),
 			  massData_(0), minMass_(mass), maxMass_(mass),
 			  currentHypothesis_(0)
 			{setPtEtaPhi(0,0,0);}
