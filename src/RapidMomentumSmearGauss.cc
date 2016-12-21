@@ -21,6 +21,7 @@ TLorentzVector RapidMomentumSmearGauss::smearMomentum(TLorentzVector p) {
     kptx += slope_smear*gRandom->Gaus(1,0);
     kpty += slope_smear*gRandom->Gaus(1,0);
     norm = sqrt(1 + kptx*kptx + kpty*kpty);
+    if(p.Pz()<0) norm = -norm;
 
     p.SetXYZM( kptx*kp/norm, kpty*kp/norm, kp/norm, p.M() );
     return p;

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 cd ../build
+src/RapidSim.exe ../validation/B2Kee 1000 1
 src/RapidSim.exe ../validation/B2Kee 100000
 src/RapidSim.exe ../validation/Bs2Jpsiphi 100000
 src/RapidSim.exe ../validation/Bd2D0rho0 100000
