@@ -1,8 +1,7 @@
 {
-	gROOT->ProcessLine(".x ~/lhcb/lhcbStyle.C"); 
-  	RooRealVar x   (    "x",        "#sigma(p_{T})",     -500., 500., "MeV/#it{c}");
+  	RooRealVar x   (    "x",        "#sigma(p_{T})",     -0.500, 0.500, "GeV/#it{c}");
    	RooRealVar mean(    "mean",     "mean",   0.0);
-	RooRealVar sigma(   "sigma",    "sigma",  39.9);
+	RooRealVar sigma(   "sigma",    "sigma",  0.0399);
 	RooRealVar alpha1(  "alpha1",   "alpha1", 0.64);
 	RooRealVar alpha2(  "alpha2",   "alpha2", -0.93);
 	RooRealVar n1(      "n1",       "n1",     2.2);

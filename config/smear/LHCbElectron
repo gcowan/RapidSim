@@ -1,12 +1,3 @@
-histsE.root
+electronSmearingHistogram.root
 HISTS
-0	P0_Brem0_e
-7700	P1_Brem0_e
-11000	P2_Brem0_e
-14500	P3_Brem0_e
-18300	P4_Brem0_e
-22800	P5_Brem0_e
-28200	P6_Brem0_e
-35500	P7_Brem0_e
-46300	P8_Brem0_e
-66100	P9_Brem0_e
+0	histE__x
