@@ -1,12 +1,12 @@
 {
   	RooRealVar x   (    "x",        "#sigma(p_{T})",     -0.500, 0.500, "GeV/#it{c}");
-   	RooRealVar mean(    "mean",     "mean",   0.0);
-	RooRealVar sigma(   "sigma",    "sigma",  0.0399);
-	RooRealVar alpha1(  "alpha1",   "alpha1", 0.64);
+   	RooRealVar mean(    "mean",     "mean",  -0.005);
+	RooRealVar sigma(   "sigma",    "sigma",  0.0199);
+	RooRealVar alpha1(  "alpha1",   "alpha1", 0.30);
 	RooRealVar alpha2(  "alpha2",   "alpha2", -0.93);
-	RooRealVar n1(      "n1",       "n1",     2.2);
-	RooRealVar n2(      "n2",       "n2",     4.2);
-	RooRealVar frac(    "frac2",    "frac",   0.2);
+	RooRealVar n1(      "n1",       "n1",     4.0);
+	RooRealVar n2(      "n2",       "n2",     10.);
+	RooRealVar frac(    "frac2",    "frac",   0.05);
 
 	RooCBShape  cb1("cb1", "cb1",  x, mean,   sigma,  alpha1, n1); 
 	RooCBShape  cb2("cb2", "cb2",  x, mean,   sigma,  alpha2, n2); 
