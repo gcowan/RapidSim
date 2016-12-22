@@ -1,5 +1,7 @@
 #!/bin/bash
 
+mkdir plots
+
 cd ../build
 src/RapidSim.exe ../validation/B2Kee 1000 1
 src/RapidSim.exe ../validation/B2Kee 100000
