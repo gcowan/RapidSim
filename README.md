@@ -19,7 +19,7 @@ Now moved to using CMake to compile a binary. To build do the following:
 $ # Setup your ROOT environment. On lxplus, you can do this:
 $ source /afs/cern.ch/sw/lcg/releases/LCG_85b/ROOT/6.06.06/x86_64-slc6-gcc49-opt/bin/thisroot.sh
 $ source /afs/cern.ch/sw/lcg/releases/LCG_85b/GSL/2.1/x86_64-slc6-gcc49-opt/GSL-env.sh # required for ROOT (not RapidSim)
-$ # Get the latest compilers. Again, on lxplus do this:
+$ # Get the compiler (also works with clang). Again, on lxplus do this:
 $ export CC=/cvmfs/lhcb.cern.ch/lib/lcg/releases/LCG_79/gcc/4.9.3/x86_64-slc6/bin/gcc
 $ export CXX=/cvmfs/lhcb.cern.ch/lib/lcg/releases/LCG_79/gcc/4.9.3/x86_64-slc6/bin/g++
 $ mkdir build
