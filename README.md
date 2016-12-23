@@ -1,19 +1,20 @@
 # RapidSim [![DOI](https://zenodo.org/badge/50026095.svg)](https://zenodo.org/badge/latestdoi/50026095)
 
-RapidSim is a fast Monte Carlo generator for particle physics.
-It can be useful for generating background, or even toy data sets
-for acceptance studies.
+RapidSim is a fast Monte Carlo generator for simulation of heavy-quark hadron decays.
+It can be useful for generating background or toy data sets for acceptance studies.
 
-* It uses [`TGenPhaseSpace`][tgenphasespace] to generate b events.
-* [FONLL][fonll] is used to boost the b.
-* The daughter particle momenta are smeared correctly.
-* Cuts can be made on daughter particle properties.
-* There are tools to swap mass hypothesis.
+* It uses [`TGenPhaseSpace`][tgenphasespace] to generate b/c quark hadron decays.
+* [FONLL][fonll] is used to give the b/c the correct production kinematics for the LHC.
+* The daughter particle momenta are smeared correctly using user-defined resolutions.
+* Cuts can be made on daughter particle properties (pT, eta, etc).
+* Particle mass hypotheses can be swapped to investigate effect of mis-identification.
+
+A more detailed description can be found here https://arxiv.org/abs/1612.07489
 
 
 ## Setup
 
-Now moved to using CMake to compile a binary. To build do the following:
+RapidSim relies on having a working ROOT installation and gcc4.9 or clang. To build do the following:
 
 ```shell
 $ # Setup your ROOT environment. On lxplus, you can do this:
@@ -28,13 +29,13 @@ $ cmake ..
 $ make -j 4
 ```
 
-The usage is
+The usage is:
 
 ```shell
 $ src/RapidSim.exe <decay mode> <events to generate> <save tree?>
 ```
 
-To run an example try
+To run an example try:
 
 ```shell
 $ src/RapidSim.exe ../src/Bs2Jpsiphi 10000 1
