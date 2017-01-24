@@ -15,6 +15,7 @@ build:
 
 run-B2Kee:
     script:
+        - export RAPIDSIM_ROOT=$PWD
         - cd build
         - src/RapidSim.exe ../validation/B2Kee 100000
         - root -b -q -l "../validation/compareHistograms.C(\"B2Kee\")"
@@ -25,6 +26,7 @@ run-B2Kee:
 
 run-B2Kee-tree:
     script:
+        - export RAPIDSIM_ROOT=$PWD
         - cd build
         - src/RapidSim.exe ../validation/B2Kee 1000 1
     stage: test
@@ -34,6 +36,7 @@ run-B2Kee-tree:
 
 run-Bs2Jpsiphi:
     script:
+        - export RAPIDSIM_ROOT=$PWD
         - cd build
         - src/RapidSim.exe ../validation/Bs2Jpsiphi 100000
         - root -b -q -l "../validation/compareHistograms.C(\"Bs2Jpsiphi\")"
@@ -44,6 +47,7 @@ run-Bs2Jpsiphi:
 
 run-Bd2D0rho0:
     script:
+        - export RAPIDSIM_ROOT=$PWD
         - cd build
         - src/RapidSim.exe ../validation/Bd2D0rho0 100000
         - root -b -q -l "../validation/compareHistograms.C(\"Bd2D0rho0\")"
@@ -54,6 +58,7 @@ run-Bd2D0rho0:
 
 run-Bs2D0Kpi:
     script:
+        - export RAPIDSIM_ROOT=$PWD
         - cd build
         - src/RapidSim.exe ../validation/Bs2D0Kpi 10000
         - root -b -q -l "../validation/compareHistograms.C(\"Bs2D0Kpi\")"
@@ -64,6 +69,7 @@ run-Bs2D0Kpi:
 
 run-D02Kpi:
     script:
+        - export RAPIDSIM_ROOT=$PWD
         - cd build
         - src/RapidSim.exe ../validation/D02Kpi 100000
         - root -b -q -l "../validation/compareHistograms.C(\"D02Kpi\")"
