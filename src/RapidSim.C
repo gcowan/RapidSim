@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <iostream>
 
 #include "TString.h"
@@ -8,6 +9,12 @@
 #include "RapidHistWriter.h"
 
 int rapidSim(const TString mode, const int nEvtToGen, bool saveTree=false) {
+
+	if(!getenv("RAPIDSIM_ROOT")) {
+		std::cout << "ERROR in rapidSim : environment variable RAPIDSIM_ROOT is not set" << std::endl
+			  << "                    Terminating" << std::endl;
+		return 1;
+	}
 
 	RapidConfig config;
 	if(!config.load(mode)) {

@@ -1,5 +1,6 @@
 #include "RapidParticleData.h"
 
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 
@@ -13,7 +14,9 @@ RapidParticleData* RapidParticleData::instance_=0;
 RapidParticleData* RapidParticleData::getInstance() {
 	if(!instance_) {
 		instance_ = new RapidParticleData();
-		instance_->loadData("../config/particles.dat");
+		TString path;
+		path+=getenv("RAPIDSIM_ROOT");
+		instance_->loadData(path+"/config/particles.dat");
 	}
 	return instance_;
 }

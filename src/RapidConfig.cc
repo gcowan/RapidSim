@@ -1,5 +1,6 @@
 #include "RapidConfig.h"
 
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <queue>
@@ -630,8 +631,10 @@ RapidParam* RapidConfig::findParam(TString name) {
 }
 
 bool RapidConfig::loadSmearing(TString category) {
+	TString path;
+	path += getenv("RAPIDSIM_ROOT");
 	std::ifstream fin;
-	fin.open("../config/smear/"+category, std::ifstream::in);
+	fin.open(path+"/config/smear/"+category, std::ifstream::in);
 	if( ! fin.good()) {
 		std::cout << "WARNING in RapidConfig::loadSmearing : failed to load smearing category" << category << std::endl;
 		fin.close();
@@ -640,7 +643,7 @@ bool RapidConfig::loadSmearing(TString category) {
 
 	TString filename("");
 	filename.ReadToken(fin);
-	TFile* file = TFile::Open("../rootfiles/smear/"+filename);
+	TFile* file = TFile::Open(path+"/rootfiles/smear/"+filename);
 
 	if(!file) {
 		std::cout << "WARNING in RapidConfig::loadSmearing : failed to load root file " << filename << std::endl;
@@ -755,6 +758,7 @@ bool RapidConfig::loadAcceptRejectHist(TString histFile, TString histName, Rapid
 	TFile* file = TFile::Open(histFile);
 	if(!file) {
 		std::cout << "WARNING in RapidConfig::loadAcceptRejectHist : could not open file " << histFile << "." << std::endl
+			  << "                                               path should be absolute or relative to '" << getenv("PWD") << "'." << std::endl
 			  << "                                               accept/reject histogram not set." << std::endl;
 		return false;
 	}
@@ -793,7 +797,9 @@ bool RapidConfig::loadAcceptRejectHist(TString histFile, TString histName, Rapid
 }
 
 bool RapidConfig::loadParentKinematics() {
-	TString fileName("../rootfiles/fonll/LHC");
+	TString path;
+	path += getenv("RAPIDSIM_ROOT");
+	TString fileName(path+"/rootfiles/fonll/LHC");
 	fileName += motherFlavour_;
 	fileName += ppEnergy_;
 	fileName += ".root";

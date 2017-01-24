@@ -32,6 +32,8 @@ $ make -j 4
 The usage is:
 
 ```shell
+$ # Setup the RAPIDSIM_ROOT environment variable (or add to .bashrc)
+$ export RAPIDSIM_ROOT=/path/to/RapidSim
 $ src/RapidSim.exe <decay mode> <events to generate> <save tree?>
 ```
 
@@ -173,7 +175,7 @@ Particle settings should be defined after the corresponding `@#` tag using the s
 * `shape`:
   * Sets a 1D or 2D PDF to generate events according to
   * Syntax is `shape : <file> <hist> <paramX> [<paramY>]`, where:
-    * `<file>` is the file containing the histogram,
+    * `<file>` is the file containing the histogram (path must be absolute or relative to run directory),
     * `<hist>` is the name of the histogram,
     * `<paramX>` is the name of the parameter on the X-axis (must be defined 
       using `param`)
