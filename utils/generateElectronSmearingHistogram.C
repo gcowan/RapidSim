@@ -1,5 +1,5 @@
 {
-  	RooRealVar x   (    "x",        "#sigma(p_{T})",     -0.500, 0.500, "GeV/#it{c}");
+  	RooRealVar x   (    "x",        "#sigma_{p}",     -0.500, 0.500, "GeV/#it{c}");
    	RooRealVar mean(    "mean",     "mean",  -0.005);
 	RooRealVar sigma(   "sigma",    "sigma",  0.0199);
 	RooRealVar alpha1(  "alpha1",   "alpha1", 0.30);
