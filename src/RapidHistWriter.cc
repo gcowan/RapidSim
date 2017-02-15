@@ -65,6 +65,7 @@ void RapidHistWriter::fill() {
 			part1->setMassHypothesis(0);
 		}
 	}
+	if(tree_) tree_->Fill();
 }
 
 void RapidHistWriter::save() {
@@ -322,8 +323,6 @@ unsigned int RapidHistWriter::fillSingleHypothesis(unsigned int offset) {
 		histos_[offset]->Fill(vars_[offset]);
 		++offset;
 	}
-
-	if(tree_) tree_->Fill();
 
 	return offset;
 }

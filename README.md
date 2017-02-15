@@ -34,19 +34,19 @@ The usage is:
 ```shell
 $ # Setup the RAPIDSIM_ROOT environment variable (or add to .bashrc)
 $ export RAPIDSIM_ROOT=/path/to/RapidSim
-$ src/RapidSim.exe <decay mode> <events to generate> <save tree?>
+$ $RAPIDSIM_ROOT/build/src/RapidSim.exe <decay mode> <events to generate> <save tree?>
 ```
 
 To run an example try:
 
 ```shell
-$ src/RapidSim.exe ../src/Bs2Jpsiphi 10000 1
+$ $RAPIDSIM_ROOT/build/src/RapidSim.exe $RAPIDSIM_ROOT/validation/Bs2Jpsiphi 10000 1
 ```
 
 To run the full system validation:
 
 ```shell
-$ cd RapidSim/validation
+$ cd $RAPIDSIM_ROOT/validation
 $ source runValidation.sh
 ```
 
