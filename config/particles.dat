@@ -64,9 +64,9 @@ ID		part		anti		mass		width		charge		spin		shape
 100443		psi2S		---		3.686093	0.000298	 0		1.0		RBW
 445		chic2		---		3.55620		0.00193		 0		2.0		RBW
 4122		Lambdac+	Lambdac-	2.28646		0.	  	 1		0.5		---
-4222		Sigmac++	Sigmac--	2.45397		0.000189	 2		0.5		RBW
-4212		Sigmac+		Sigmac-		2.4529		0.00046		 1		0.5		RBW
-4112		Sigmac0		Sigmac0b	2.45375		0.000183	 0		0.5		RBW
+4222		Sigmac++	Sigmac--	2.45397		0.00189	 2		0.5		RBW
+4212		Sigmac+		Sigmac-		2.4529		0.0046		 1		0.5		RBW
+4112		Sigmac0		Sigmac0b	2.45375		0.00183	 0		0.5		RBW
 4232		Xic+		Xic-		2.46793		0.		 1		0.5		---
 4132		Xic0		Xic0b		2.47085		0.		 0		0.5		---
 4332		Omegac0		Omegac0b	2.6952		0.		 0		0.5		---
@@ -80,8 +80,8 @@ ID		part		anti		mass		width		charge		spin		shape
 551		etab		---		9.3980		0.011		 0		0.0		---
 553		Upsilon1S	---		9.46030		0.00005402	 0		1.0		RBW
 5122		Lambdab0	Lambdab0b	5.61951		0.	 	 0		0.5		---
-5112		Sigmab-		---		5.8155		0.00097	 	-1		0.5		RBW
-5222		Sigmab+		---		5.8113		0.00049		 1		0.5		RBW
+5112		Sigmab-		---		5.8155		0.0097	 	-1		0.5		RBW
+5222		Sigmab+		---		5.8113		0.0049		 1		0.5		RBW
 5132		Xib-		Xib+		5.7944		0.	 	-1		0.5		---
 5232		Xib0		Xib0b		5.7918		0.	 	 0		0.5		---
 5332		Omegab-		Omegab+		6.0480		0.	 	-1		0.5		---
