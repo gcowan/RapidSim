@@ -84,7 +84,7 @@ double RapidParam::evalCorrectedMass() {
 
 	//get the sine and cosine of the angle to the B flight direction with a Gaussian smearing applied
 	double cosDir = momT.Vect().Dot(momS.Vect())/(momT.P()*momS.P());
-	double dir = TMath::ACos(cosDir) + gRandom->Gaus(0.,0.01); //TODO smearing parameter should be configurable
+	double dir = TMath::ACos(cosDir) + gRandom->Gaus(0.,0.001); //TODO smearing parameter should be configurable
 	double sinDir = TMath::Sin(dir);
 	cosDir = TMath::Cos(dir);
 
