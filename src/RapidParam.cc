@@ -100,14 +100,6 @@ double RapidParam::evalCorrectedMass() {
 	//the corrected mass
 	double mCorr = TMath::Sqrt( mVis2 + pTran*pTran ) + pTran;
 
-	//coefficients of the quadratic equation in pL(invisible)
-	double a = 2. * pLong * pLong * mVis2;
-	double b = 4*pLong*(2*pTran*pLong - mMiss2);
-	double c = 4*pTran*pTran * (pLong*pLong + mPar2) - mMiss2*mMiss2;
-
-	//separate according to whether solutions of pL(invisible) are real or not
-	if(b*b - 4.*a*c > 0.) mCorr=-1.*mCorr;
-
 	return mCorr;
 }
 
