@@ -94,7 +94,7 @@ double RapidParam::evalCorrectedMass() {
 
 	//invariant masses of the visible daughters and the parent as well as the missing mass
 	double mVis2 = momS.M2();
-	double mPar2 = momT.M2();
+	//double mPar2 = momT.M2();
 	//double mMiss2 = mPar2 - mVis2;
 
 	//the corrected mass
