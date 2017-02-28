@@ -89,13 +89,13 @@ double RapidParam::evalCorrectedMass() {
 	cosDir = TMath::Cos(dir);
 
 	//get the longitudinal and transverse momentum of the visible daughters wrt the B flight direction
-	double pLong  = TMath::Abs(cosDir * momS.P());
+	//double pLong  = TMath::Abs(cosDir * momS.P());
 	double pTran = TMath::Abs(sinDir * momS.P());
 
 	//invariant masses of the visible daughters and the parent as well as the missing mass
 	double mVis2 = momS.M2();
 	double mPar2 = momT.M2();
-	double mMiss2 = mPar2 - mVis2;
+	//double mMiss2 = mPar2 - mVis2;
 
 	//the corrected mass
 	double mCorr = TMath::Sqrt( mVis2 + pTran*pTran ) + pTran;
