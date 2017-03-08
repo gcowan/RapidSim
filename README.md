@@ -40,14 +40,13 @@ $ $RAPIDSIM_ROOT/build/src/RapidSim.exe <decay mode> <events to generate> <save 
 To run an example try:
 
 ```shell
-$ $RAPIDSIM_ROOT/build/src/RapidSim.exe $RAPIDSIM_ROOT/validation/Bs2Jpsiphi 10000 1
+$ $RAPIDSIM_ROOT/bin/RapidSim.exe $RAPIDSIM_ROOT/bin/validation/Bs2Jpsiphi 10000 1
 ```
 
 To run the full system validation:
 
 ```shell
-$ cd $RAPIDSIM_ROOT/validation
-$ source runValidation.sh
+$ source $RAPIDSIM_ROOT/bin/runValidation.sh
 ```
 
 ## Decays
