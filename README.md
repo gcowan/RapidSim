@@ -17,23 +17,23 @@ A more detailed description can be found here https://arxiv.org/abs/1612.07489
 RapidSim relies on having a working ROOT installation and gcc4.9 or clang. To build do the following:
 
 ```shell
-$ # Setup your ROOT environment. On lxplus, you can do this:
-$ source /afs/cern.ch/sw/lcg/releases/LCG_85b/ROOT/6.06.06/x86_64-slc6-gcc49-opt/bin/thisroot.sh
-$ source /afs/cern.ch/sw/lcg/releases/LCG_85b/GSL/2.1/x86_64-slc6-gcc49-opt/GSL-env.sh # required for ROOT (not RapidSim)
-$ # Get the compiler (also works with clang). Again, on lxplus do this:
-$ export CC=/cvmfs/lhcb.cern.ch/lib/lcg/releases/LCG_79/gcc/4.9.3/x86_64-slc6/bin/gcc
-$ export CXX=/cvmfs/lhcb.cern.ch/lib/lcg/releases/LCG_79/gcc/4.9.3/x86_64-slc6/bin/g++
+$ # Set environment for gcc, it defines LD_LIBRARY_PATH and FC, CC, CXX. RapidSim also works with clang.
+$ # On lxplus do this:
+$ source /afs/cern.ch/sw/lcg/contrib/gcc/4.9.3/x86_64-slc6-gcc49-opt/setup.sh
+$ # Set ROOT environment 
+$ source /afs/cern.ch/sw/lcg/releases/LCG_87/ROOT/6.08.02/x86_64-slc6-gcc49-opt/ROOT-env.sh
 $ mkdir build
-$ cd build
-$ cmake ..
-$ make -j 4
+$ cd build 
+$ cmake ../RapidSim -DCMAKE_INSTALL_PREFIX=/path/to/RapidSim/install/location
+$ make -j4
+$ make -j4 install # This step is optional if you want to install in a specific location
 ```
 
 The usage is:
 
 ```shell
 $ # Setup the RAPIDSIM_ROOT environment variable (or add to .bashrc)
-$ export RAPIDSIM_ROOT=/path/to/RapidSim
+$ export RAPIDSIM_ROOT=/path/to/RapidSim/install/location
 $ $RAPIDSIM_ROOT/build/src/RapidSim.exe <decay mode> <events to generate> <save tree?>
 ```
 
