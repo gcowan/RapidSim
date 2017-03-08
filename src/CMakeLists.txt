@@ -1,16 +1,11 @@
-# include ROOT library and include files
 
-SET( CMAKE_CXX_FLAGS "-Os -msse -msse2 -msse3 -m3dnow -fPIC -fmerge-all-constants -g -D__ROOFIT_NOBANNER -Wall -Wextra -Werror -Wsign-compare -Wmissing-noreturn -Wno-non-virtual-dtor -std=c++11" )
+file(GLOB RapidSim_sources ${PROJECT_SOURCE_DIR}/src/*.cc) 
 
-SET (FILES RooGounarisSakurai RooRelBreitWigner RapidAcceptance RapidAcceptanceLHCb RapidConfig RapidCut RapidDecay RapidHistWriter RapidMomentumSmearGauss RapidMomentumSmearGaussPtEtaDep RapidMomentumSmearHisto RapidParam RapidParticle RapidParticleData)
-FOREACH ( lib ${FILES} ) 
-	SET (LIBPATH ${LIBPATH} ${PROJECT_SOURCE_DIR}/src/${lib}.cc)
-ENDFOREACH ( lib )
+ADD_EXECUTABLE ( RapidSim.exe ${RapidSim_sources} ${PROJECT_SOURCE_DIR}/src/RapidSim.C )
 
-ADD_LIBRARY ( RapidSim ${LIBPATH} )
-TARGET_LINK_LIBRARIES( RapidSim dl Core RooFit RooFitCore RooStats RIO Net Hist Graf Graf3d Gpad Tree Rint Postscript Matrix Physics MathCore Thread Gui pthread m)
+TARGET_LINK_LIBRARIES( RapidSim.exe Core RooFit RooFitCore RooStats Hist Tree Matrix Physics MathCore )
 
-ADD_EXECUTABLE ( RapidSim.exe ${PROJECT_SOURCE_DIR}/src/RapidSim.C )
-TARGET_LINK_LIBRARIES( RapidSim.exe
-    RapidSim dl Core RooFit RooFitCore RooStats RIO Net Hist Graf Graf3d Gpad Tree Rint Postscript Matrix Physics MathCore Thread Gui pthread m) 
+# install target
+ 
+install(TARGETS RapidSim.exe DESTINATION ${CMAKE_INSTALL_BINDIR} RUNTIME DESTINATION bin) 
 

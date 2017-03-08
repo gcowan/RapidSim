@@ -1,0 +1,34 @@
+#!/bin/bash
+
+PATH=@bindir@:$PATH; export PATH
+
+export RAPIDSIM_ROOT=@bindir@/../share/
+
+mkdir -p plots
+
+RapidSim.exe ${RAPIDSIM_ROOT}/validation/B2Kee 1000 1
+RapidSim.exe ${RAPIDSIM_ROOT}/validation/B2Kee 100000
+RapidSim.exe ${RAPIDSIM_ROOT}/validation/Bs2Jpsiphi 100000
+RapidSim.exe ${RAPIDSIM_ROOT}/validation/Bd2D0rho0 100000
+RapidSim.exe ${RAPIDSIM_ROOT}/validation/Bs2D0Kpi 10000
+RapidSim.exe ${RAPIDSIM_ROOT}/validation/D02Kpi 100000
+
+
+if [ -d "../validation" ]; then
+  # Control will enter here if $DIRECTORY exists.
+  echo "validation directory exists"
+  cd ../validation
+else
+  cp -rf ${RAPIDSIM_ROOT}/validation .
+  cp -rf ${RAPIDSIM_ROOT}/rootfiles .
+  cp -rf ${RAPIDSIM_ROOT}/utils .
+  cd validation
+  mkdir -p plots
+fi
+
+root -b -q -l "compareHistograms.C(\"B2Kee\")"
+root -b -q -l "compareHistograms.C(\"Bs2Jpsiphi\")"
+root -b -q -l "compareHistograms.C(\"Bd2D0rho0\")"
+root -b -q -l "compareHistograms.C(\"Bs2D0Kpi\")"
+root -b -q -l "compareHistograms.C(\"D02Kpi\")"
+
