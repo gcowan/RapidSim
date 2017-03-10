@@ -4,6 +4,7 @@ stages:
 
 build:
     script:
+        - export ROOTSYS=/usr/local/
         - mkdir build
         - cd build
         - cmake ../
