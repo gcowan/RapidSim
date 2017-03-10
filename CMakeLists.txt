@@ -25,19 +25,6 @@ EXECUTE_PROCESS(
 
 SET ( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR} )
 
-
-include(CheckCXXCompilerFlag) 
-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11) 
-CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X) 
-if(COMPILER_SUPPORTS_CXX11)    
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11") 
-elseif(COMPILER_SUPPORTS_CXX0X)   
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x") 
-else() 
-  message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support.") 
-endif() 
-
-
 set(CMAKE_CXX_FLAGS    "${CMAKE_CXX_FLAGS} -msse -msse2 -msse3 -m3dnow -fPIC -fmerge-all-constants -D__ROOFIT_NOBANNER -Wall -Wextra -Werror -Wsign-compare -Wmissing-noreturn -Wno-non-virtual-dtor")
 
 set(CMAKE_CXX_FLAGS_DEBUG          "-g3 -Wall") 
@@ -60,7 +47,7 @@ ENDIF()
 
 
 set (ROOT_FIND_COMPONENTS Core RIO Tree)
-  find_file(ROOT_CONFIG ROOTConfig.cmake HINTS $ENV{ROOTSYS} ${ROOT_DIR} NO_DEFAULT_PATH PATH_SUFFIXES cmake)
+  find_file(ROOT_CONFIG ROOTConfig.cmake HINTS $ENV{ROOTSYS} ${ROOTSYS} ${ROOT_DIR} NO_DEFAULT_PATH PATH_SUFFIXES cmake)
 if (ROOT_CONFIG)
   message(STATUS "ROOTConfig.cmake found and will be used: ${ROOT_CONFIG}")
   include(${ROOT_CONFIG})
@@ -72,11 +59,17 @@ if (ROOT_CONFIG)
   endif()
 
 else()      
-
   message(STATUS "ROOTConfig.cmake not found, trying to use FindROOT.cmake...")      
-  find_package(ROOT QUIET REQUIRED COMPONENTS Core Cint RIO Tree)   
-
+  find_package(ROOT)   
+  INCLUDE_DIRECTORIES( ${ROOT_INCLUDE_DIR} )
+  LINK_DIRECTORIES( ${ROOT_LIBRARY_DIR} )
+  set(CMAKE_CXX_FLAGS    "${CMAKE_CXX_FLAGS} ${ROOT_CXX_FLAGS}" ) 
 endif()
+
+message(STATUS "ROOT includes: ${ROOT_INCLUDE_DIR}")   
+message(STATUS "ROOT libraries: ${ROOT_LIBRARIES}")   
+message(STATUS "ROOT library directory: ${ROOT_LIBRARY_DIR}")
+message(STATUS "ROOT_FOUND: ${ROOT_FOUND}")
 
 if(ROOT_FOUND)     
   include_directories(${ROOT_INCLUDE_DIRS})     
