@@ -34,6 +34,8 @@ The usage is:
 ```shell
 $ # Setup the RAPIDSIM_ROOT environment variable (or add to .bashrc)
 $ export RAPIDSIM_ROOT=/path/to/RapidSim/install/location
+$ # Optionally setup the RAPIDSIM_CONFIG environment variable
+$ export RAPIDSIM_CONFIG=/path/to/additional/configuration/files
 $ $RAPIDSIM_ROOT/build/src/RapidSim.exe <decay mode> <events to generate> <save tree?>
 ```
 
@@ -53,7 +55,7 @@ $ source $RAPIDSIM_ROOT/bin/runValidation.sh
 
 To generate a new decay mode you must write a `.decay` file using the following syntax:
 
-* particles are named according to `config/particles.dat` and separated by 
+* particles are named according to `$RAPIDSIM_ROOT/config/particles.dat` or `$RAPIDSIM_CONFIG/config/particles.dat` and separated by 
   spaces
 * a decay is denoted by `->`
 * subdecays are demarcated by braces `{}`, e.g.
@@ -98,7 +100,7 @@ Particle settings should be defined after the corresponding `@#` tag using the s
   * Sets the pp collision energy (in TeV) used to get the correct parent 
     kinematics
   * Supported: `7`, `8`, `13` and `14`
-  * more types may be added in rootfiles/fonll
+  * more types may be added in $RAPIDSIM_ROOT/rootfiles/fonll or $RAPIDSIM_CONFIG/rootfiles/fonll
 
 * `parent`:
   * Overrides to determined flavour of the parent particle used to get the 
@@ -193,7 +195,7 @@ Particle settings should be defined after the corresponding `@#` tag using the s
 * `smear`:
   * The type of momentum smearing to apply to this particle
   * Supported: `LHCbGeneric`, `LHCbElectron`, `AtlasMuon`, or `AtlasHadron`
-    * More types may be defined in config/smear
+    * More types may be defined in $RAPIDSIM_ROOT/config/smear or $RAPIDSIM_CONFIG/config/smear
   * Default: `LHCbElectron` (for electrons/positrons), otherwise `LHCbGeneric`
 
 * `invisible`:

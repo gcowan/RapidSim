@@ -15,7 +15,10 @@ RapidParticleData* RapidParticleData::getInstance() {
 	if(!instance_) {
 		instance_ = new RapidParticleData();
 		TString path;
-		path+=getenv("RAPIDSIM_ROOT");
+		path=getenv("RAPIDSIM_CONFIG");
+		if(path) instance_->loadData(path+"/config/particles.dat");
+
+		path=getenv("RAPIDSIM_ROOT");
 		instance_->loadData(path+"/config/particles.dat");
 	}
 	return instance_;
@@ -191,6 +194,11 @@ void RapidParticleData::setupMass(RapidParticle* part) {
 }
 
 void RapidParticleData::addEntry(int id, TString name, double mass, double width, double spin, double charge, TString lineshape) {
+	if(idToName_.find(id) != idToName_.end()) {
+		std::cout << "INFO in RapidParticleData::addEntry : particle with ID " << id << " already defined with name " << idToName_[id] << std::endl;
+		std::cout << "                                      second definition will be ignored." << std::endl;
+	}
+
 	idToMass_[id] = mass;
 	idToWidth_[id] = width;
 	idToSpin_[id] = spin;

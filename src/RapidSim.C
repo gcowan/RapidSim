@@ -16,6 +16,12 @@ int rapidSim(const TString mode, const int nEvtToGen, bool saveTree=false) {
 		return 1;
 	}
 
+	TString configEnv=getenv("RAPIDSIM_CONFIG");
+	if(configEnv!="") {
+		std::cout << "INFO in rapidSim : environment variable RAPIDSIM_CONFIG is set" << std::endl
+			  << "                   Settings in " << configEnv << " will be used" << std::endl;
+	}
+
 	RapidConfig config;
 	if(!config.load(mode)) {
 		std::cout << "ERROR in rapidSim : failed to load configuration for decay mode " << mode << std::endl

@@ -632,13 +632,32 @@ RapidParam* RapidConfig::findParam(TString name) {
 
 bool RapidConfig::loadSmearing(TString category) {
 	TString path;
-	path += getenv("RAPIDSIM_ROOT");
 	std::ifstream fin;
-	fin.open(path+"/config/smear/"+category, std::ifstream::in);
-	if( ! fin.good()) {
-		std::cout << "WARNING in RapidConfig::loadSmearing : failed to load smearing category" << category << std::endl;
-		fin.close();
-		return false;
+	bool found(false);
+
+	path = getenv("RAPIDSIM_CONFIG");
+
+	if(path!="") {
+		fin.open(path+"/config/smear/"+category, std::ifstream::in);
+		if( fin.good()) {
+			std::cout << "INFO in RapidConfig::loadSmearing : found smearing category " << category << " in RAPIDSIM_CONFIG." << std::endl;
+			std::cout << "                                    this version will be used." << std::endl;
+			found = true;
+		} else {
+			std::cout << "INFO in RapidConfig::loadSmearing : smearing category " << category << " not found in RAPIDSIM_CONFIG." << std::endl;
+			std::cout << "                                    checking RAPIDSIM_ROOT." << std::endl;
+			fin.close();
+		}
+	}
+
+	if(!found) {
+		path = getenv("RAPIDSIM_ROOT");
+		fin.open(path+"/config/smear/"+category, std::ifstream::in);
+		if( ! fin.good()) {
+			std::cout << "WARNING in RapidConfig::loadSmearing : failed to load smearing category" << category << std::endl;
+			fin.close();
+			return false;
+		}
 	}
 
 	TString filename("");
@@ -798,17 +817,44 @@ bool RapidConfig::loadAcceptRejectHist(TString histFile, TString histName, Rapid
 
 bool RapidConfig::loadParentKinematics() {
 	TString path;
-	path += getenv("RAPIDSIM_ROOT");
-	TString fileName(path+"/rootfiles/fonll/LHC");
-	fileName += motherFlavour_;
-	fileName += ppEnergy_;
-	fileName += ".root";
-	TFile* file = TFile::Open(fileName);
+	TString fileName;
+	TFile* file(0);
+	bool found(false);
 
-	if(!file) {
-		std::cout << "ERROR in RapidConfig::loadParentKinematics : unknown kinematics " << motherFlavour_ << "-quark from " << ppEnergy_ << " TeV pp collision." << std::endl;
-		std::cout << "                                             file " << fileName << " not found." << std::endl;
-		return false;
+	path = getenv("RAPIDSIM_CONFIG");
+
+	if(path!="") {
+		fileName = path;
+		fileName +="/rootfiles/fonll/LHC";
+		fileName += motherFlavour_;
+		fileName += ppEnergy_;
+		fileName += ".root";
+		file = TFile::Open(fileName);
+
+		if(file) {
+			std::cout << "INFO in RapidConfig::loadParentKinematics : found kinematics LHC" << motherFlavour_ << ppEnergy_ << " in RAPIDSIM_CONFIG." << std::endl
+			          << "                                            this version will be used." << std::endl;
+			found = true;
+		} else {
+			std::cout << "INFO in RapidConfig::loadParentKinematics : kinematics LHC" << motherFlavour_ << ppEnergy_ << " not found in RAPIDSIM_CONFIG." << std::endl
+				  << "                                            checking RAPIDSIM_ROOT." << std::endl;
+		}
+	}
+
+	if(!found) {
+		path = getenv("RAPIDSIM_ROOT");
+		fileName = path;
+		fileName += "/rootfiles/fonll/LHC";
+		fileName += motherFlavour_;
+		fileName += ppEnergy_;
+		fileName += ".root";
+		file = TFile::Open(fileName);
+
+		if(!file) {
+			std::cout << "ERROR in RapidConfig::loadParentKinematics : unknown kinematics " << motherFlavour_ << "-quark from " << ppEnergy_ << " TeV pp collision." << std::endl
+			          << "                                             file " << fileName << " not found." << std::endl;
+			return false;
+		}
 	}
 
 	TH1* ptHisto = dynamic_cast<TH1*>(file->Get("pT"));
