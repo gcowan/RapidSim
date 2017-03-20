@@ -2,17 +2,9 @@
 
 PATH=@bindir@:$PATH; export PATH
 
-export RAPIDSIM_ROOT=@bindir@/../share/
+export RAPIDSIM_ROOT=@bindir@/..
 
 mkdir -p plots
-
-RapidSim.exe ${RAPIDSIM_ROOT}/validation/B2Kee 1000 1
-RapidSim.exe ${RAPIDSIM_ROOT}/validation/B2Kee 100000
-RapidSim.exe ${RAPIDSIM_ROOT}/validation/Bs2Jpsiphi 100000
-RapidSim.exe ${RAPIDSIM_ROOT}/validation/Bd2D0rho0 100000
-RapidSim.exe ${RAPIDSIM_ROOT}/validation/Bs2D0Kpi 10000
-RapidSim.exe ${RAPIDSIM_ROOT}/validation/D02Kpi 100000
-
 
 if [ -d "../validation" ]; then
   # Control will enter here if $DIRECTORY exists.
@@ -22,9 +14,22 @@ else
   cp -rf ${RAPIDSIM_ROOT}/validation .
   cp -rf ${RAPIDSIM_ROOT}/rootfiles .
   cp -rf ${RAPIDSIM_ROOT}/utils .
-  cd validation
-  mkdir -p plots
+  cp -rf ${RAPIDSIM_ROOT}/config .
+  export RAPIDSIM_ROOT=`pwd`
+  cd ${RAPIDSIM_ROOT}/validation
 fi
+
+mkdir -p plots
+
+echo "RAPIDSIM_ROOT points to ${RAPIDSIM_ROOT}"
+
+RapidSim.exe ${RAPIDSIM_ROOT}/validation/B2Kee 1000 1
+RapidSim.exe ${RAPIDSIM_ROOT}/validation/B2Kee 100000
+RapidSim.exe ${RAPIDSIM_ROOT}/validation/Bs2Jpsiphi 100000
+RapidSim.exe ${RAPIDSIM_ROOT}/validation/Bd2D0rho0 100000
+RapidSim.exe ${RAPIDSIM_ROOT}/validation/Bs2D0Kpi 10000
+RapidSim.exe ${RAPIDSIM_ROOT}/validation/D02Kpi 100000
+
 
 root -b -q -l "compareHistograms.C(\"B2Kee\")"
 root -b -q -l "compareHistograms.C(\"Bs2Jpsiphi\")"
