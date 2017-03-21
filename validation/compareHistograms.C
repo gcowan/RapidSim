@@ -3,8 +3,8 @@ int compareHistograms(TString mode) {
 
 	int status(0);
 
-	TFile *f1 = TFile::Open("../validation/rootfiles/"+mode+"_hists.root");
-	TFile *f2 = TFile::Open("../validation/"+mode+"_hists.root");
+	TFile *f1 = TFile::Open("${RAPIDSIM_ROOT}/validation/rootfiles/"+mode+"_hists.root");
+	TFile *f2 = TFile::Open(mode+"_hists.root");
 
 	if(!f1 || !f2) {
 		std::cout << "ERROR in compareHistograms : Files do not exist for mode " << mode << std::endl;
