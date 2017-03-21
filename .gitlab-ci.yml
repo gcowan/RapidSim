@@ -19,11 +19,12 @@ run-B2Kee:
         - export RAPIDSIM_ROOT=$PWD
         - cd build
         - src/RapidSim.exe ../validation/B2Kee 100000
+        - mkdir plots
         - root -b -q -l "../validation/compareHistograms.C(\"B2Kee\")"
     stage: test
     artifacts:
         paths:
-            - validation/B2Kee_hists.root
+            - B2Kee_hists.root
 
 run-B2Kee-tree:
     script:
@@ -33,48 +34,52 @@ run-B2Kee-tree:
     stage: test
     artifacts:
         paths:
-            - validation/B2Kee_tree.root
+            - B2Kee_tree.root
 
 run-Bs2Jpsiphi:
     script:
         - export RAPIDSIM_ROOT=$PWD
         - cd build
         - src/RapidSim.exe ../validation/Bs2Jpsiphi 100000
+        - mkdir plots
         - root -b -q -l "../validation/compareHistograms.C(\"Bs2Jpsiphi\")"
     stage: test
     artifacts:
         paths:
-            - validation/Bs2Jpsiphi_hists.root
+            - Bs2Jpsiphi_hists.root
 
 run-Bd2D0rho0:
     script:
         - export RAPIDSIM_ROOT=$PWD
         - cd build
         - src/RapidSim.exe ../validation/Bd2D0rho0 100000
+        - mkdir plots
         - root -b -q -l "../validation/compareHistograms.C(\"Bd2D0rho0\")"
     stage: test
     artifacts:
         paths:
-            - validation/Bd2D0rho0_hists.root
+            - Bd2D0rho0_hists.root
 
 run-Bs2D0Kpi:
     script:
         - export RAPIDSIM_ROOT=$PWD
         - cd build
         - src/RapidSim.exe ../validation/Bs2D0Kpi 10000
+        - mkdir plots
         - root -b -q -l "../validation/compareHistograms.C(\"Bs2D0Kpi\")"
     stage: test
     artifacts:
         paths:
-            - validation/Bs2D0Kpi_hists.root
+            - Bs2D0Kpi_hists.root
 
 run-D02Kpi:
     script:
         - export RAPIDSIM_ROOT=$PWD
         - cd build
         - src/RapidSim.exe ../validation/D02Kpi 100000
+        - mkdir plots
         - root -b -q -l "../validation/compareHistograms.C(\"D02Kpi\")"
     stage: test
     artifacts:
         paths:
-            - validation/D02Kpi_hists.root
+            - D02Kpi_hists.root

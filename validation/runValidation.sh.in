@@ -1,23 +1,23 @@
 #!/bin/bash
 
-#PATH=@bindir@:$PATH; export PATH
-#
-#export RAPIDSIM_ROOT=@bindir@/..
-#
-#mkdir -p plots
-#
-#if [ -d "../validation" ]; then
-#  # Control will enter here if $DIRECTORY exists.
-#  echo "validation directory exists"
-#  cd ../validation
-#else
-#  cp -rf ${RAPIDSIM_ROOT}/validation .
-#  cp -rf ${RAPIDSIM_ROOT}/rootfiles .
-#  cp -rf ${RAPIDSIM_ROOT}/utils .
-#  cp -rf ${RAPIDSIM_ROOT}/config .
-#  export RAPIDSIM_ROOT=`pwd`
-#  cd ${RAPIDSIM_ROOT}/validation
-#fi
+PATH=@bindir@:$PATH; export PATH
+
+export RAPIDSIM_ROOT=@bindir@/..
+
+mkdir -p plots
+
+if [ -d "../validation" ]; then
+  # Control will enter here if $DIRECTORY exists.
+  echo "validation directory exists"
+  cd ../validation
+else
+  cp -rf ${RAPIDSIM_ROOT}/validation .
+  cp -rf ${RAPIDSIM_ROOT}/rootfiles .
+  cp -rf ${RAPIDSIM_ROOT}/utils .
+  cp -rf ${RAPIDSIM_ROOT}/config .
+  export RAPIDSIM_ROOT=`pwd`
+  cd ${RAPIDSIM_ROOT}/validation
+fi
 
 mkdir -p plots
 
