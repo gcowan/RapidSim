@@ -24,7 +24,7 @@ run-B2Kee:
     stage: test
     artifacts:
         paths:
-            - B2Kee_hists.root
+            - build/B2Kee_hists.root
 
 run-B2Kee-tree:
     script:
@@ -34,7 +34,7 @@ run-B2Kee-tree:
     stage: test
     artifacts:
         paths:
-            - B2Kee_tree.root
+            - build/B2Kee_tree.root
 
 run-Bs2Jpsiphi:
     script:
@@ -46,7 +46,7 @@ run-Bs2Jpsiphi:
     stage: test
     artifacts:
         paths:
-            - Bs2Jpsiphi_hists.root
+            - build/Bs2Jpsiphi_hists.root
 
 run-Bd2D0rho0:
     script:
@@ -58,7 +58,7 @@ run-Bd2D0rho0:
     stage: test
     artifacts:
         paths:
-            - Bd2D0rho0_hists.root
+            - build/Bd2D0rho0_hists.root
 
 run-Bs2D0Kpi:
     script:
@@ -70,7 +70,7 @@ run-Bs2D0Kpi:
     stage: test
     artifacts:
         paths:
-            - Bs2D0Kpi_hists.root
+            - build/Bs2D0Kpi_hists.root
 
 run-D02Kpi:
     script:
@@ -82,4 +82,4 @@ run-D02Kpi:
     stage: test
     artifacts:
         paths:
-            - D02Kpi_hists.root
+            - build/D02Kpi_hists.root
