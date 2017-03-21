@@ -16,7 +16,7 @@ RapidParticleData* RapidParticleData::getInstance() {
 		instance_ = new RapidParticleData();
 		TString path;
 		path=getenv("RAPIDSIM_CONFIG");
-		if(path) instance_->loadData(path+"/config/particles.dat");
+		if(path!="") instance_->loadData(path+"/config/particles.dat");
 
 		path=getenv("RAPIDSIM_ROOT");
 		instance_->loadData(path+"/config/particles.dat");
@@ -25,6 +25,8 @@ RapidParticleData* RapidParticleData::getInstance() {
 }
 
 void RapidParticleData::loadData(TString file) {
+	std::cout << "INFO in RapidParticleData::loadData : loading particle data from " << file << std::endl;
+
 	std::ifstream fin;
 	fin.open(file, std::ifstream::in);
 	TString buffer;
