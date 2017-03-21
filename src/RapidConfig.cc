@@ -143,7 +143,9 @@ RapidHistWriter* RapidConfig::getWriter(bool saveTree) {
 	setupDefaultParams();
 
 	if(!writer_) {
-		writer_ = new RapidHistWriter(parts_, params_, paramsStable_, paramsDecaying_, paramsTwoBody_, paramsThreeBody_, fileName_, saveTree);
+		//strip away path for name of histogram/tuple files - save in PWD
+		TString histFileName(fileName_( fileName_.Last('/')+1, fileName_.Length()));
+		writer_ = new RapidHistWriter(parts_, params_, paramsStable_, paramsDecaying_, paramsTwoBody_, paramsThreeBody_, histFileName, saveTree);
 	}
 
 	return writer_;
