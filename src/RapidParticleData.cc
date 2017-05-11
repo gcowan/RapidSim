@@ -187,6 +187,7 @@ void RapidParticleData::setupMass(RapidParticle* part) {
 		default:
 			std::cout << "WARNING in RapidParticleData::setupMass : unknown lineshape for " << name << "." << std::endl
 			          << "                                        : using a relativistic Breit-Wigner." << std::endl;
+		/* FALLTHRU */
 		case RapidParticleData::RelBW:
 			pdf = makeRelBW(m, mass, width, spin, mA, mB, name);
 	}
