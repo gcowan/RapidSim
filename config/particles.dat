@@ -33,6 +33,7 @@ ID		part		anti		mass		width		charge		spin		shape
 331		eta'		---		0.95778		0.000198	 0		0.0		---
 333		phi		---		1.019461	0.004266	 0		1.0		RBW
 3122		Lambda0		Lambda0b	1.115683	0.	 	 0		0.5		---
+31220		Lambda(1520)	Lambda(1520)b	1.5195		0.0156	 	 0		3.5		---
 3222		Sigma+		---		1.18937		0.	 	 1		0.5		---
 3212		Sigma0		Sigma0b		1.192642	0.	 	 0		0.5		---
 3112		Sigma-		---		1.197449	0.	 	-1		0.5		---
