@@ -14,7 +14,9 @@ A more detailed description can be found here https://arxiv.org/abs/1612.07489
 
 ## Setup
 
-RapidSim relies on having a working ROOT installation and gcc4.9 or clang. To build do the following:
+RapidSim relies on having a working ROOT installation and gcc4.9 or clang.
+Optionally, you may also compile against EvtGen as detailed in [EvtGen][#EvtGen]
+To build do the following:
 
 ```shell
 $ # Set environment for gcc, it defines LD_LIBRARY_PATH and FC, CC, CXX. RapidSim also works with clang.
@@ -159,8 +161,7 @@ Particle settings should be defined after the corresponding `@#` tag using the s
 * `param`:
   * Defines a new parameter to be added to the histograms/tree
   * Syntax is `param : <name> <type> <particles> [TRUE]`, where:
-    * `<type>` must be one of the types defined in [the Parameters 
-      section][#parameters],
+    * `<type>` must be one of the types defined in [the Parameters section][#parameters],
     * `<particles>` is a space separated list of particle indices
     * The optional `TRUE` argument means the parameter will be calculated using 
       the true unsmeared momenta of the particles
@@ -185,6 +186,12 @@ Particle settings should be defined after the corresponding `@#` tag using the s
   * The dimensionality of the histogram will be inferred from the number of 
     parameters given
   * Defaults to phase-space distribution
+
+* `useEvtGen` :
+  * Perform decays using the external EvtGen generator
+  * Syntax is `useEvtGen : TRUE
+  * Note any value for this parameter will turn EvtGen ON (even FALSE)
+  * To turn EvtGen OFF do not define this parameter
 
 ### Particle settings
 
@@ -212,6 +219,13 @@ Particle settings should be defined after the corresponding `@#` tag using the s
     parameters will be calculated for all combinations of one or two 
     mis-identifications
 
+* `evtGenModel` :
+  * Sets the decay model to be used if this particle is decayed using EvtGen
+  * Syntax is `evtGenModel : <model> [<params>]` where `<model>` is the name of 
+    the model as used in DECAY.DEC and `<params>` is a space separated list of
+    parameters to be passed to the model
+  * Default: PHSP
+
 ## Parameters
 
 * `M`: The invariant mass of the combination of the given particles
@@ -236,6 +250,19 @@ Particle settings should be defined after the corresponding `@#` tag using the s
 * `costheta`: The cosine of theta
 * `Mcorr`: The corrected mass of the combination of the given particles
   correcting for any invisible particles
+
+## External Generators
+
+### EvtGen
+
+EvtGen may be used to generate decays allowing for non-phasespace decay models.
+
+* EvtGen must be compiled with all external generators included (Pythia, PHOTOS, Tauola)
+  * This can be achieved by running the EvtGen setup
+  [script]: http://evtgen.warwick.ac.uk/static/srcrep/setupEvtGen.sh
+  * Note the manual step to set the required environment variables after installation
+* To compile RapidSim against EvtGen the environment variable EVTGEN_ROOT must be set
+* At present, all identical particles must decay into the same mode
 
 ## TODO
 

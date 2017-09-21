@@ -5,6 +5,7 @@
 #include "TMath.h"
 #include "TRandom.h"
 
+#include "RapidExternalEvtGen.h"
 #include "RapidMomentumSmearGauss.h"
 #include "RapidMomentumSmearHisto.h"
 #include "RapidParam.h"
@@ -39,6 +40,10 @@ void RapidDecay::setAcceptRejectHist(TH1* histo, RapidParam* paramX, RapidParam*
 	delete denom;
 }
 
+void RapidDecay::setExternal(RapidExternalGenerator* external) {
+	external_ = external;
+}
+
 bool RapidDecay::checkDecay() {
 	for(unsigned int i=0; i<parts_.size(); ++i) {
 		RapidParticle* part = parts_[i];
@@ -59,11 +64,18 @@ bool RapidDecay::generate() {
 	floatMasses();
 	genParent();
 
-	if(accRejHisto_) {
-		if(!genDecayAccRej()) return false;
+	bool decayed(false);
+	if(external_) {
+		decayed = external_->decay(parts_);
+	}
+	
+	if(!decayed) {
+		if(accRejHisto_) {
+			if(!genDecayAccRej()) return false;
 
-	} else {
-		if(!genDecay()) return false;
+		} else {
+			if(!genDecay()) return false;
+		}
 	}
 
 	smearMomenta();

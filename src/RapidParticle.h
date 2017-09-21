@@ -17,6 +17,7 @@ class RapidParticle {
 			: index_(0), id_(id), name_(name), mass_(mass), charge_(charge),
 			  mother_(mother), next_(0), invisible_(false), momSmear_(0),
 			  massData_(0), minMass_(mass), maxMass_(mass),
+			  evtGenModel_("PHSP"),
 			  currentHypothesis_(0)
 			{setPtEtaPhi(0,0,0);}
 
@@ -72,6 +73,9 @@ class RapidParticle {
 		void setMassShape(RooDataSet* ds, double minMass, double maxMass, TString varName);
 		void floatMass();
 
+		TString evtGenDecayModel() { return evtGenModel_; }
+		void setEvtGenDecayModel(TString value) { evtGenModel_ = value; }
+
 	private:
 		bool hasFlavour(int flavour);
 
@@ -103,6 +107,8 @@ class RapidParticle {
 		double minMass_;
 		double maxMass_;
 		TString varName_;
+
+		TString evtGenModel_;
 
 		//store alternative mass hypotheses
 		std::vector<TString> massHypothesisNames_;
