@@ -64,6 +64,7 @@ ID		part		anti		mass		width		charge		spin		shape
 20443		chic1		---		3.51066		0.00084		 0		1.0		RBW
 100443		psi2S		---		3.686093	0.000298	 0		1.0		RBW
 445		chic2		---		3.55620		0.00193		 0		2.0		RBW
+404         N(1520)0    N(1520)0b   1.5200      0.115    0      1.5     RBW
 4122		Lambdac+	Lambdac-	2.28646		0.	  	 1		0.5		---
 4222		Sigmac++	Sigmac--	2.45397		0.00189	 2		0.5		RBW
 4212		Sigmac+		Sigmac-		2.4529		0.0046		 1		0.5		RBW
