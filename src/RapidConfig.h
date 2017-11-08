@@ -12,6 +12,7 @@
 
 class RapidCut;
 class RapidDecay;
+class RapidExternalGenerator;
 class RapidHistWriter;
 class RapidMomentumSmear;
 class RapidParam;
@@ -26,7 +27,7 @@ class RapidConfig {
 			  detectorGeometry_(RapidAcceptance::FOURPI),
 			  ppEnergy_(8.), motherFlavour_("b"),
 			  ptHisto_(0), etaHisto_(0), ptMin_(-999.), ptMax_(-999.), etaMin_(-999.), etaMax_(-999.),
-			  maxgen_(1000), decay_(0), acceptance_(0), writer_(0)
+			  maxgen_(1000), decay_(0), acceptance_(0), writer_(0), external_(0)
 		{}
 
 		~RapidConfig();
@@ -119,6 +120,7 @@ class RapidConfig {
 		RapidDecay* decay_;
 		RapidAcceptance* acceptance_;
 		RapidHistWriter* writer_;
+		RapidExternalGenerator* external_;
 };
 
 #endif

@@ -11,6 +11,7 @@
 
 class RapidParticle;
 class RapidParam;
+class RapidExternalGenerator;
 
 class RapidDecay {
 	public:
@@ -18,7 +19,8 @@ class RapidDecay {
 			: parts_(parts), maxgen_(1000),
 			  ptHisto_(0), etaHisto_(0),
 			  accRejHisto_(0), accRejParameterX_(0), accRejParameterY_(0),
-			  suppressKinematicWarning_(false), suppressAttemptsWarning_(false)
+			  suppressKinematicWarning_(false), suppressAttemptsWarning_(false),
+			  external_(0)
 			{setup();}
 
 		~RapidDecay() {}
@@ -27,6 +29,7 @@ class RapidDecay {
 		void setParentKinematics(TH1* ptHisto, TH1* etaHisto);
 		void setAcceptRejectHist(TH1* histo, RapidParam* param);
 		void setAcceptRejectHist(TH1* histo, RapidParam* paramX, RapidParam* paramY);
+		void setExternal(RapidExternalGenerator* external);
 
 		bool checkDecay();
 		bool generate();
@@ -70,6 +73,9 @@ class RapidDecay {
 		//flags to suppress generation warnings
 		bool suppressKinematicWarning_;
 		bool suppressAttemptsWarning_;
+
+		//external decay generator wrapper
+		RapidExternalGenerator* external_;
 
 };
 #endif

@@ -12,6 +12,7 @@
 #include "RapidAcceptanceLHCb.h"
 #include "RapidCut.h"
 #include "RapidDecay.h"
+#include "RapidExternalEvtGen.h"
 #include "RapidHistWriter.h"
 #include "RapidMomentumSmearGauss.h"
 #include "RapidMomentumSmearGaussPtEtaDep.h"
@@ -67,6 +68,7 @@ RapidConfig::~RapidConfig() {
 	if(acceptance_) delete acceptance_;
 	if(decay_) delete decay_;
 	if(writer_) delete writer_;
+	if(external_) delete external_;
 }
 
 bool RapidConfig::load(TString fileName) {
@@ -86,6 +88,16 @@ bool RapidConfig::load(TString fileName) {
 			params_.push_back(param);
 			break;
 		}
+	}
+
+	//if we're using an external generator then set it up
+	if(external_) {
+		std::cout << "INFO in RapidConfig::load : initialising external generator." << std::endl;
+		//if the external generator is EvtGen we need to write the DEC file
+		if(dynamic_cast<RapidExternalEvtGen*>(external_)) {
+			dynamic_cast<RapidExternalEvtGen*>(external_)->writeDecFile(fileName_,parts_);
+		}
+		external_->setup();
 	}
 
 	return true;
@@ -119,6 +131,9 @@ RapidDecay* RapidConfig::getDecay() {
 			else {
 				decay_->setAcceptRejectHist(accRejHisto_,accRejParameterX_);
 			}
+		}
+		if(external_) {
+			decay_->setExternal(external_);
 		}
 	}
 
@@ -396,6 +411,10 @@ bool RapidConfig::configParticle(unsigned int part, TString command, TString val
 			parts_[part]->addMassHypothesis(altName, altMass);
 			std::cout << "INFO in RapidConfig::configParticle : added alternative mass hypothesis of " << buffer << " for particle " << parts_[part]->name() << std::endl;
 		}
+	} else if(command=="evtGenModel") {
+		parts_[part]->setEvtGenDecayModel(value);
+		std::cout << "INFO in RapidConfig::configParticle : set EvtGen decay model for particle " << parts_[part]->name() << std::endl
+			  << "                                    : " << value << std::endl;
 	}
 
 	return true;
@@ -506,6 +525,9 @@ bool RapidConfig::configGlobal(TString command, TString value) {
 		}
 
 		if(!loadAcceptRejectHist(histFile, histName, paramX, paramY)) return false;
+	} else if(command=="useEvtGen") {
+		external_ = new RapidExternalEvtGen();
+		std::cout << "INFO in RapidConfig::configGlobal : will use external EvtGen generator to decay particles." << std::endl;
 	}
 
 	return true;
