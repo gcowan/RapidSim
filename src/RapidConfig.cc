@@ -426,6 +426,7 @@ bool RapidConfig::configParticle(unsigned int part, TString command, TString val
 }
 
 bool RapidConfig::configGlobal(TString command, TString value) {
+	gRandom->SetSeed(0.);
 	if(command=="seed") {
 		int seed = value.Atoi();
 		gRandom->SetSeed(seed);
