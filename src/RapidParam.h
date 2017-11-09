@@ -53,7 +53,8 @@ class RapidParam {
 		~RapidParam() {}
 
 		double eval();//TODO make virtual and give a warning in the base class
-		double eval(const TLorentzVector& mom);
+		double eval(const TLorentzVector& mom, std::pair<double,double> ip);
+		double eval(const TLorentzVector& mom) {return eval(mom,std::pair<double,double>(0.,0.));}
 
 		TString name();
 		TString typeName();

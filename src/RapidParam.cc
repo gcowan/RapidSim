@@ -9,11 +9,6 @@ double RapidParam::eval() {
 
 	if(type_ == RapidParam::THETA || type_ == RapidParam::COSTHETA) return evalTheta();
 	if(type_ == RapidParam::MCORR) return evalCorrectedMass();
-    if(type_ == RapidParam::IP) {
-        if(truth_) return particles_[0]->getIP();
-        else return particles_[0]->getIPSmeared(); 
-    }
-    if(type_ == RapidParam::SIGMAIP) return particles_[0]->getSigmaIP();
 
 	mom_.SetPxPyPzE(0.,0.,0.,0.);
 	if(truth_) {
@@ -29,7 +24,7 @@ double RapidParam::eval() {
 	return eval(mom_);
 }
 
-double RapidParam::eval(const TLorentzVector& mom) {
+double RapidParam::eval(const TLorentzVector& mom, std::pair<double,double> ip) {
 	switch(type_) {
 		case RapidParam::M:
 			return mom.M();
@@ -62,7 +57,9 @@ double RapidParam::eval(const TLorentzVector& mom) {
 		case RapidParam::BETA:
 			return mom.Beta();
         case RapidParam::IP:
+            return ip.first;
         case RapidParam::SIGMAIP:
+            return ip.second;
 		case RapidParam::THETA:
 		case RapidParam::COSTHETA:
 		case RapidParam::MCORR:

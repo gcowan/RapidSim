@@ -809,7 +809,6 @@ void RapidConfig::setSmearing(unsigned int particle, TString category) {
 	}
     if (loadedmomsmear) {
         parts_[particle]->setSmearing(momSmearCategories_[category]);
-        return;
     }
 
     bool loadedipsmear = true;
@@ -822,8 +821,9 @@ void RapidConfig::setSmearing(unsigned int particle, TString category) {
     }    
     if (loadedipsmear) {
         parts_[particle]->setSmearing(ipSmearCategories_[category]);
-        return;
-    } 
+    }
+
+    return; 
 }
 
 bool RapidConfig::loadAcceptRejectHist(TString histFile, TString histName, RapidParam* paramX, RapidParam* paramY) {
