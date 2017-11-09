@@ -79,6 +79,7 @@ bool RapidDecay::generate() {
 	}
 
 	smearMomenta();
+    smearIPs();
 
 	return true;
 }
@@ -89,6 +90,13 @@ void RapidDecay::smearMomenta() {
 		parts_[i]->smearMomentum();
 	}
 
+}
+
+void RapidDecay::smearIPs() {
+    //run backwards so that we reach the daughters first
+    for(int i=parts_.size()-1; i>=0; --i) {//don't change to unsigned - needs to hit -1 to break loop
+        parts_[i]->smearIP();
+    }
 }
 
 void RapidDecay::setup() {

@@ -51,6 +51,7 @@ class RapidDecay {
 		bool genDecay(bool acceptAny=false);
 		bool genDecayAccRej();
 		void smearMomenta();
+        void smearIPs();
 
 		//the particles
 		std::vector<RapidParticle*> parts_;

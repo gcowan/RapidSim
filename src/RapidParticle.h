@@ -2,7 +2,7 @@
 #define RAPIDPARTICLE_H
 
 #include <vector>
-
+#include "Math/Point3D.h"
 #include "TLorentzVector.h"
 #include "TString.h"
 
@@ -10,11 +10,13 @@
 
 class RapidMomentumSmear;
 class RapidParticleData;
+class RapidIPSmear;
+//class RapidVtxSmear;
 
 class RapidParticle {
 	public:
-		RapidParticle(int id, TString name, double mass, double charge, RapidParticle* mother)
-			: index_(0), id_(id), name_(name), mass_(mass), charge_(charge),
+		RapidParticle(int id, TString name, double mass, double charge, double ctau, RapidParticle* mother)
+			: index_(0), id_(id), name_(name), mass_(mass), charge_(charge), ctau_(ctau),
 			  mother_(mother), next_(0), invisible_(false), momSmear_(0),
 			  massData_(0), minMass_(mass), maxMass_(mass),
 			  evtGenModel_("PHSP"),
@@ -30,16 +32,21 @@ class RapidParticle {
 		void setMassHypothesis(unsigned int i);
 
 		bool generate();
-		TLorentzVector& getP() { return p_; }
+        double getIP() { return ip_; }
+        double getSigmaIP() { return sigmaip_; }
+        double getIPSmeared() { return ipSmeared_; }
+        TLorentzVector& getP() { return p_; }
 		TLorentzVector& getPSmeared() { return pSmeared_; }
-
+        
 		void smearMomentum();
+        void smearIP();
 
 		int id() { return id_; }
 		TString name() { return name_; }
 		double mass() { return mass_; }
 		double deltaMass();
-		double charge() { return charge_; }
+		double ctau() { return ctau_; }
+        double charge() { return charge_; }
 		double minMass() { return minMass_; }
 		double maxMass() { return maxMass_; }
 
@@ -64,6 +71,7 @@ class RapidParticle {
 
 		void setInvisible(bool invisible=true) { invisible_ = invisible; }
 		void setSmearing(RapidMomentumSmear* momSmear) { momSmear_ = momSmear; }
+        void setSmearing(RapidIPSmear* ipSmear) { ipSmear_ = ipSmear; }
 
 		void setP(TLorentzVector p) { p_ = p; }
 		void setPtEtaPhi(double pt, double eta, double phi) { p_.SetPtEtaPhiM(pt,eta,phi,mass_); }
@@ -88,20 +96,25 @@ class RapidParticle {
 
 		int id_;
 		TString name_;
-		double mass_;
-		double charge_;
+        double mass_;
+		double charge_;        
+		double ctau_;
 
 		RapidParticle* mother_;
 		std::vector<RapidParticle*> daughters_;
 		RapidParticle* next_;
 		std::vector<double> daughterMasses_;
 
+        double ip_;
+        double sigmaip_;
+        double ipSmeared_;
 		TLorentzVector p_;
 		TLorentzVector pSmeared_;
 
 		bool invisible_;
 
 		RapidMomentumSmear* momSmear_;
+        RapidIPSmear* ipSmear_;
 
 		RooDataSet* massData_;
 		double minMass_;

@@ -34,7 +34,7 @@ void RapidParticleData::loadData(TString file) {
 
 	int id;
 	TString part, anti;
-	double mass, width, spin, charge;
+	double mass, width, spin, charge, ctau;
 	TString lineshape;
 
 	while(fin.good()) {
@@ -51,10 +51,12 @@ void RapidParticleData::loadData(TString file) {
 		buffer.ReadToken(fin);
 		spin = buffer.Atof();
 		lineshape.ReadToken(fin);
+        buffer.ReadToken(fin);
+        ctau = buffer.Atof();
 
 		if(!fin.good()) break;
-		addEntry(id,part,mass,width,spin,charge,lineshape);
-		if(anti != "---") addEntry(-1*id,anti,mass,width,spin,-1.*charge,lineshape);
+		addEntry(id,part,mass,width,spin,charge,lineshape,ctau);
+		if(anti != "---") addEntry(-1*id,anti,mass,width,spin,-1.*charge,lineshape,ctau);
 
 	}
 	fin.close();
@@ -67,6 +69,15 @@ double RapidParticleData::getMass(int id) {
 		std::cout << "WARNING in RapidParticleData::getMass : Unknown particle ID " << id << std::endl;
 		return 0.;
 	}
+}
+
+double RapidParticleData::getCT(int id) {
+    if(idToCT_.count(id)) {
+        return idToCT_[id];
+    } else {
+        std::cout << "WARNING in RapidParticleData::getCT : Unknown particle ID " << id << std::endl;
+        return 0.; 
+    }   
 }
 
 double RapidParticleData::getWidth(int id) {
@@ -120,23 +131,25 @@ int RapidParticleData::pdgCode(TString name) {
 }
 
 RapidParticle* RapidParticleData::makeParticle(int id, RapidParticle* mother) {
-	
+
+    double ctau = getCT(id);	
 	double mass = getMass(id);
 	double charge = getCharge(id);
 	TString name = getName(id);
 	name = makeUniqName(name);
 
-	return new RapidParticle(id, name, mass, charge, mother);
+	return new RapidParticle(id, name, mass, charge, ctau, mother);
 }
 
 RapidParticle* RapidParticleData::makeParticle(TString name, RapidParticle* mother) {
 
 	int id = pdgCode(name);
+    double ctau = getCT(id);
 	double mass = getMass(id);
 	double charge = getCharge(id);
 	name = makeUniqName(name);
 
-	return new RapidParticle(id, name, mass, charge, mother);
+	return new RapidParticle(id, name, mass, charge, ctau, mother);
 }
 
 void RapidParticleData::setupMass(RapidParticle* part) {
@@ -196,12 +209,13 @@ void RapidParticleData::setupMass(RapidParticle* part) {
 	part->setMassShape(massdata,mmin,mmax,varName);
 }
 
-void RapidParticleData::addEntry(int id, TString name, double mass, double width, double spin, double charge, TString lineshape) {
+void RapidParticleData::addEntry(int id, TString name, double mass, double width, double spin, double charge, TString lineshape, double ctau) {
 	if(idToName_.find(id) != idToName_.end()) {
 		std::cout << "INFO in RapidParticleData::addEntry : particle with ID " << id << " already defined with name " << idToName_[id] << std::endl;
 		std::cout << "                                      second definition will be ignored." << std::endl;
 	}
 
+    idToCT_[id] = ctau;
 	idToMass_[id] = mass;
 	idToWidth_[id] = width;
 	idToSpin_[id] = spin;

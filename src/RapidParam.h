@@ -20,6 +20,8 @@ class RapidParam {
 			PY,       //Y-momentum
 			PZ,       //Z-momentum
 			PT,       //Transverse momentum
+            IP,       //IP to own PV
+            SIGMAIP,  //Error on IP to own PV
 			ETA,      //Pseudorapidity
 			PHI,      //Azimuthal angle
 			RAPIDITY, //Rapidity

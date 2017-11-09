@@ -23,6 +23,7 @@ class RapidParticleData {
 
 		void loadData(TString file);
 
+        double getCT(int id);
 		double getMass(int id);
 		double getWidth(int id);
 		double getSpin(int id);
@@ -65,13 +66,14 @@ class RapidParticleData {
 		RapidParticleData( const RapidParticleData& other );
 		RapidParticleData& operator=( const RapidParticleData& other );
 
-		void addEntry(int id, TString name, double mass, double width, double spin, double charge, TString lineshape);
+		void addEntry(int id, TString name, double mass, double width, double spin, double charge, TString lineshape, double ctau);
 		TString sanitiseName(TString name);
 		TString makeUniqName(TString name);
 
 		RooRelBreitWigner* makeRelBW(RooRealVar& m, double mean, double gamma, double thespin, double m1, double m2, TString name); 
 		RooGounarisSakurai* makeGS(RooRealVar& m, double mean, double gamma, double thespin, double m1, double m2, TString name); 
 
+        std::map<int, double> idToCT_;
 		std::map<int, double> idToMass_;
 		std::map<int, double> idToWidth_;
 		std::map<int, double> idToSpin_;

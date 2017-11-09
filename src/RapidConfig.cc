@@ -14,6 +14,7 @@
 #include "RapidDecay.h"
 #include "RapidExternalEvtGen.h"
 #include "RapidHistWriter.h"
+#include "RapidIPSmearGauss.h"
 #include "RapidMomentumSmearGauss.h"
 #include "RapidMomentumSmearGaussPtEtaDep.h"
 #include "RapidMomentumSmearHisto.h"
@@ -27,7 +28,11 @@ RapidConfig::~RapidConfig() {
 		delete itr->second;
 		momSmearCategories_.erase(itr++);
 	}
-
+    std::map<TString, RapidIPSmear*>::iterator itr2 = ipSmearCategories_.begin();
+    while (itr2 != ipSmearCategories_.end()) {
+        delete itr2->second;
+        ipSmearCategories_.erase(itr2++);
+    } 
 	while(!parts_.empty()) {
 		delete parts_[parts_.size()-1];
 		parts_.pop_back();
@@ -686,13 +691,15 @@ bool RapidConfig::loadSmearing(TString category) {
 
 	TString filename("");
 	filename.ReadToken(fin);
-	TFile* file = TFile::Open(path+"/rootfiles/smear/"+filename);
-
-	if(!file) {
-		std::cout << "WARNING in RapidConfig::loadSmearing : failed to load root file " << filename << std::endl;
-		fin.close();
-		return false;
-	}
+    TFile* file = NULL;
+    if (filename != "NULL") {
+        file = TFile::Open(path+"/rootfiles/smear/"+filename);
+	    if(!file) {
+	        std::cout << "WARNING in RapidConfig::loadSmearing : failed to load root file " << filename << std::endl;
+	        fin.close();
+	        return false;
+	    }
+    }
 
 	TString type("");
 	type.ReadToken(fin);
@@ -709,11 +716,23 @@ bool RapidConfig::loadSmearing(TString category) {
 
 		momSmearCategories_[category] = new RapidMomentumSmearGauss(graph);
 
-	} else if(type=="GAUSSPTETA") {
+    }else if(type=="GAUSSIP") {
+        double intercept(0.);
+        double slope(0.);
+        fin >> intercept;
+        fin >> slope;
+        if ((intercept < 0) || (slope < 0) ) {
+            std::cout << "WARNING in RapidConfig::loadSmearing : failed to load IP smearing" << std::endl;
+            file->Close();
+            fin.close();
+            return false;
+        }
+        ipSmearCategories_[category] = new RapidIPSmearGauss(intercept,slope);
+    }else if(type=="GAUSSPTETA") {
 		TString histname("");
 		histname.ReadToken(fin);
 		TH2* hist = dynamic_cast<TH2*>(file->Get(histname));
-		if(!hist) {
+		    if(!hist) {
 			std::cout << "WARNING in RapidConfig::loadSmearing : failed to load histogram " << histname << std::endl;
 			file->Close();
 			fin.close();
@@ -780,15 +799,31 @@ void RapidConfig::setSmearing(unsigned int particle, TString category) {
 
 	std::cout << "INFO in RapidConfig::setSmearing : setting smearing functions for particle " << particle << " (category: " << category << ")" << std::endl;
 
+    bool loadedmomsmear = true;
 	if(!momSmearCategories_.count(category)) {
 		if(!loadSmearing(category)) {
-			std::cout << "WARNING in RapidConfig::setSmearing : failed to load smearing category " << category << "." << std::endl
+			std::cout << "WARNING in RapidConfig::setSmearing : failed to load momentum smearing category " << category << "." << std::endl
 				  << "                                      smearing functions not set for particle " << particle << "." << std::endl;
-			return;
+            loadedmomsmear = false;
 		}
 	}
+    if (loadedmomsmear) {
+        parts_[particle]->setSmearing(momSmearCategories_[category]);
+        return;
+    }
 
-	parts_[particle]->setSmearing(momSmearCategories_[category]);
+    bool loadedipsmear = true;
+    if(!ipSmearCategories_.count(category)) {
+        if(!loadSmearing(category)) {
+            std::cout << "WARNING in RapidConfig::setSmearing : failed to load IP smearing category " << category << "." << std::endl
+                  << "                                      smearing functions not set for particle " << particle << "." << std::endl;
+            loadedipsmear = false;
+        }    
+    }    
+    if (loadedipsmear) {
+        parts_[particle]->setSmearing(ipSmearCategories_[category]);
+        return;
+    } 
 }
 
 bool RapidConfig::loadAcceptRejectHist(TString histFile, TString histName, RapidParam* paramX, RapidParam* paramY) {
