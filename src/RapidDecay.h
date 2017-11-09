@@ -2,12 +2,16 @@
 #define RAPIDDECAY_H
 
 #include <vector>
+#include <cmath>
 
 #include "TH1.h"
 #include "TH2.h"
 #include "TString.h"
 
+#include "TLorentzVector.h"
 #include "TGenPhaseSpace.h"
+#include "Math/Point3D.h"
+#include "Math/Vector3D.h"
 
 class RapidParticle;
 class RapidParam;
@@ -52,6 +56,7 @@ class RapidDecay {
 		bool genDecayAccRej();
 		void smearMomenta();
         void smearIPs();
+        double getParticleIP(ROOT::Math::XYZPoint, ROOT::Math::XYZPoint, TLorentzVector);
 
 		//the particles
 		std::vector<RapidParticle*> parts_;

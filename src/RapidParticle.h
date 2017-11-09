@@ -20,7 +20,9 @@ class RapidParticle {
 			  mother_(mother), next_(0), invisible_(false), momSmear_(0),
 			  massData_(0), minMass_(mass), maxMass_(mass),
 			  evtGenModel_("PHSP"),
-			  currentHypothesis_(0)
+			  currentHypothesis_(0),
+              originVertex_(0,0,0),
+              decayVertex_(0,0,0)
 			{setPtEtaPhi(0,0,0);}
 
 
@@ -50,6 +52,9 @@ class RapidParticle {
 		double minMass() { return minMass_; }
 		double maxMass() { return maxMass_; }
 
+        ROOT::Math::XYZPoint getOriginVertex() {return originVertex_;}        
+        ROOT::Math::XYZPoint getDecayVertex() {return decayVertex_;}
+
 		unsigned int nDaughters() { return daughters_.size(); }
 
 		unsigned int nMassHypotheses() { return altMasses_.size()+1; }
@@ -74,7 +79,10 @@ class RapidParticle {
         void setSmearing(RapidIPSmear* ipSmear) { ipSmear_ = ipSmear; }
 
 		void setP(TLorentzVector p) { p_ = p; }
+		void setIP(double ip) { ip_ = ip; }        
 		void setPtEtaPhi(double pt, double eta, double phi) { p_.SetPtEtaPhiM(pt,eta,phi,mass_); }
+        void setOriginVertex(ROOT::Math::XYZPoint v) {originVertex_ = v;}        
+        void setDecayVertex(ROOT::Math::XYZPoint v) {decayVertex_ = v;}
 
 		void print(int index); 
 
@@ -98,7 +106,7 @@ class RapidParticle {
 		TString name_;
         double mass_;
 		double charge_;        
-		double ctau_;
+		double ctau_;      
 
 		RapidParticle* mother_;
 		std::vector<RapidParticle*> daughters_;
@@ -128,5 +136,8 @@ class RapidParticle {
 		std::vector<double> altMasses_;
 
 		unsigned int currentHypothesis_;
+
+        ROOT::Math::XYZPoint originVertex_;
+        ROOT::Math::XYZPoint decayVertex_;  
 };
 #endif
