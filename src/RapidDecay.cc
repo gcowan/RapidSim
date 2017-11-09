@@ -232,7 +232,7 @@ bool RapidDecay::genDecay(bool acceptAny) {
             // First set the origin vertex to be the PV for the head of the chain
             // in all other cases, the origin vertex will already be set in the loop below
             if (!part->mother()) part->setOriginVertex(signalpv);
-            double dist = part->mass()*gRandom->Exp(part->ctau())/part->getP().P();
+            double dist = part->getP().P()*gRandom->Exp(part->ctau())/part->mass();
             double dvx  = part->getOriginVertex().X() + part->getP().Vect().Unit().X()*dist;
             double dvy  = part->getOriginVertex().Y() + part->getP().Vect().Unit().Y()*dist;
             double dvz  = part->getOriginVertex().Z() + part->getP().Vect().Unit().Z()*dist;
