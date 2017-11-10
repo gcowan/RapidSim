@@ -232,14 +232,15 @@ bool RapidDecay::genDecay(bool acceptAny) {
             // First set the origin vertex to be the PV for the head of the chain
             // in all other cases, the origin vertex will already be set in the loop below
             if (!part->mother()) part->setOriginVertex(signalpv);
-            double dist = part->getP().P()*gRandom->Exp(part->ctau())/part->mass();
-            double dvx  = part->getOriginVertex().X() + part->getP().Vect().Unit().X()*dist;
-            double dvy  = part->getOriginVertex().Y() + part->getP().Vect().Unit().Y()*dist;
-            double dvz  = part->getOriginVertex().Z() + part->getP().Vect().Unit().Z()*dist;
-            part->setDecayVertex(ROOT::Math::XYZPoint(dvx,dvy,dvz));
+            if (part->ctau()>0) {
+                double dist = part->getP().P()*gRandom->Exp(part->ctau())/part->mass();
+                double dvx  = part->getOriginVertex().X() + part->getP().Vect().Unit().X()*dist;
+                double dvy  = part->getOriginVertex().Y() + part->getP().Vect().Unit().Y()*dist;
+                double dvz  = part->getOriginVertex().Z() + part->getP().Vect().Unit().Z()*dist;
+                part->setDecayVertex(ROOT::Math::XYZPoint(dvx,dvy,dvz));
+            } else part->setDecayVertex(part->getOriginVertex());
 
 			int j=0;
-            ROOT::Math::XYZPoint decayvertex(0.,0.,0.);            
 			for(RapidParticle* jDaug=part->daughter(0); jDaug!=0; jDaug=jDaug->next()) {
 				jDaug->setP(*decay_.GetDecay(j++));
                 jDaug->setOriginVertex(part->getDecayVertex());
