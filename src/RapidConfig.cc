@@ -806,7 +806,9 @@ void RapidConfig::setSmearing(unsigned int particle, TString category) {
 			std::cout << "WARNING in RapidConfig::setSmearing : failed to load momentum smearing category " << category << "." << std::endl
 				  << "                                      smearing functions not set for particle " << particle << "." << std::endl;
             loadedmomsmear = false;
-		}
+		} else if(!momSmearCategories_.count(category)) {
+            loadedmomsmear = false;
+        }
 	}
     if (loadedmomsmear) {
         parts_[particle]->setSmearing(momSmearCategories_[category]);
@@ -818,7 +820,9 @@ void RapidConfig::setSmearing(unsigned int particle, TString category) {
             std::cout << "WARNING in RapidConfig::setSmearing : failed to load IP smearing category " << category << "." << std::endl
                   << "                                      smearing functions not set for particle " << particle << "." << std::endl;
             loadedipsmear = false;
-        }    
+        } else if(!ipSmearCategories_.count(category)) {
+            loadedipsmear = false;
+        }
     }    
     if (loadedipsmear) {
         parts_[particle]->setSmearing(ipSmearCategories_[category]);
