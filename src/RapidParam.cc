@@ -24,7 +24,7 @@ double RapidParam::eval() {
 	return eval(mom_);
 }
 
-double RapidParam::eval(const TLorentzVector& mom) {
+double RapidParam::eval(const TLorentzVector& mom, std::pair<double,double> ip) {
 	switch(type_) {
 		case RapidParam::M:
 			return mom.M();
@@ -56,6 +56,10 @@ double RapidParam::eval(const TLorentzVector& mom) {
 			return mom.Gamma();
 		case RapidParam::BETA:
 			return mom.Beta();
+        case RapidParam::IP:
+            return ip.first;
+        case RapidParam::SIGMAIP:
+            return ip.second;
 		case RapidParam::THETA:
 		case RapidParam::COSTHETA:
 		case RapidParam::MCORR:
@@ -66,6 +70,106 @@ double RapidParam::eval(const TLorentzVector& mom) {
 			std::cout << "WARNING in RapidParam::eval : unknown parameter type " << type_ << std::endl
 				  << "                              returning 0." << std::endl;
 
+	}
+
+	return 0.;
+
+}
+
+bool RapidParam::canBeSmeared() {
+	switch(type_) {
+		case RapidParam::M:
+			return true;
+		case RapidParam::M2:
+			return true;
+		case RapidParam::MT:
+			return true;
+		case RapidParam::E:
+			return true;
+		case RapidParam::ET:
+			return true;
+		case RapidParam::P:
+			return true;
+		case RapidParam::PX:
+			return true;
+		case RapidParam::PY:
+			return true;
+		case RapidParam::PZ:
+			return true;
+		case RapidParam::PT:
+			return true;
+		case RapidParam::ETA:
+			return true;
+		case RapidParam::PHI:
+			return true;
+		case RapidParam::RAPIDITY:
+			return true;
+		case RapidParam::GAMMA:
+			return true;
+		case RapidParam::BETA:
+			return true;
+        case RapidParam::IP:
+			return true;
+        case RapidParam::SIGMAIP:
+			return false;
+		case RapidParam::THETA:
+			return true;
+		case RapidParam::COSTHETA:
+			return true;
+		case RapidParam::MCORR:
+			return true;
+		case RapidParam::UNKNOWN:
+			return true;
+	}
+
+	return 0.;
+
+}
+
+bool RapidParam::canBeTrue() {
+	switch(type_) {
+		case RapidParam::M:
+			return true;
+		case RapidParam::M2:
+			return true;
+		case RapidParam::MT:
+			return true;
+		case RapidParam::E:
+			return true;
+		case RapidParam::ET:
+			return true;
+		case RapidParam::P:
+			return true;
+		case RapidParam::PX:
+			return true;
+		case RapidParam::PY:
+			return true;
+		case RapidParam::PZ:
+			return true;
+		case RapidParam::PT:
+			return true;
+		case RapidParam::ETA:
+			return true;
+		case RapidParam::PHI:
+			return true;
+		case RapidParam::RAPIDITY:
+			return true;
+		case RapidParam::GAMMA:
+			return true;
+		case RapidParam::BETA:
+			return true;
+        case RapidParam::IP:
+			return true;
+        case RapidParam::SIGMAIP:
+			return false;
+		case RapidParam::THETA:
+			return true;
+		case RapidParam::COSTHETA:
+			return true;
+		case RapidParam::MCORR:
+			return true;
+		case RapidParam::UNKNOWN:
+			return true;
 	}
 
 	return 0.;
@@ -161,7 +265,11 @@ TString RapidParam::typeName() {
 			return "M2";
 		case RapidParam::MT:
 			return "MT";
-		case RapidParam::E:
+		case RapidParam::IP:
+            return "IP";
+        case RapidParam::SIGMAIP:
+            return "SIGMAIP";
+        case RapidParam::E:
 			return "E";
 		case RapidParam::ET:
 			return "ET";
@@ -205,7 +313,11 @@ RapidParam::ParamType RapidParam::typeFromString(TString str) {
 		return RapidParam::M2;
 	} else if(str=="MT") {
 		return RapidParam::MT;
-	} else if(str=="E") {
+	} else if(str=="IP") {
+        return RapidParam::IP;
+    } else if(str=="SIGMAIP") {
+        return RapidParam::SIGMAIP;
+    } else if(str=="E") {
 		return RapidParam::E;
 	} else if(str=="ET") {
 		return RapidParam::ET;
@@ -294,6 +406,8 @@ void RapidParam::setDefaultMinMax(const std::vector<RapidParticle*>& parts, doub
 			min = min*min;
 			max = max*max;
 			break;
+        case RapidParam::IP:
+        case RapidParam::SIGMAIP:
 		case RapidParam::E:
 		case RapidParam::ET:
 		case RapidParam::P:

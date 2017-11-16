@@ -7,7 +7,6 @@
 #include "TH1.h"
 #include "TH2.h"
 #include "TString.h"
-
 #include "RapidAcceptance.h"
 
 class RapidCut;
@@ -15,6 +14,8 @@ class RapidDecay;
 class RapidExternalGenerator;
 class RapidHistWriter;
 class RapidMomentumSmear;
+class RapidIPSmear;
+class RapidVtxSmear;
 class RapidParam;
 class RapidParticle;
 
@@ -88,6 +89,10 @@ class RapidConfig {
 
 		//mometum smearing lookup for each smearing category
 		std::map<TString, RapidMomentumSmear*> momSmearCategories_;
+        //IP smearing lookup for each smearing category
+        std::map<TString, RapidIPSmear*> ipSmearCategories_;
+        //Vtx smearing lookup for each smearing category, placeholder for now
+        //std::map<TString, RapidVtxSmear*> vtxSmearCategories_;
 
 		//accept reject hist to sculpt kinematics
 		TH1* accRejHisto_;

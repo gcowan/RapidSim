@@ -247,9 +247,9 @@ unsigned int RapidHistWriter::fillSingleHypothesis(unsigned int offset) {
 			for(itParam=paramsStable_.begin(); itParam!=paramsStable_.end(); ++itParam) {
 				RapidParam* param = *itParam;
 				if(param->truth()) {
-					vars_[offset] = param->eval(part->getP());
+					vars_[offset] = param->eval(part->getP(),std::pair<double,double>(part->getIP(),part->getSigmaIP()));
 				} else {
-					vars_[offset] = param->eval(part->getPSmeared());
+					vars_[offset] = param->eval(part->getPSmeared(),std::pair<double,double>(part->getIPSmeared(),part->getSigmaIP()));
 				}
 
 				histos_[offset]->Fill(vars_[offset]);
@@ -259,9 +259,9 @@ unsigned int RapidHistWriter::fillSingleHypothesis(unsigned int offset) {
 			for(itParam=paramsDecaying_.begin(); itParam!=paramsDecaying_.end(); ++itParam) {
 				RapidParam* param = *itParam;
 				if(param->truth()) {
-					vars_[offset] = param->eval(part->getP());
+					vars_[offset] = param->eval(part->getP(),std::pair<double,double>(part->getIP(),part->getSigmaIP()));
 				} else {
-					vars_[offset] = param->eval(part->getPSmeared());
+					vars_[offset] = param->eval(part->getPSmeared(),std::pair<double,double>(part->getIPSmeared(),part->getSigmaIP()));
 				}
 				histos_[offset]->Fill(vars_[offset]);
 				++offset;

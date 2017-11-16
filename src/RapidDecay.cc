@@ -79,6 +79,7 @@ bool RapidDecay::generate() {
 	}
 
 	smearMomenta();
+    smearIPs();
 
 	return true;
 }
@@ -89,6 +90,13 @@ void RapidDecay::smearMomenta() {
 		parts_[i]->smearMomentum();
 	}
 
+}
+
+void RapidDecay::smearIPs() {
+    //run backwards so that we reach the daughters first
+    for(int i=parts_.size()-1; i>=0; --i) {//don't change to unsigned - needs to hit -1 to break loop
+        parts_[i]->smearIP();
+    }
 }
 
 void RapidDecay::setup() {
@@ -183,6 +191,8 @@ void RapidDecay::genParent() {
 }
 
 bool RapidDecay::genDecay(bool acceptAny) {
+    //The origin vertex of the signal is always 0,0,0
+    ROOT::Math::XYZPoint signalpv(0.,0.,0.);
 	for(unsigned int i=0; i<parts_.size(); ++i) {
 		RapidParticle* part = parts_[i];
 		if(part->nDaughters()>0) {
@@ -218,15 +228,41 @@ bool RapidDecay::genDecay(bool acceptAny) {
 					return false;
 				}
 			}
+            // Now generate the decay vertex for long-lived particles
+            // First set the origin vertex to be the PV for the head of the chain
+            // in all other cases, the origin vertex will already be set in the loop below
+            if (!part->mother()) part->setOriginVertex(signalpv);
+            if (part->ctau()>0) {
+                double dist = part->getP().P()*gRandom->Exp(part->ctau())/part->mass();
+                double dvx  = part->getOriginVertex().X() + part->getP().Vect().Unit().X()*dist;
+                double dvy  = part->getOriginVertex().Y() + part->getP().Vect().Unit().Y()*dist;
+                double dvz  = part->getOriginVertex().Z() + part->getP().Vect().Unit().Z()*dist;
+                part->setDecayVertex(ROOT::Math::XYZPoint(dvx,dvy,dvz));
+            } else part->setDecayVertex(part->getOriginVertex());
 
 			int j=0;
 			for(RapidParticle* jDaug=part->daughter(0); jDaug!=0; jDaug=jDaug->next()) {
 				jDaug->setP(*decay_.GetDecay(j++));
+                jDaug->setOriginVertex(part->getDecayVertex());
+                double ip(0.);
+                ip = getParticleIP(signalpv,jDaug->getOriginVertex(),jDaug->getP());
+                jDaug->setIP(ip);
 			}
 		}
 	}
 
 	return true;
+}
+
+double RapidDecay::getParticleIP(ROOT::Math::XYZPoint pv, ROOT::Math::XYZPoint dv, TLorentzVector p) {
+  ROOT::Math::XYZVector v1 = pv - dv;
+  ROOT::Math::XYZVector dispv(dv.X() + p.X(), dv.Y()+p.Y(), dv.Z()+p.Z());
+  ROOT::Math::XYZVector lengthv(p.X(), p.Y(), p.Z());
+  ROOT::Math::XYZVector v2 = pv - (dv + dispv);
+
+  ROOT::Math::XYZVector impact = v1.Cross(v2)/sqrt(lengthv.Mag2());
+
+  return sqrt(impact.Mag2());
 }
 
 bool RapidDecay::genDecayAccRej() {
