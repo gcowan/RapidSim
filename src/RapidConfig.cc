@@ -974,8 +974,10 @@ void RapidConfig::setupDefaultParams(TString paramStr, std::vector<RapidParam*>&
 		} else {
 			param = new RapidParam(type, false);
 			params.push_back(param);
-			param = new RapidParam(type, true);
-			params.push_back(param);
+            if ( param->canBeTrue() ) {
+			    param = new RapidParam(type, true);
+			    params.push_back(param);
+            }
 		}
 	}
 }

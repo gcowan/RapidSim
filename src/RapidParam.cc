@@ -76,6 +76,106 @@ double RapidParam::eval(const TLorentzVector& mom, std::pair<double,double> ip) 
 
 }
 
+bool RapidParam::canBeSmeared() {
+	switch(type_) {
+		case RapidParam::M:
+			return true;
+		case RapidParam::M2:
+			return true;
+		case RapidParam::MT:
+			return true;
+		case RapidParam::E:
+			return true;
+		case RapidParam::ET:
+			return true;
+		case RapidParam::P:
+			return true;
+		case RapidParam::PX:
+			return true;
+		case RapidParam::PY:
+			return true;
+		case RapidParam::PZ:
+			return true;
+		case RapidParam::PT:
+			return true;
+		case RapidParam::ETA:
+			return true;
+		case RapidParam::PHI:
+			return true;
+		case RapidParam::RAPIDITY:
+			return true;
+		case RapidParam::GAMMA:
+			return true;
+		case RapidParam::BETA:
+			return true;
+        case RapidParam::IP:
+			return true;
+        case RapidParam::SIGMAIP:
+			return false;
+		case RapidParam::THETA:
+			return true;
+		case RapidParam::COSTHETA:
+			return true;
+		case RapidParam::MCORR:
+			return true;
+		case RapidParam::UNKNOWN:
+			return true;
+	}
+
+	return 0.;
+
+}
+
+bool RapidParam::canBeTrue() {
+	switch(type_) {
+		case RapidParam::M:
+			return true;
+		case RapidParam::M2:
+			return true;
+		case RapidParam::MT:
+			return true;
+		case RapidParam::E:
+			return true;
+		case RapidParam::ET:
+			return true;
+		case RapidParam::P:
+			return true;
+		case RapidParam::PX:
+			return true;
+		case RapidParam::PY:
+			return true;
+		case RapidParam::PZ:
+			return true;
+		case RapidParam::PT:
+			return true;
+		case RapidParam::ETA:
+			return true;
+		case RapidParam::PHI:
+			return true;
+		case RapidParam::RAPIDITY:
+			return true;
+		case RapidParam::GAMMA:
+			return true;
+		case RapidParam::BETA:
+			return true;
+        case RapidParam::IP:
+			return true;
+        case RapidParam::SIGMAIP:
+			return false;
+		case RapidParam::THETA:
+			return true;
+		case RapidParam::COSTHETA:
+			return true;
+		case RapidParam::MCORR:
+			return true;
+		case RapidParam::UNKNOWN:
+			return true;
+	}
+
+	return 0.;
+
+}
+
 double RapidParam::evalCorrectedMass() {
 
 	TLorentzVector momS, momT;

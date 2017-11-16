@@ -56,6 +56,9 @@ class RapidParam {
 		double eval(const TLorentzVector& mom, std::pair<double,double> ip);
 		double eval(const TLorentzVector& mom) {return eval(mom,std::pair<double,double>(0.,0.));}
 
+        bool canBeSmeared();
+        bool canBeTrue();
+
 		TString name();
 		TString typeName();
 		bool truth() { return truth_; }
