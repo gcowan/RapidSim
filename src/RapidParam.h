@@ -53,8 +53,8 @@ class RapidParam {
 		~RapidParam() {}
 
 		double eval();//TODO make virtual and give a warning in the base class
-		double eval(const TLorentzVector& mom, std::pair<double,double> ip);
-		double eval(const TLorentzVector& mom) {return eval(mom,std::pair<double,double>(0.,0.));}
+		//double eval(const TLorentzVector& mom, std::pair<double,double> ip);
+		//double eval(const TLorentzVector& mom) {return eval(mom,std::pair<double,double>(0.,0.));}
 
         bool canBeSmeared();
         bool canBeTrue();

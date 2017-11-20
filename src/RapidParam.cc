@@ -10,56 +10,55 @@ double RapidParam::eval() {
 	if(type_ == RapidParam::THETA || type_ == RapidParam::COSTHETA) return evalTheta();
 	if(type_ == RapidParam::MCORR) return evalCorrectedMass();
 
+	double ip      = particles_[0]->getIP();
+	double ipSigma = particles_[0]->getSigmaIP();
 	mom_.SetPxPyPzE(0.,0.,0.,0.);
 	if(truth_) {
 		for(unsigned int i=0; i<particles_.size(); ++i) {
 			mom_ += particles_[i]->getP();
-		}
+        }
 	} else {
-		for(unsigned int i=0; i<particles_.size(); ++i) {
+		ip = particles_[0]->getIPSmeared();
+        for(unsigned int i=0; i<particles_.size(); ++i) {
 			mom_ += particles_[i]->getPSmeared();
 		}
 	}
 
-	return eval(mom_);
-}
-
-double RapidParam::eval(const TLorentzVector& mom, std::pair<double,double> ip) {
-	switch(type_) {
+    switch(type_) {
 		case RapidParam::M:
-			return mom.M();
+			return mom_.M();
 		case RapidParam::M2:
-			return mom.M2();
+			return mom_.M2();
 		case RapidParam::MT:
-			return mom.Mt();
+			return mom_.Mt();
 		case RapidParam::E:
-			return mom.E();
+			return mom_.E();
 		case RapidParam::ET:
-			return mom.Et();
+			return mom_.Et();
 		case RapidParam::P:
-			return mom.P();
+			return mom_.P();
 		case RapidParam::PX:
-			return mom.Px();
+			return mom_.Px();
 		case RapidParam::PY:
-			return mom.Py();
+			return mom_.Py();
 		case RapidParam::PZ:
-			return mom.Pz();
+			return mom_.Pz();
 		case RapidParam::PT:
-			return mom.Pt();
+			return mom_.Pt();
 		case RapidParam::ETA:
-			return mom.Eta();
+			return mom_.Eta();
 		case RapidParam::PHI:
-			return mom.Phi();
+			return mom_.Phi();
 		case RapidParam::RAPIDITY:
-			return mom.Rapidity();
+			return mom_.Rapidity();
 		case RapidParam::GAMMA:
-			return mom.Gamma();
+			return mom_.Gamma();
 		case RapidParam::BETA:
-			return mom.Beta();
+			return mom_.Beta();
         case RapidParam::IP:
-            return ip.first;
+            return ip;
         case RapidParam::SIGMAIP:
-            return ip.second;
+            return ipSigma;
 		case RapidParam::THETA:
 		case RapidParam::COSTHETA:
 		case RapidParam::MCORR:
