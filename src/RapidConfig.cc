@@ -958,6 +958,7 @@ void RapidConfig::setupDefaultParams() {
     TString buffer;
     TString baseName;
 
+    // we could factor some of this code out into separate functions
     while(TString(paramStrStable_).Tokenize(buffer,from," ")) {
         buffer = buffer.Strip(TString::kBoth,',');
         RapidParam::ParamType type = RapidParam::typeFromString(buffer);

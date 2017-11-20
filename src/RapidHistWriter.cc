@@ -188,13 +188,14 @@ unsigned int RapidHistWriter::fillSingleHypothesis(unsigned int offset) {
     std::vector<RapidParam*>::iterator itParam;
 
     // Following code could be made a bit nicer by passing the params list
-    for(itParam=paramsStable_.begin(); itParam!=paramsStable_.end(); ++itParam) {
+    // Note that the ordering here must be the same as in setupSingleHypothesis
+    for(itParam=paramsDecaying_.begin(); itParam!=paramsDecaying_.end(); ++itParam) {
         RapidParam* param = *itParam;
         vars_[offset] = param->eval();
         histos_[offset]->Fill(vars_[offset]);
         ++offset;
     }
-    for(itParam=paramsDecaying_.begin(); itParam!=paramsDecaying_.end(); ++itParam) {
+    for(itParam=paramsStable_.begin(); itParam!=paramsStable_.end(); ++itParam) {
         RapidParam* param = *itParam;
         vars_[offset] = param->eval();
         histos_[offset]->Fill(vars_[offset]);
