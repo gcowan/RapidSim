@@ -60,6 +60,7 @@ class RapidParam {
         bool canBeTrue();
 
 		TString name();
+		void setName(TString name) { name_ = name; };
 		TString typeName();
 		bool truth() { return truth_; }
 		double min() { return minVal_; }//TODO make virtual and give a warning in the base class

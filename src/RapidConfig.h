@@ -68,6 +68,7 @@ class RapidConfig {
 		TString fileName_;
 
 		std::vector<RapidParticle*> parts_;
+		std::vector<RapidParticle*> altHypothesisParts_;
 
 		//particle specific parameters
 		std::vector<RapidParam*> params_;

@@ -33,7 +33,7 @@ void RapidHistWriter::fill() {
 
     //first fill for the default hypothesis
     offset = fillSingleHypothesis(offset);
-
+/*
     RapidParticle *part1(0), *part2(0);
 
     //now loop over all single mis-IDs
@@ -65,6 +65,7 @@ void RapidHistWriter::fill() {
             part1->setMassHypothesis(0);
         }
     }
+*/
     if(tree_) tree_->Fill();
 }
 
@@ -85,7 +86,7 @@ void RapidHistWriter::save() {
 void RapidHistWriter::setupHistos() {
     //first setup histograms for default mass hypothesis
     setupSingleHypothesis();
-
+/*
     RapidParticle *part1(0), *part2(0);
 
     //now loop over all single mis-IDs
@@ -120,7 +121,7 @@ void RapidHistWriter::setupHistos() {
             part1->setMassHypothesis(0);
         }
     }
-
+*/
     vars_ = std::vector<double>(histos_.size(), 0);
 }
 

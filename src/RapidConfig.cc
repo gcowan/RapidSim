@@ -162,6 +162,46 @@ RapidAcceptance* RapidConfig::getAcceptance() {
 RapidHistWriter* RapidConfig::getWriter(bool saveTree) {
     setupDefaultParams();
 
+    std::vector<RapidParticle*>::const_iterator it = parts_.begin();
+    for( ; it!=parts_.end(); ++it) {
+        RapidParticle* part = *it;
+        if(part->nMassHypotheses()>1) {
+            altHypothesisParts_.push_back(part);
+        }
+    }
+
+    RapidParticle *part1(0), *part2(0);
+
+    //now loop over all single mis-IDs
+    std::vector<RapidParticle*>::const_iterator it1 = altHypothesisParts_.begin();
+    for( ; it1!=altHypothesisParts_.end(); ++it1) {
+        part1 = *it1;
+        for(unsigned int i=1; i<part1->nMassHypotheses(); ++i) {
+            part1->setMassHypothesis(i);
+            setupDefaultParams();
+        }
+        part1->setMassHypothesis(0);
+    }
+
+    //now loop over all double mis-IDs
+    it1 = altHypothesisParts_.begin();
+    for( ; it1!=altHypothesisParts_.end(); ++it1) {
+        part1 = *it1;
+        std::vector<RapidParticle*>::const_iterator it2 = it1+1;
+        for( ; it2!=altHypothesisParts_.end(); ++it2) {
+            part2 = *it2;
+            for(unsigned int i=1; i<part1->nMassHypotheses(); ++i) {
+                part1->setMassHypothesis(i);
+                for(unsigned int j=1; j<part2->nMassHypotheses(); ++j) {
+                    part2->setMassHypothesis(j);
+                    setupDefaultParams();
+                }
+                part2->setMassHypothesis(0);
+            }
+            part1->setMassHypothesis(0);
+        }
+    }
+
     if(!writer_) {
         //strip away path for name of histogram/tuple files - save in PWD
         TString histFileName(fileName_( fileName_.Last('/')+1, fileName_.Length()));
@@ -953,12 +993,43 @@ bool RapidConfig::loadParentKinematics() {
     return true;
 }
 
+/*
+// I think I shoudn't need this
+RapidParam * RapidConfig::setupAltMassParams( RapidParticle * part ) {
+    for (unsigned int i=1; i < part->nMassHypotheses(); ++i) {
+        std::vector<RapidParticle*> partlist;
+        part->setMassHypothesis(i);
+        partlist.push_back(part);
+        param = new RapidParam("", type, partlist, false);
+        param->setName( param->name() + "_" + part->name() + "_2_" + part->massHypothesisName() );
+        paramsStable_.push_back(param);
+        if ( param->canBeTrue() ) {
+            param = new RapidParam("", type, partlist, true);
+            param->setName( param->name() + "_" + part->name() + "_2_" + part->massHypothesisName() );
+            paramsStable_.push_back(param);
+        }
+    }
+    part->setMassHypothesis(0);
+}
+
+void RapidConfig::setupAltMassPartList() {
+    std::vector<RapidParticle*>::const_iterator it = parts_.begin();
+    for( ; it!=parts_.end(); ++it) {
+        RapidParticle* part = *it;
+        if(part->nMassHypotheses()>1) {
+            altHypothesisParts_.push_back(part);
+        }
+    }
+}
+*/
+
 void RapidConfig::setupDefaultParams() {
     int from(0);
     TString buffer;
     TString baseName;
 
     // we could factor some of this code out into separate functions
+    // Stable particles
     while(TString(paramStrStable_).Tokenize(buffer,from," ")) {
         buffer = buffer.Strip(TString::kBoth,',');
         RapidParam::ParamType type = RapidParam::typeFromString(buffer);
@@ -968,7 +1039,6 @@ void RapidConfig::setupDefaultParams() {
         } else {
             for(unsigned int i=0; i<parts_.size(); ++i) {
                 RapidParticle* part = parts_[i];
-                // Stable particles
                 if(part->nDaughters() == 0) {
                     std::vector<RapidParticle*> partlist;
                     partlist.push_back(part);
@@ -984,6 +1054,7 @@ void RapidConfig::setupDefaultParams() {
     }
 
     from = 0;
+    // Decaying particles
     while(TString(paramStrDecaying_).Tokenize(buffer,from," ")) {
         buffer = buffer.Strip(TString::kBoth,',');
         RapidParam::ParamType type = RapidParam::typeFromString(buffer);
@@ -993,7 +1064,6 @@ void RapidConfig::setupDefaultParams() {
         } else {
             for(unsigned int i=0; i<parts_.size(); ++i) {
                 RapidParticle* part = parts_[i];
-                // Decaying particles
                 if(part->nDaughters() > 0) {
                     std::vector<RapidParticle*> partlist;
                     partlist.push_back(part);
@@ -1009,6 +1079,7 @@ void RapidConfig::setupDefaultParams() {
     }
 
     from = 0;
+    //2-body IMs
     while(TString(paramStrTwoBody_).Tokenize(buffer,from," ")) {
         buffer = buffer.Strip(TString::kBoth,',');
         RapidParam::ParamType type = RapidParam::typeFromString(buffer);
@@ -1018,7 +1089,6 @@ void RapidConfig::setupDefaultParams() {
         } else {
             for(unsigned int i=0; i<parts_.size(); ++i) {
                 RapidParticle* part = parts_[i];
-                //2-body IMs
                 if(part->nDaughters() > 2) {
                     RapidParticle* jDaug = part->daughter(0);
 
@@ -1043,6 +1113,7 @@ void RapidConfig::setupDefaultParams() {
     }
 
     from = 0;
+    //3-body IMs
     while(TString(paramStrThreeBody_).Tokenize(buffer,from," ")) {
         buffer = buffer.Strip(TString::kBoth,',');
         RapidParam::ParamType type = RapidParam::typeFromString(buffer);
@@ -1052,7 +1123,6 @@ void RapidConfig::setupDefaultParams() {
         } else {
             for(unsigned int i=0; i<parts_.size(); ++i) {
                 RapidParticle* part = parts_[i];
-                //3-body IMs
                 if(part->nDaughters() > 3) {
                     RapidParticle* jDaug = part->daughter(0);
 

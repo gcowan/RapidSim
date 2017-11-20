@@ -97,7 +97,7 @@ double RapidParticle::deltaMass() {
 }
 
 TString RapidParticle::massHypothesisName() {
-	if(currentHypothesis_==0) return "";
+    if(currentHypothesis_==0) return "";
 	else return massHypothesisNames_[currentHypothesis_-1];
 }
 

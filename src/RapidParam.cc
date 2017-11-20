@@ -247,6 +247,11 @@ TString RapidParam::name() {
 		}
 
 		name_ += typeName();
+        
+        if((*it)->nMassHypotheses() > 1) {
+            name_ += "_2_";
+        }
+
 
 		if(truth_) {
 			name_ += "_TRUE";
