@@ -10,6 +10,21 @@
 #include "RapidMomentumSmearHisto.h"
 #include "RapidParticleData.h"
 
+RapidParticle::RapidParticle( const RapidParticle& part )
+    : index_(part.index_), id_(part.id_), name_(part.name_), mass_(part.mass_),
+    charge_(part.charge_), ctau_(part.ctau_),
+    mother_(part.mother_), next_(0), invisible_(part.invisible_), momSmear_(0),
+	massData_(0), minMass_(part.minMass_), maxMass_(part.maxMass_),
+	evtGenModel_(part.evtGenModel_),
+    altMasses_(part.altMasses_),
+    currentHypothesis_(0),
+    originVertex_(0,0,0),
+    decayVertex_(0,0,0)
+{
+    setPtEtaPhi(0,0,0);
+    std::cout << "INFO RapidParticle::RapidParticle" << std::endl;
+}
+
 void RapidParticle::addDaughter(RapidParticle* part) {
 	if(!daughters_.empty()) {
 		daughters_[daughters_.size()-1]->next_ = part;
@@ -20,11 +35,13 @@ void RapidParticle::addDaughter(RapidParticle* part) {
 }
 
 void RapidParticle::addMassHypothesis(TString name, double mass) {
-	altMasses_.push_back(mass);
+    std::cout << "INFO in RapidParticle::addMassHypothesis " << name << " " << mass << std::endl;
+    altMasses_.push_back(mass);
 	massHypothesisNames_.push_back(name);
 }
 
 void RapidParticle::setMassHypothesis(unsigned int i) {
+    std::cout << "INFO in RapidParticle::setMassHypothesis " << currentHypothesis_ << " " << i << std::endl;
 	if(currentHypothesis_==i) {
 		return;
 	}
@@ -97,6 +114,7 @@ double RapidParticle::deltaMass() {
 }
 
 TString RapidParticle::massHypothesisName() {
+    std::cout << "INFO in RapidParticle::massHypothesisName " << currentHypothesis_ << std::endl;
     if(currentHypothesis_==0) return "";
 	else return massHypothesisNames_[currentHypothesis_-1];
 }

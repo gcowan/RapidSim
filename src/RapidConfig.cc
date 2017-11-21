@@ -1067,6 +1067,7 @@ void RapidConfig::setupDefaultParams() {
                 if(part->nDaughters() > 0) {
                     std::vector<RapidParticle*> partlist;
                     partlist.push_back(part);
+                    std::cout << "INFO RapidConfig::setupDefaultParams " << std::endl;//<< part->name() << std::endl;
                     RapidParam* param = new RapidParam("", type, partlist, false);
                     paramsDecaying_.push_back(param);
                     if ( param->canBeTrue() ) {

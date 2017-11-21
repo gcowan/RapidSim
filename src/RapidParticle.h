@@ -25,7 +25,7 @@ class RapidParticle {
               decayVertex_(0,0,0)
 			{setPtEtaPhi(0,0,0);}
 
-
+		RapidParticle( const RapidParticle& );
 		~RapidParticle() {}
 
 		void addDaughter(RapidParticle* part);

@@ -240,24 +240,25 @@ double RapidParam::evalTheta() {
 TString RapidParam::name() {
 	if(name_.Length()==0) {
 		//construct default name
-		std::vector<RapidParticle*>::iterator it = particles_.begin();
+        std::vector<RapidParticle*>::iterator it = particles_.begin();
 		for( ; it!= particles_.end(); ++it) {
 			name_ += (*it)->name();
 			name_ += "_";
 		}
 
 		name_ += typeName();
+		
+        for( it = particles_.begin(); it!= particles_.end(); ++it) {
+            if((*it)->nMassHypotheses() > 1) {
+                name_ += (*it)->name() + "_2_" + (*it)->massHypothesisName();
+            }
+		}
         
-        if((*it)->nMassHypotheses() > 1) {
-            name_ += "_2_";
-        }
-
-
 		if(truth_) {
 			name_ += "_TRUE";
 		}
+		std::cout << "INFO RapidParam::name " << name_ << " " << std::endl;
 	}
-
 	return name_;
 }
 
