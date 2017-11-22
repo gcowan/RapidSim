@@ -9,6 +9,8 @@ double RapidParam::eval() {
 
 	if(type_ == RapidParam::THETA || type_ == RapidParam::COSTHETA) return evalTheta();
 	if(type_ == RapidParam::MCORR) return evalCorrectedMass();
+	if(type_ == RapidParam::ProbNNmu || type_ == RapidParam::ProbNNpi || 
+            type_ == RapidParam::ProbNNk || type_ == RapidParam::ProbNNp) return evalPID();
 
 	double ip      = particles_[0]->getIP();
 	double ipSigma = particles_[0]->getSigmaIP();
@@ -59,6 +61,10 @@ double RapidParam::eval() {
             return ip;
         case RapidParam::SIGMAIP:
             return ipSigma;
+		case RapidParam::ProbNNmu:
+		case RapidParam::ProbNNpi:
+		case RapidParam::ProbNNk:
+		case RapidParam::ProbNNp:
 		case RapidParam::THETA:
 		case RapidParam::COSTHETA:
 		case RapidParam::MCORR:
@@ -111,6 +117,14 @@ bool RapidParam::canBeSmeared() {
 			return true;
         case RapidParam::SIGMAIP:
 			return false;
+        case RapidParam::ProbNNmu:
+			return true;
+        case RapidParam::ProbNNpi:
+			return true;
+        case RapidParam::ProbNNk:
+			return true;
+        case RapidParam::ProbNNp:
+			return true;
 		case RapidParam::THETA:
 			return true;
 		case RapidParam::COSTHETA:
@@ -161,6 +175,14 @@ bool RapidParam::canBeTrue() {
 			return true;
         case RapidParam::SIGMAIP:
 			return false;
+        case RapidParam::ProbNNmu:
+			return false;
+        case RapidParam::ProbNNpi:
+			return false;
+        case RapidParam::ProbNNk:
+			return false;
+        case RapidParam::ProbNNp:
+			return false;
 		case RapidParam::THETA:
 			return true;
 		case RapidParam::COSTHETA:
@@ -173,6 +195,16 @@ bool RapidParam::canBeTrue() {
 
 	return 0.;
 
+}
+
+double RapidParam::evalPID() {
+    double pid(1.);
+    if (particles_[0]->stable() && particles_[0]->mass() > 0.) {
+        pid = 1.;
+    }
+    else pid = 0.;
+
+    return pid;
 }
 
 double RapidParam::evalCorrectedMass() {
@@ -297,6 +329,14 @@ TString RapidParam::typeName() {
 			return "costheta";
 		case RapidParam::MCORR:
 			return "Mcorr";
+		case RapidParam::ProbNNmu:
+			return "ProbNNmu";
+		case RapidParam::ProbNNpi:
+			return "ProbNNpi";
+		case RapidParam::ProbNNk:
+			return "ProbNNk";
+		case RapidParam::ProbNNp:
+			return "ProbNNp";
 		default:
 			std::cout << "WARNING in RapidParam::typeName : unknown type " << type_ << "." << std::endl
 				  << "                                  returning empty string." << std::endl;
@@ -345,6 +385,14 @@ RapidParam::ParamType RapidParam::typeFromString(TString str) {
 		return RapidParam::COSTHETA;
 	} else if(str=="Mcorr") {
 		return RapidParam::MCORR;
+	} else if(str=="ProbNNmu") {
+		return RapidParam::ProbNNmu;
+	} else if(str=="ProbNNpi") {
+		return RapidParam::ProbNNpi;
+	} else if(str=="ProbNNk") {
+		return RapidParam::ProbNNk;
+	} else if(str=="ProbNNp") {
+		return RapidParam::ProbNNp;
 	} else {
 		std::cout << "WARNING in RapidParam::typeFromString : unknown type name " << str << "." << std::endl
 			  << "                                        returning mass parameter type." << std::endl;
@@ -443,6 +491,22 @@ void RapidParam::setDefaultMinMax(const std::vector<RapidParticle*>& parts, doub
 		case RapidParam::COSTHETA:
 			min = -1.0;
 			max =  1.0;
+			break;
+		case RapidParam::ProbNNmu:
+			min = 0.0;
+			max = 1.0;
+			break;
+		case RapidParam::ProbNNpi:
+			min = 0.0;
+			max = 1.0;
+			break;
+		case RapidParam::ProbNNk:
+			min = 0.0;
+			max = 1.0;
+			break;
+		case RapidParam::ProbNNp:
+			min = 0.0;
+			max = 1.0;
 			break;
 		case RapidParam::UNKNOWN:
 		default:

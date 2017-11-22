@@ -30,6 +30,10 @@ class RapidParam {
 			THETA,    //angle between particles
 			COSTHETA, //cosine of angle between particles
 			MCORR,    //corrected mass
+			ProbNNmu, // muon particle id
+			ProbNNpi, // pion particle id
+			ProbNNk,  // kaon particle id
+			ProbNNp,  // proton particle id
 			UNKNOWN   //unused
 
 		};
@@ -77,6 +81,7 @@ class RapidParam {
 	private:
 		double evalCorrectedMass();
 		double evalTheta();
+		double evalPID();
 
 		void setDefaultMinMax() {setDefaultMinMax(particles_,minVal_,maxVal_);}//TODO remove/make virtual and give a warning in the base class
 
