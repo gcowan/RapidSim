@@ -248,16 +248,9 @@ TString RapidParam::name() {
 
 		name_ += typeName();
 		
-        for( it = particles_.begin(); it!= particles_.end(); ++it) {
-            if((*it)->nMassHypotheses() > 1) {
-                name_ += (*it)->name() + "_2_" + (*it)->massHypothesisName();
-            }
-		}
-        
 		if(truth_) {
 			name_ += "_TRUE";
 		}
-		std::cout << "INFO RapidParam::name " << name_ << " " << std::endl;
 	}
 	return name_;
 }

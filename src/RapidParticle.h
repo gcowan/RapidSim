@@ -32,6 +32,7 @@ class RapidParticle {
 
 		void addMassHypothesis(TString name, double mass);
 		void setMassHypothesis(unsigned int i);
+		unsigned int getMassHypothesis() { return currentHypothesis_; };
 
 		bool generate();
         double getIP() { return ip_; }

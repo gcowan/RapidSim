@@ -41,7 +41,6 @@ void RapidParticle::addMassHypothesis(TString name, double mass) {
 }
 
 void RapidParticle::setMassHypothesis(unsigned int i) {
-    std::cout << "INFO in RapidParticle::setMassHypothesis " << currentHypothesis_ << " " << i << std::endl;
 	if(currentHypothesis_==i) {
 		return;
 	}

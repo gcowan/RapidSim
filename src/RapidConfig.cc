@@ -170,38 +170,6 @@ RapidHistWriter* RapidConfig::getWriter(bool saveTree) {
         }
     }
 
-    RapidParticle *part1(0), *part2(0);
-
-    //now loop over all single mis-IDs
-    std::vector<RapidParticle*>::const_iterator it1 = altHypothesisParts_.begin();
-    for( ; it1!=altHypothesisParts_.end(); ++it1) {
-        part1 = *it1;
-        for(unsigned int i=1; i<part1->nMassHypotheses(); ++i) {
-            part1->setMassHypothesis(i);
-            setupDefaultParams();
-        }
-        part1->setMassHypothesis(0);
-    }
-
-    //now loop over all double mis-IDs
-    it1 = altHypothesisParts_.begin();
-    for( ; it1!=altHypothesisParts_.end(); ++it1) {
-        part1 = *it1;
-        std::vector<RapidParticle*>::const_iterator it2 = it1+1;
-        for( ; it2!=altHypothesisParts_.end(); ++it2) {
-            part2 = *it2;
-            for(unsigned int i=1; i<part1->nMassHypotheses(); ++i) {
-                part1->setMassHypothesis(i);
-                for(unsigned int j=1; j<part2->nMassHypotheses(); ++j) {
-                    part2->setMassHypothesis(j);
-                    setupDefaultParams();
-                }
-                part2->setMassHypothesis(0);
-            }
-            part1->setMassHypothesis(0);
-        }
-    }
-
     if(!writer_) {
         //strip away path for name of histogram/tuple files - save in PWD
         TString histFileName(fileName_( fileName_.Last('/')+1, fileName_.Length()));
@@ -993,36 +961,6 @@ bool RapidConfig::loadParentKinematics() {
     return true;
 }
 
-/*
-// I think I shoudn't need this
-RapidParam * RapidConfig::setupAltMassParams( RapidParticle * part ) {
-    for (unsigned int i=1; i < part->nMassHypotheses(); ++i) {
-        std::vector<RapidParticle*> partlist;
-        part->setMassHypothesis(i);
-        partlist.push_back(part);
-        param = new RapidParam("", type, partlist, false);
-        param->setName( param->name() + "_" + part->name() + "_2_" + part->massHypothesisName() );
-        paramsStable_.push_back(param);
-        if ( param->canBeTrue() ) {
-            param = new RapidParam("", type, partlist, true);
-            param->setName( param->name() + "_" + part->name() + "_2_" + part->massHypothesisName() );
-            paramsStable_.push_back(param);
-        }
-    }
-    part->setMassHypothesis(0);
-}
-
-void RapidConfig::setupAltMassPartList() {
-    std::vector<RapidParticle*>::const_iterator it = parts_.begin();
-    for( ; it!=parts_.end(); ++it) {
-        RapidParticle* part = *it;
-        if(part->nMassHypotheses()>1) {
-            altHypothesisParts_.push_back(part);
-        }
-    }
-}
-*/
-
 void RapidConfig::setupDefaultParams() {
     int from(0);
     TString buffer;
@@ -1043,9 +981,11 @@ void RapidConfig::setupDefaultParams() {
                     std::vector<RapidParticle*> partlist;
                     partlist.push_back(part);
                     RapidParam* param = new RapidParam("", type, partlist, false);
+                    param->name();
                     paramsStable_.push_back(param);
                     if ( param->canBeTrue() ) {
                         param = new RapidParam("", type, partlist, true);
+                        param->name();
                         paramsStable_.push_back(param);
                     }
                 }
@@ -1069,9 +1009,11 @@ void RapidConfig::setupDefaultParams() {
                     partlist.push_back(part);
                     std::cout << "INFO RapidConfig::setupDefaultParams " << std::endl;//<< part->name() << std::endl;
                     RapidParam* param = new RapidParam("", type, partlist, false);
+                    param->name();
                     paramsDecaying_.push_back(param);
                     if ( param->canBeTrue() ) {
                         param = new RapidParam("", type, partlist, true);
+                        param->name();
                         paramsDecaying_.push_back(param);
                     }
                 }
@@ -1101,9 +1043,11 @@ void RapidConfig::setupDefaultParams() {
                             baseName  = jDaug->name()+"_";
                             baseName += kDaug->name()+"_";
                             RapidParam* param = new RapidParam("", type, partlist, false);
+                            param->name();
                             paramsTwoBody_.push_back(param);
                             if ( param->canBeTrue() ) {
                                 param = new RapidParam("", type, partlist, true);
+                                param->name();
                                 paramsTwoBody_.push_back(param);
                             }
                         }
@@ -1138,9 +1082,11 @@ void RapidConfig::setupDefaultParams() {
                                 baseName += kDaug->name()+"_";
                                 baseName += lDaug->name()+"_";
                                 RapidParam* param = new RapidParam("", type, partlist, false);
+                                param->name();
                                 paramsThreeBody_.push_back(param);
                                 if ( param->canBeTrue() ) {
                                     param = new RapidParam("", type, partlist, true);
+                                    param->name();
                                     paramsThreeBody_.push_back(param);
                                 }
                             }
