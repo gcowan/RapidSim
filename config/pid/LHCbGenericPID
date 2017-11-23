@@ -1,5 +1,4 @@
-LHCbGenericPID.root
-ProbNNmu
-ProbNNpi
-ProbNNk
-ProbNNp
+LHCbMuonPID.root 13 ProbNNmu ProbNNpi ProbNNk ProbNNp
+LHCbPionPID.root 211 ProbNNmu ProbNNpi ProbNNk ProbNNp
+LHCbKaonPID.root 321 ProbNNmu ProbNNpi ProbNNk ProbNNp
+LHCbProtonPID.root 2212 ProbNNmu ProbNNpi ProbNNk ProbNNp

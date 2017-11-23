@@ -200,9 +200,9 @@ bool RapidParam::canBeTrue() {
 double RapidParam::evalPID() {
     double pid(1.);
     if (particles_[0]->stable() && particles_[0]->mass() > 0.) {
-        pid = pidHist_->GetBinContent(pidHist_->FindBin(float(particles_[0]->getP().Pt()*1000.), float(particles_[0]->getP().P()*1000.)));
-        //pidHist_ = NULL;
-        //pid = 0.5;
+        if (pidHist_) {
+            pid = pidHist_->GetBinContent(pidHist_->FindBin(float(particles_[0]->getP().Pt()*1000.), float(particles_[0]->getP().P()*1000.)));
+        }
     }
     else pid = 0.; 
     return pid;

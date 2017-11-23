@@ -113,7 +113,6 @@ double RapidParticle::deltaMass() {
 }
 
 TString RapidParticle::massHypothesisName() {
-    std::cout << "INFO in RapidParticle::massHypothesisName " << currentHypothesis_ << std::endl;
     if(currentHypothesis_==0) return "";
 	else return massHypothesisNames_[currentHypothesis_-1];
 }

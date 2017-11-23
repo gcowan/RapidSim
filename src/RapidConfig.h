@@ -9,6 +9,7 @@
 #include "TH2.h"
 #include "TString.h"
 #include "RapidAcceptance.h"
+#include "RapidParam.h"
 
 class RapidCut;
 class RapidDecay;
@@ -102,7 +103,8 @@ class RapidConfig {
 		RapidParam* accRejParameterY_;
     
         // PID histogram file
-        std::vector<TH2D*> pidHists_;
+        bool pidLoaded_;
+        std::map<unsigned int, std::map<RapidParam::ParamType, TH2D*>> pidHists_;
 
 		//type of geometric acceptance to apply
 		RapidAcceptance::AcceptanceType acceptanceType_;

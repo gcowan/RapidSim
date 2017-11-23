@@ -549,7 +549,8 @@ bool RapidConfig::configGlobal(TString command, TString value) {
         value.Tokenize(histFile,from," ");
         histFile = histFile.Strip(TString::kBoth);
 
-        if(!loadPID(histFile)) return false;
+        pidLoaded_ = loadPID(histFile);
+        if(!pidLoaded_) return false;
     }  
 
     return true;
@@ -607,6 +608,7 @@ RapidParam* RapidConfig::loadParam(TString paramStr) {
             << "                                    parameter " << name << " has not been added." << std::endl;
         return 0;
     }
+
     RapidParam * param = new RapidParam(name, type, partlist, truth);
     return param;
 }
@@ -876,39 +878,50 @@ bool RapidConfig::loadPID(TString category) {
         }
     }
 
-    TString filename("");
-    filename.ReadToken(fin);
-    TFile* file = NULL;
-    if (filename != "NULL") {
-        file = TFile::Open(path+"/rootfiles/pid/"+filename);
-        if(!file) {
-            std::cout << "WARNING in RapidConfig::loadPID : failed to load root file " << filename << std::endl;
-            fin.close();
-            return false;
+    TString line("");
+    TString buffer("");
+    while (fin.good()) {
+        line.ReadLine(fin);
+        int from(0);
+        bool fileLoaded(false);
+        bool idLoaded(false);
+        unsigned int id(0);
+        TFile* file = NULL;
+        while (line.Tokenize(buffer, from)) {
+            if (buffer.Contains(".root") && !fileLoaded) {
+                std::cout << "INFO in RapidConfig::loadPID : loading root file " << buffer << std::endl;
+                file = TFile::Open(path+"/rootfiles/pid/"+buffer);
+                fileLoaded = true;
+                if(!file) {
+                    std::cout << "WARNING in RapidConfig::loadPID : failed to load root file " << buffer << std::endl;
+                    fin.close();
+                    return false;
+                }
+                continue;
+            } 
+            if ( fileLoaded && !idLoaded) {
+                id = buffer.Atoi();
+                idLoaded = true;
+                continue;
+            }
+            if ( fileLoaded && idLoaded && buffer.Contains("Prob")) {
+                std::cout << "INFO in RapidConfig::loadPID : loading histogram " << buffer << std::endl;
+                TH2D * hist = dynamic_cast<TH2D*>(file->Get(buffer));
+                //hist->Print();
+                if(!hist) {
+                    std::cout << "WARNING in RapidConfig::loadPID : failed to load histogram " << buffer << std::endl;
+                }
+                RapidParam::ParamType type = RapidParam::typeFromString(buffer);
+                pidHists_[id][type] = hist;
+            } 
+            if(pidHists_[id].empty()) {
+                std::cout << "WARNING in RapidConfig::loadPID : failed to load any histograms for PID category " << category << std::endl;
+                file->Close();
+                fin.close();
+                return false;
+            }
         }
     }
-    
-    TString histname("");
-    while( true ) {
-            histname.ReadToken(fin);
-            if(fin.good()) {
-                TH2D * hist = dynamic_cast<TH2D*>(file->Get(histname));
-                if(!hist) {
-                    std::cout << "WARNING in RapidConfig::loadPID : failed to load histogram " << histname << std::endl;
-                }
-                pidHists_.push_back(hist);
-            } else {
-                break;
-            }
-    }
-
-    if(pidHists_.size() == 0) {
-            std::cout << "WARNING in RapidConfig::loadPID : failed to load any histograms for PID category " << category << std::endl;
-            file->Close();
-            fin.close();
-            return false;
-    }
-
     fin.close();
     return true;
 }
@@ -1040,18 +1053,16 @@ void RapidConfig::setupDefaultParams() {
     TString buffer;
     TString baseName;
 
+    RapidParticleData* particleData = RapidParticleData::getInstance();
+
     // we could factor some of this code out into separate functions
     // Stable particles
     while(TString(paramStrStable_).Tokenize(buffer,from," ")) {
         buffer = buffer.Strip(TString::kBoth,',');
         RapidParam::ParamType type = RapidParam::typeFromString(buffer);
 
-        TH2D * pidHist = NULL;
-        if ( type == RapidParam::ProbNNmu ) pidHist = pidHists_[0];
-        if ( type == RapidParam::ProbNNpi ) pidHist = pidHists_[1];
-        if ( type == RapidParam::ProbNNk  ) pidHist = pidHists_[2];
-        if ( type == RapidParam::ProbNNp  ) pidHist = pidHists_[3];
-    
+        if ( buffer.Contains("ProbNN") && !pidLoaded_) loadPID("LHCbGenericPID");
+
         if(type==RapidParam::UNKNOWN) {
             std::cout << "WARNING in RapidConfig::setDefaultParams : Unknown parameter type " << buffer << "ignored." << std::endl;
             continue;
@@ -1059,6 +1070,11 @@ void RapidConfig::setupDefaultParams() {
             for(unsigned int i=0; i<parts_.size(); ++i) {
                 RapidParticle* part = parts_[i];
                 if(part->nDaughters() == 0) {
+                    TH2D * pidHist = NULL;
+                    unsigned int id = part->id();
+                    if ( !(pidHists_[id]).empty() && pidHists_[id][type]) {
+                        pidHist = pidHists_[id][type];
+                    }
                     RapidParam* param = new RapidParam("", type, part, false, pidHist);
                     param->name();
                     paramsStable_.push_back(param);
