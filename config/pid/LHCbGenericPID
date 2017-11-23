@@ -1,4 +1,4 @@
-LHCbMuonPID.root 13 ProbNNmu ProbNNpi ProbNNk ProbNNp
-LHCbPionPID.root 211 ProbNNmu ProbNNpi ProbNNk ProbNNp
-LHCbKaonPID.root 321 ProbNNmu ProbNNpi ProbNNk ProbNNp
-LHCbProtonPID.root 2212 ProbNNmu ProbNNpi ProbNNk ProbNNp
+LHCbKaonPID.root 321 ProbNNk ProbNNmu ProbNNpi ProbNNp
+LHCbPionPID.root 211 ProbNNk ProbNNmu ProbNNpi ProbNNp
+LHCbMuonPID.root 13 ProbNNk ProbNNmu ProbNNpi ProbNNp
+LHCbProtonPID.root 2212 ProbNNk ProbNNmu ProbNNpi ProbNNp

@@ -32,7 +32,16 @@ RapidConfig::~RapidConfig() {
     while (itr2 != ipSmearCategories_.end()) {
         delete itr2->second;
         ipSmearCategories_.erase(itr2++);
-    } 
+    }
+/*    std::map<RapidParam::ParamType, std::map<unsigned int, TH2D*>>::iterator itr3 = pidHists_.begin();
+    while (itr3 != pidHists_.end()) {
+        std::map<unsigned int, TH2D*>::iterator itr4 = (*itr3).begin();
+        while (itr4 != (*itr3).end()) {
+            delete itr4->second;
+            (*itr3).erase(itr3++);
+        }
+        pidHists_.erase(itr3++);
+    }*/ 
     while(!parts_.empty()) {
         delete parts_[parts_.size()-1];
         parts_.pop_back();
@@ -854,6 +863,7 @@ bool RapidConfig::loadPID(TString category) {
     bool found(false);
 
     path = getenv("RAPIDSIM_CONFIG");
+    std::cout << "INFO in RapidConfig::loadPID " << std::endl;
 
     if(path!="") {
         fin.open(path+"/config/pid/"+category, std::ifstream::in);
@@ -912,9 +922,9 @@ bool RapidConfig::loadPID(TString category) {
                     std::cout << "WARNING in RapidConfig::loadPID : failed to load histogram " << buffer << std::endl;
                 }
                 RapidParam::ParamType type = RapidParam::typeFromString(buffer);
-                pidHists_[id][type] = hist;
+                pidHists_[type][id] = hist;
             } 
-            if(pidHists_[id].empty()) {
+            if(pidHists_.empty()) {
                 std::cout << "WARNING in RapidConfig::loadPID : failed to load any histograms for PID category " << category << std::endl;
                 file->Close();
                 fin.close();
@@ -1053,8 +1063,6 @@ void RapidConfig::setupDefaultParams() {
     TString buffer;
     TString baseName;
 
-    RapidParticleData* particleData = RapidParticleData::getInstance();
-
     // we could factor some of this code out into separate functions
     // Stable particles
     while(TString(paramStrStable_).Tokenize(buffer,from," ")) {
@@ -1070,16 +1078,15 @@ void RapidConfig::setupDefaultParams() {
             for(unsigned int i=0; i<parts_.size(); ++i) {
                 RapidParticle* part = parts_[i];
                 if(part->nDaughters() == 0) {
-                    TH2D * pidHist = NULL;
-                    unsigned int id = part->id();
-                    if ( !(pidHists_[id]).empty() && pidHists_[id][type]) {
-                        pidHist = pidHists_[id][type];
+                    std::map<unsigned int, TH2D*> pidHists;
+                    if ( !(pidHists_[type]).empty()) {
+                        pidHists = pidHists_[type];
                     }
-                    RapidParam* param = new RapidParam("", type, part, false, pidHist);
+                    RapidParam* param = new RapidParam("", type, part, false, pidHists);
                     param->name();
                     paramsStable_.push_back(param);
                     if ( param->canBeTrue() ) {
-                        param = new RapidParam("", type, part, true, pidHist);
+                        param = new RapidParam("", type, part, true, pidHists);
                         param->name();
                         paramsStable_.push_back(param);
                     }

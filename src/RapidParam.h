@@ -2,9 +2,11 @@
 #define RAPIDPARAM_H
 
 #include <vector>
+#include <map>
 
 #include "TLorentzVector.h"
 #include "TH2.h"
+#include "RapidParticleData.h"
 
 class RapidParticle;
 
@@ -45,7 +47,7 @@ class RapidParam {
 			: name_(name), type_(type), truth_(truth), particles_(particles),
 			  minVal_(0.), maxVal_(0.) {setDefaultMinMax();}
 
-		RapidParam(TString name, ParamType type, RapidParticle* part, bool truth, TH2D * pidHist)
+		RapidParam(TString name, ParamType type, RapidParticle* part, bool truth, std::map<unsigned int, TH2D*> pidHist)
 			: name_(name), type_(type),
 			  truth_(truth), pidHist_(pidHist), minVal_(0.), maxVal_(0.) 
 			{particles_.push_back(part); setDefaultMinMax();}
@@ -97,7 +99,7 @@ class RapidParam {
 		TString name_;
 		ParamType type_;
 		bool truth_;
-		TH2D * pidHist_;
+        std::map<unsigned int, TH2D *> pidHist_;
 
 		//the following are only used for specific parameters
 		////TODO refactor into an inherited class RapidParamSpecific

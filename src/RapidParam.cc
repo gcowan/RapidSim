@@ -198,10 +198,24 @@ bool RapidParam::canBeTrue() {
 }
 
 double RapidParam::evalPID() {
-    double pid(1.);
+    double pid(0.);
     if (particles_[0]->stable() && particles_[0]->mass() > 0.) {
-        if (pidHist_) {
-            pid = pidHist_->GetBinContent(pidHist_->FindBin(float(particles_[0]->getP().Pt()*1000.), float(particles_[0]->getP().P()*1000.)));
+        RapidParticleData * particleData = RapidParticleData::getInstance();
+        unsigned int id(0);
+        if (particles_[0]->massHypothesisName() == "") id = particles_[0]->id();
+        //else id = particleData->pdgCode(particles_[0]->massHypothesisName());
+        else id = particleData->pdgCode("pi+");
+        /*
+        std::vector<unsigned int> v;
+        for(std::map<unsigned int, TH2D*>::iterator it = pidHist_.begin(); it != pidHist_.end(); ++it) {
+              v.push_back(it->first);
+              std::cout << it->first << std::endl;
+        }*/
+        TH2D * pidHist = pidHist_[id];
+        if (pidHist) {
+            //std::cout << "INFO RapidParam " << id << " " << pidHist->GetName() << std::endl;
+            //pidHist->Print();
+            pid = pidHist->GetBinContent(pidHist->FindBin(float(particles_[0]->getP().Pt()*1000.), float(particles_[0]->getP().P()*1000.)));
         }
     }
     else pid = 0.; 
