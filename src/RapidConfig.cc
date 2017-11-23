@@ -542,7 +542,15 @@ bool RapidConfig::configGlobal(TString command, TString value) {
     } else if(command=="useEvtGen") {
         external_ = new RapidExternalEvtGen();
         std::cout << "INFO in RapidConfig::configGlobal : will use external EvtGen generator to decay particles." << std::endl;
-    }
+    } else if (command=="pid") {
+        std::cout << "INFO in RapidConfig::configGlobal : setting pid type to " << value << "." << std::endl;
+        int from(0);
+        TString histFile;
+        value.Tokenize(histFile,from," ");
+        histFile = histFile.Strip(TString::kBoth);
+
+        if(!loadPID(histFile)) return false;
+    }  
 
     return true;
 }
@@ -599,8 +607,7 @@ RapidParam* RapidConfig::loadParam(TString paramStr) {
             << "                                    parameter " << name << " has not been added." << std::endl;
         return 0;
     }
-
-    RapidParam* param = new RapidParam(name,type,partlist,truth);
+    RapidParam * param = new RapidParam(name, type, partlist, truth);
     return param;
 }
 
@@ -839,6 +846,73 @@ void RapidConfig::setSmearing(unsigned int particle, TString category) {
     return; 
 }
 
+bool RapidConfig::loadPID(TString category) {
+    TString path;
+    std::ifstream fin;
+    bool found(false);
+
+    path = getenv("RAPIDSIM_CONFIG");
+
+    if(path!="") {
+        fin.open(path+"/config/pid/"+category, std::ifstream::in);
+        if( fin.good()) {
+            std::cout << "INFO in RapidConfig::loadPID : found pid category " << category << " in RAPIDSIM_CONFIG." << std::endl;
+            std::cout << "                                    this version will be used." << std::endl;
+            found = true;
+        } else {
+            std::cout << "INFO in RapidConfig::loadPID : pid category " << category << " not found in RAPIDSIM_CONFIG." << std::endl;
+            std::cout << "                                    checking RAPIDSIM_ROOT." << std::endl;
+            fin.close();
+        }
+    }
+
+    if(!found) {
+        path = getenv("RAPIDSIM_ROOT");
+        fin.open(path+"/config/pid/"+category, std::ifstream::in);
+        if( ! fin.good()) {
+            std::cout << "WARNING in RapidConfig::loadPID : failed to load pid category" << category << std::endl;
+            fin.close();
+            return false;
+        }
+    }
+
+    TString filename("");
+    filename.ReadToken(fin);
+    TFile* file = NULL;
+    if (filename != "NULL") {
+        file = TFile::Open(path+"/rootfiles/pid/"+filename);
+        if(!file) {
+            std::cout << "WARNING in RapidConfig::loadPID : failed to load root file " << filename << std::endl;
+            fin.close();
+            return false;
+        }
+    }
+    
+    TString histname("");
+    while( true ) {
+            histname.ReadToken(fin);
+            if(fin.good()) {
+                TH2D * hist = dynamic_cast<TH2D*>(file->Get(histname));
+                if(!hist) {
+                    std::cout << "WARNING in RapidConfig::loadPID : failed to load histogram " << histname << std::endl;
+                }
+                pidHists_.push_back(hist);
+            } else {
+                break;
+            }
+    }
+
+    if(pidHists_.size() == 0) {
+            std::cout << "WARNING in RapidConfig::loadPID : failed to load any histograms for PID category " << category << std::endl;
+            file->Close();
+            fin.close();
+            return false;
+    }
+
+    fin.close();
+    return true;
+}
+
 bool RapidConfig::loadAcceptRejectHist(TString histFile, TString histName, RapidParam* paramX, RapidParam* paramY) {
     if(accRejHisto_) {
         std::cout << "WARNING in RapidConfig::loadAcceptRejectHist : accept/reject histogram already set." << std::endl
@@ -971,6 +1045,13 @@ void RapidConfig::setupDefaultParams() {
     while(TString(paramStrStable_).Tokenize(buffer,from," ")) {
         buffer = buffer.Strip(TString::kBoth,',');
         RapidParam::ParamType type = RapidParam::typeFromString(buffer);
+
+        TH2D * pidHist = NULL;
+        if ( type == RapidParam::ProbNNmu ) pidHist = pidHists_[0];
+        if ( type == RapidParam::ProbNNpi ) pidHist = pidHists_[1];
+        if ( type == RapidParam::ProbNNk  ) pidHist = pidHists_[2];
+        if ( type == RapidParam::ProbNNp  ) pidHist = pidHists_[3];
+    
         if(type==RapidParam::UNKNOWN) {
             std::cout << "WARNING in RapidConfig::setDefaultParams : Unknown parameter type " << buffer << "ignored." << std::endl;
             continue;
@@ -978,13 +1059,11 @@ void RapidConfig::setupDefaultParams() {
             for(unsigned int i=0; i<parts_.size(); ++i) {
                 RapidParticle* part = parts_[i];
                 if(part->nDaughters() == 0) {
-                    std::vector<RapidParticle*> partlist;
-                    partlist.push_back(part);
-                    RapidParam* param = new RapidParam("", type, partlist, false);
+                    RapidParam* param = new RapidParam("", type, part, false, pidHist);
                     param->name();
                     paramsStable_.push_back(param);
                     if ( param->canBeTrue() ) {
-                        param = new RapidParam("", type, partlist, true);
+                        param = new RapidParam("", type, part, true, pidHist);
                         param->name();
                         paramsStable_.push_back(param);
                     }
@@ -1005,14 +1084,11 @@ void RapidConfig::setupDefaultParams() {
             for(unsigned int i=0; i<parts_.size(); ++i) {
                 RapidParticle* part = parts_[i];
                 if(part->nDaughters() > 0) {
-                    std::vector<RapidParticle*> partlist;
-                    partlist.push_back(part);
-                    std::cout << "INFO RapidConfig::setupDefaultParams " << std::endl;//<< part->name() << std::endl;
-                    RapidParam* param = new RapidParam("", type, partlist, false);
+                    RapidParam* param = new RapidParam("", type, part, false);
                     param->name();
                     paramsDecaying_.push_back(param);
                     if ( param->canBeTrue() ) {
-                        param = new RapidParam("", type, partlist, true);
+                        param = new RapidParam("", type, part, true);
                         param->name();
                         paramsDecaying_.push_back(param);
                     }

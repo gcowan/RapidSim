@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "TLorentzVector.h"
+#include "TH2.h"
 
 class RapidParticle;
 
@@ -43,6 +44,11 @@ class RapidParam {
 		RapidParam(TString name, ParamType type, const std::vector<RapidParticle*>& particles, bool truth)
 			: name_(name), type_(type), truth_(truth), particles_(particles),
 			  minVal_(0.), maxVal_(0.) {setDefaultMinMax();}
+
+		RapidParam(TString name, ParamType type, RapidParticle* part, bool truth, TH2D * pidHist)
+			: name_(name), type_(type),
+			  truth_(truth), pidHist_(pidHist), minVal_(0.), maxVal_(0.) 
+			{particles_.push_back(part); setDefaultMinMax();}
 
 		RapidParam(TString name, ParamType type, RapidParticle* part, bool truth)
 			: name_(name), type_(type),
@@ -91,6 +97,7 @@ class RapidParam {
 		TString name_;
 		ParamType type_;
 		bool truth_;
+		TH2D * pidHist_;
 
 		//the following are only used for specific parameters
 		////TODO refactor into an inherited class RapidParamSpecific
