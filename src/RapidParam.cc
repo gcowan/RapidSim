@@ -9,7 +9,7 @@ double RapidParam::eval() {
 
 	if(type_ == RapidParam::THETA || type_ == RapidParam::COSTHETA) return evalTheta();
 	if(type_ == RapidParam::MCORR) return evalCorrectedMass();
-	if(type_ == RapidParam::ProbNNmu || type_ == RapidParam::ProbNNpi || 
+	if(type_ == RapidParam::ProbNNmu || type_ == RapidParam::ProbNNpi || type_ == RapidParam::ProbNNe || 
             type_ == RapidParam::ProbNNk || type_ == RapidParam::ProbNNp) return evalPID();
 
 	double ip      = particles_[0]->getIP();
@@ -65,6 +65,7 @@ double RapidParam::eval() {
 		case RapidParam::ProbNNpi:
 		case RapidParam::ProbNNk:
 		case RapidParam::ProbNNp:
+		case RapidParam::ProbNNe:
 		case RapidParam::THETA:
 		case RapidParam::COSTHETA:
 		case RapidParam::MCORR:
@@ -125,6 +126,8 @@ bool RapidParam::canBeSmeared() {
 			return true;
         case RapidParam::ProbNNp:
 			return true;
+        case RapidParam::ProbNNe:
+			return true;
 		case RapidParam::THETA:
 			return true;
 		case RapidParam::COSTHETA:
@@ -182,6 +185,8 @@ bool RapidParam::canBeTrue() {
         case RapidParam::ProbNNk:
 			return false;
         case RapidParam::ProbNNp:
+			return false;
+        case RapidParam::ProbNNe:
 			return false;
 		case RapidParam::THETA:
 			return true;
@@ -349,6 +354,8 @@ TString RapidParam::typeName() {
 			return "ProbNNk";
 		case RapidParam::ProbNNp:
 			return "ProbNNp";
+		case RapidParam::ProbNNe:
+			return "ProbNNe";
 		default:
 			std::cout << "WARNING in RapidParam::typeName : unknown type " << type_ << "." << std::endl
 				  << "                                  returning empty string." << std::endl;
@@ -405,6 +412,8 @@ RapidParam::ParamType RapidParam::typeFromString(TString str) {
 		return RapidParam::ProbNNk;
 	} else if(str=="ProbNNp") {
 		return RapidParam::ProbNNp;
+	} else if(str=="ProbNNe") {
+		return RapidParam::ProbNNe;
 	} else {
 		std::cout << "WARNING in RapidParam::typeFromString : unknown type name " << str << "." << std::endl
 			  << "                                        returning mass parameter type." << std::endl;
@@ -517,6 +526,10 @@ void RapidParam::setDefaultMinMax(const std::vector<RapidParticle*>& parts, doub
 			max = 1.0;
 			break;
 		case RapidParam::ProbNNp:
+			min = 0.0;
+			max = 1.0;
+			break;
+		case RapidParam::ProbNNe:
 			min = 0.0;
 			max = 1.0;
 			break;

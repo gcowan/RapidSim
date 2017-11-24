@@ -34,6 +34,7 @@ class RapidParam {
 			COSTHETA, //cosine of angle between particles
 			MCORR,    //corrected mass
 			ProbNNmu, // muon particle id
+			ProbNNe,  // electron particle id
 			ProbNNpi, // pion particle id
 			ProbNNk,  // kaon particle id
 			ProbNNp,  // proton particle id
