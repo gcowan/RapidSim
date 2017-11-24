@@ -203,8 +203,7 @@ double RapidParam::evalPID() {
         RapidParticleData * particleData = RapidParticleData::getInstance();
         unsigned int id(0);
         if (particles_[0]->massHypothesisName() == "") id = particles_[0]->id();
-        //else id = particleData->pdgCode(particles_[0]->massHypothesisName());
-        else id = particleData->pdgCode("pi+");
+        else id = particleData->pdgCode(particles_[0]->massHypothesisName());
         /*
         std::vector<unsigned int> v;
         for(std::map<unsigned int, TH2D*>::iterator it = pidHist_.begin(); it != pidHist_.end(); ++it) {
@@ -213,8 +212,6 @@ double RapidParam::evalPID() {
         }*/
         TH2D * pidHist = pidHist_[id];
         if (pidHist) {
-            //std::cout << "INFO RapidParam " << id << " " << pidHist->GetName() << std::endl;
-            //pidHist->Print();
             pid = pidHist->GetBinContent(pidHist->FindBin(float(particles_[0]->getP().Pt()*1000.), float(particles_[0]->getP().P()*1000.)));
         }
     }

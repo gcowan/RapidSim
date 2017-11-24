@@ -124,6 +124,8 @@ TString RapidParticleData::getSanitisedName(int id) {
 int RapidParticleData::pdgCode(TString name) {
 	if(nameToId_.count(name)) {
 		return nameToId_[name];
+    } else if(sanitisedNameToId_.count(name)) {
+		return sanitisedNameToId_[name];
 	} else {
 		std::cout << "WARNING in RapidParticleData::getId : Unknown particle name " << name << std::endl;
 		return 0.;
@@ -222,6 +224,7 @@ void RapidParticleData::addEntry(int id, TString name, double mass, double width
 	idToCharge_[id] = charge;
 	idToName_[id] = name;
 	nameToId_[name] = id;
+	sanitisedNameToId_[sanitiseName(name)] = id;
 	if(lineshape=="RBW") idToShape_[id] = RapidParticleData::RelBW;
 	else if(lineshape=="GS") idToShape_[id] = RapidParticleData::GS;
 }

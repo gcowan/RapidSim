@@ -81,6 +81,7 @@ class RapidParticleData {
 		std::map<int, TString> idToName_;
 		std::map<int, ResLineShape> idToShape_;
 		std::map<TString, int> nameToId_;
+		std::map<TString, int> sanitisedNameToId_;
 
 		//register of particle names that have been used
 		std::set<TString> usedNames_;
