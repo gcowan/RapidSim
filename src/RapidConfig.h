@@ -104,7 +104,7 @@ class RapidConfig {
     
         // PID histogram file
         bool pidLoaded_;
-        std::map<RapidParam::ParamType, std::map<unsigned int, TH2D*>> pidHists_;
+        std::map<RapidParam::ParamType, std::map<unsigned int, TH3D*>> pidHists_;
 
 		//type of geometric acceptance to apply
 		RapidAcceptance::AcceptanceType acceptanceType_;

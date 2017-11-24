@@ -916,7 +916,7 @@ bool RapidConfig::loadPID(TString category) {
             }
             if ( fileLoaded && idLoaded && buffer.Contains("Prob")) {
                 std::cout << "INFO in RapidConfig::loadPID : loading histogram " << buffer << std::endl;
-                TH2D * hist = dynamic_cast<TH2D*>(file->Get(buffer));
+                TH3D * hist = dynamic_cast<TH3D*>(file->Get(buffer));
                 //hist->Print();
                 if(!hist) {
                     std::cout << "WARNING in RapidConfig::loadPID : failed to load histogram " << buffer << std::endl;
@@ -1078,7 +1078,7 @@ void RapidConfig::setupDefaultParams() {
             for(unsigned int i=0; i<parts_.size(); ++i) {
                 RapidParticle* part = parts_[i];
                 if(part->nDaughters() == 0) {
-                    std::map<unsigned int, TH2D*> pidHists;
+                    std::map<unsigned int, TH3D*> pidHists;
                     if ( !(pidHists_[type]).empty()) {
                         pidHists = pidHists_[type];
                     }
