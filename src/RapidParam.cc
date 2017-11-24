@@ -216,17 +216,22 @@ double RapidParam::evalPID() {
 		TH3D * pidHist = pidHist_[id];
     	gRandom->SetSeed(0);
         if (pidHist) {
-			unsigned int bin_x = pidHist->ProjectionX()->FindBin(particles_[0]->getP().P()*1000.);
-            unsigned int bin_y = pidHist->ProjectionY()->FindBin(particles_[0]->getP().Eta());
+            TH1D * pidHist_x = pidHist->ProjectionX();
+            TH1D * pidHist_y = pidHist->ProjectionY();
+            pidHist_x->Sumw2(false);
+            pidHist_y->Sumw2(false);
+			unsigned int bin_x = pidHist_x->FindBin(particles_[0]->getP().P()*1000.);
+            unsigned int bin_y = pidHist_y->FindBin(particles_[0]->getP().Eta());
             // TODO 2: Need this to check if we are outside the limits set by the PIDCalib samples
             // but is there a better way?
-            unsigned int bin_x_last  = pidHist->ProjectionX()->FindLastBinAbove (0);
-            unsigned int bin_y_first = pidHist->ProjectionY()->FindFirstBinAbove(0);
-            unsigned int bin_y_last  = pidHist->ProjectionY()->FindLastBinAbove (0);
+            unsigned int bin_x_last  = pidHist_x->FindLastBinAbove (0);
+            unsigned int bin_y_first = pidHist_y->FindFirstBinAbove(0);
+            unsigned int bin_y_last  = pidHist_y->FindLastBinAbove (0);
     		bin_x = bin_x > bin_x_last ? bin_x_last : bin_x;
     		bin_y = bin_y > bin_y_last ? bin_y_last : bin_y;
             bin_y = bin_y < bin_y_first ? bin_y_first : bin_y;
 			TH1D * prob = pidHist->ProjectionZ("prob", bin_x, bin_x+1, bin_y, bin_y+1);
+            prob->Sumw2(false);
     		pid = prob->GetRandom();
         }
     }
