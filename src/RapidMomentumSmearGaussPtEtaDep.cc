@@ -11,15 +11,15 @@ RapidMomentumSmearGaussPtEtaDep::~RapidMomentumSmearGaussPtEtaDep() {
 
 TLorentzVector RapidMomentumSmearGaussPtEtaDep::smearMomentum(TLorentzVector p) {
 
-    double smear, pt, eta;
-    pt = p.Pt();
-    eta = p.Eta();
-    
-    int bin = hist_->FindBin(pt,eta);
+	double smear, pt, eta;
+	pt = p.Pt();
+	eta = p.Eta();
 
-    smear = 1.0*gRandom->Gaus()*hist_->GetBinContent(bin);
+	int bin = hist_->FindBin(pt,eta);
 
-    p.SetXYZM( p.Px()*(1+smear), p.Py()*(1+smear), p.Pz(), p.M() );
-    return p;
+	smear = 1.0*gRandom->Gaus()*hist_->GetBinContent(bin);
+
+	p.SetXYZM( p.Px()*(1+smear), p.Py()*(1+smear), p.Pz(), p.M() );
+	return p;
 
 }
