@@ -17,7 +17,7 @@ class RapidParticle {
 	public:
 		RapidParticle(int id, TString name, double mass, double charge, double ctau, RapidParticle* mother)
 			: index_(0), id_(id), name_(name), mass_(mass), charge_(charge), ctau_(ctau),
-			  mother_(mother), next_(0), invisible_(false), momSmear_(0),
+			  mother_(mother), next_(0), invisible_(false), momSmear_(0), ipSmear_(0),
 			  massData_(0), minMass_(mass), maxMass_(mass),
 			  evtGenModel_("PHSP"),
 			  currentHypothesis_(0),
@@ -25,14 +25,12 @@ class RapidParticle {
               decayVertex_(0,0,0)
 			{setPtEtaPhi(0,0,0);}
 
-		RapidParticle( const RapidParticle& );
 		~RapidParticle() {}
 
 		void addDaughter(RapidParticle* part);
 
 		void addMassHypothesis(TString name, double mass);
 		void setMassHypothesis(unsigned int i);
-		unsigned int getMassHypothesis() { return currentHypothesis_; };
 
 		bool generate();
         double getIP() { return ip_; }

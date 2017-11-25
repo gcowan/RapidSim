@@ -136,28 +136,28 @@ void RapidHistWriter::setupSingleHypothesis(TString suffix) {
     // Following code could be made better by passing in the list of params
     for(itParam=paramsDecaying_.begin(); itParam!=paramsDecaying_.end(); ++itParam) {
         histName = (*itParam)->name() + suffix;
-        (*itParam)->getMinMax(min,max);
+        (*itParam)->getMinMax(min,max,true);
         hist = new TH1F(histName, "", 100, min, max);
         histos_.push_back(hist);
     }
 
     for(itParam=paramsStable_.begin(); itParam!=paramsStable_.end(); ++itParam) {
         histName = (*itParam)->name() + suffix;
-        (*itParam)->getMinMax(min,max);
+        (*itParam)->getMinMax(min,max,true);
         hist = new TH1F(histName, "", 100, min, max);
         histos_.push_back(hist);
     }
     
     for(itParam=paramsTwoBody_.begin(); itParam!=paramsTwoBody_.end(); ++itParam) {
         histName = (*itParam)->name() + suffix;
-        (*itParam)->getMinMax(min,max);
+        (*itParam)->getMinMax(min,max,true);
         hist = new TH1F(histName, "", 100, min, max);
         histos_.push_back(hist);
     }
 
     for(itParam=paramsThreeBody_.begin(); itParam!=paramsThreeBody_.end(); ++itParam) {
         histName = (*itParam)->name() + suffix;
-        (*itParam)->getMinMax(min,max);
+        (*itParam)->getMinMax(min,max,true);
         hist = new TH1F(histName, "", 100, min, max);
         histos_.push_back(hist);
     }
