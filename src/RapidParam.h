@@ -2,8 +2,11 @@
 #define RAPIDPARAM_H
 
 #include <vector>
+#include <map>
 
 #include "TLorentzVector.h"
+#include "TH3.h"
+#include "RapidParticleData.h"
 
 class RapidParticle;
 
@@ -30,6 +33,11 @@ class RapidParam {
 			THETA,    //angle between particles
 			COSTHETA, //cosine of angle between particles
 			MCORR,    //corrected mass
+			ProbNNmu, // muon particle id
+			ProbNNe,  // electron particle id
+			ProbNNpi, // pion particle id
+			ProbNNk,  // kaon particle id
+			ProbNNp,  // proton particle id
 			UNKNOWN   //unused
 
 		};
@@ -37,17 +45,22 @@ class RapidParam {
 		static RapidParam::ParamType typeFromString(TString str);
 
 		RapidParam(TString name, ParamType type, const std::vector<RapidParticle*>& particles, bool truth)
-			: name_(name), type_(type), truth_(truth), particles_(particles),
+			: name_(name), type_(type), truth_(truth), pidHist_(0), particles_(particles),
 			  minVal_(0.), maxVal_(0.) {setDefaultMinMax();}
+
+		RapidParam(TString name, ParamType type, RapidParticle* part, bool truth, std::map<unsigned int, TH3D*>* pidHist)
+			: name_(name), type_(type),
+			  truth_(truth), pidHist_(pidHist), minVal_(0.), maxVal_(0.) 
+			{particles_.push_back(part); setDefaultMinMax();}
 
 		RapidParam(TString name, ParamType type, RapidParticle* part, bool truth)
 			: name_(name), type_(type),
-			  truth_(truth), minVal_(0.), maxVal_(0.)
+			  truth_(truth), pidHist_(0), minVal_(0.), maxVal_(0.) 
 			{particles_.push_back(part); setDefaultMinMax();}
 
 		RapidParam(ParamType type, bool truth)
 			: name_(""), type_(type),
-			  truth_(truth), minVal_(0.), maxVal_(0.)
+			  truth_(truth), pidHist_(0), minVal_(0.), maxVal_(0.)
 			{setDefaultMinMax();}
 
 		~RapidParam() {}
@@ -77,6 +90,7 @@ class RapidParam {
 	private:
 		double evalCorrectedMass();
 		double evalTheta();
+		double evalPID();
 
 		void setDefaultMinMax() {setDefaultMinMax(particles_,minVal_,maxVal_);}//TODO remove/make virtual and give a warning in the base class
 
@@ -86,6 +100,7 @@ class RapidParam {
 		TString name_;
 		ParamType type_;
 		bool truth_;
+		std::map<unsigned int, TH3D *>* pidHist_;
 
 		//the following are only used for specific parameters
 		////TODO refactor into an inherited class RapidParamSpecific

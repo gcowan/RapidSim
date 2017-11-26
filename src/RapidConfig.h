@@ -6,8 +6,10 @@
 
 #include "TH1.h"
 #include "TH2.h"
+#include "TH3.h"
 #include "TString.h"
 #include "RapidAcceptance.h"
+#include "RapidParam.h"
 
 class RapidCut;
 class RapidDecay;
@@ -54,6 +56,7 @@ class RapidConfig {
 
 		void setSmearing(unsigned int particle, TString category);
 		bool loadSmearing(TString category);
+		bool loadPID(TString category);
 
 		bool loadAcceptRejectHist(TString histFile, TString histName, RapidParam* paramX, RapidParam* paramY);
 		bool loadParentKinematics();
@@ -97,6 +100,10 @@ class RapidConfig {
 		TH1* accRejHisto_;
 		RapidParam* accRejParameterX_;
 		RapidParam* accRejParameterY_;
+
+		// PID histogram file
+		bool pidLoaded_;
+		std::map<RapidParam::ParamType, std::map<unsigned int, TH3D*>*> pidHists_;
 
 		//type of geometric acceptance to apply
 		RapidAcceptance::AcceptanceType acceptanceType_;
