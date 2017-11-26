@@ -124,7 +124,7 @@ TString RapidParticleData::getSanitisedName(int id) {
 int RapidParticleData::pdgCode(TString name) {
 	if(nameToId_.count(name)) {
 		return nameToId_[name];
-    } else if(sanitisedNameToId_.count(name)) {
+	} else if(sanitisedNameToId_.count(name)) {
 		return sanitisedNameToId_[name];
 	} else {
 		std::cout << "WARNING in RapidParticleData::getId : Unknown particle name " << name << std::endl;
@@ -201,7 +201,7 @@ void RapidParticleData::setupMass(RapidParticle* part) {
 			break;
 		default:
 			std::cout << "WARNING in RapidParticleData::setupMass : unknown lineshape for " << name << "." << std::endl
-			          << "                                        : using a relativistic Breit-Wigner." << std::endl;
+			  	  << "                                        : using a relativistic Breit-Wigner." << std::endl;
 		/* FALLTHRU */
 		case RapidParticleData::RelBW:
 			pdf = makeRelBW(m, mass, width, spin, mA, mB, name);

@@ -553,7 +553,7 @@ bool RapidConfig::configGlobal(TString command, TString value) {
 
 		pidLoaded_ = loadPID(histFile);
 		if(!pidLoaded_) return false;
-	}  
+	}
 
 	return true;
 }
@@ -901,7 +901,7 @@ bool RapidConfig::loadPID(TString category) {
 					return false;
 				}
 				continue;
-			} 
+			}
 			if ( fileLoaded && !idLoaded) {
 				id = buffer.Atoi();
 				idLoaded = true;
@@ -919,7 +919,7 @@ bool RapidConfig::loadPID(TString category) {
 					pidHists_[type] = new std::map<unsigned int, TH3D*>();
 				}
 				pidHists_[type]->insert(std::pair<unsigned int,TH3D*>(id, hist));
-			} 
+			}
 			if(pidHists_.empty()) {
 				std::cout << "WARNING in RapidConfig::loadPID : failed to load any histograms for PID category " << category << std::endl;
 				file->Close();

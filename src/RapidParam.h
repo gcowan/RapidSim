@@ -100,7 +100,7 @@ class RapidParam {
 		TString name_;
 		ParamType type_;
 		bool truth_;
-        std::map<unsigned int, TH3D *>* pidHist_;
+		std::map<unsigned int, TH3D *>* pidHist_;
 
 		//the following are only used for specific parameters
 		////TODO refactor into an inherited class RapidParamSpecific

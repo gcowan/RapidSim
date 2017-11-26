@@ -6,7 +6,7 @@
 
 #include "TH1.h"
 #include "TH2.h"
-#include "TH2.h"
+#include "TH3.h"
 #include "TString.h"
 #include "RapidAcceptance.h"
 #include "RapidParam.h"
@@ -100,10 +100,10 @@ class RapidConfig {
 		TH1* accRejHisto_;
 		RapidParam* accRejParameterX_;
 		RapidParam* accRejParameterY_;
-    
-        // PID histogram file
-        bool pidLoaded_;
-        std::map<RapidParam::ParamType, std::map<unsigned int, TH3D*>*> pidHists_;
+
+		// PID histogram file
+		bool pidLoaded_;
+		std::map<RapidParam::ParamType, std::map<unsigned int, TH3D*>*> pidHists_;
 
 		//type of geometric acceptance to apply
 		RapidAcceptance::AcceptanceType acceptanceType_;
