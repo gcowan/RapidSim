@@ -42,7 +42,7 @@ class RapidParam {
 
 		RapidParam(TString name, ParamType type, RapidParticle* part, bool truth)
 			: name_(name), type_(type),
-			  truth_(truth), minVal_(0.), maxVal_(0.) 
+			  truth_(truth), minVal_(0.), maxVal_(0.)
 			{particles_.push_back(part); setDefaultMinMax();}
 
 		RapidParam(ParamType type, bool truth)

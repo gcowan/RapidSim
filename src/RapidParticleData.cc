@@ -76,8 +76,8 @@ double RapidParticleData::getCT(int id) {
 		return idToCT_[id];
 	} else {
 		std::cout << "WARNING in RapidParticleData::getCT : Unknown particle ID " << id << std::endl;
-		return 0.; 
-	}   
+		return 0.;
+	}
 }
 
 double RapidParticleData::getWidth(int id) {
@@ -286,7 +286,7 @@ RooRelBreitWigner* RapidParticleData::makeRelBW(RooRealVar& m, double mean, doub
 	RooRealVar* spin   = new RooRealVar(name+"spin",  name+"spin",  thespin);
 	RooRealVar* radius = new RooRealVar(name+"radius",name+"radius",barrierFactor); // not used
 	RooRealVar* ma     = new RooRealVar(name+"ma",    name+"ma",     m1);
-	RooRealVar* mb     = new RooRealVar(name+"mb",    name+"mb",     m2);   
+	RooRealVar* mb     = new RooRealVar(name+"mb",    name+"mb",     m2);
 	
 	return new RooRelBreitWigner(name,name, m,*m0,*g0,*radius,*ma,*mb,*spin);
 }
@@ -300,7 +300,7 @@ RooGounarisSakurai* RapidParticleData::makeGS(RooRealVar& m, double mean, double
 	RooRealVar* spin   = new RooRealVar(name+"spin",  name+"spin",  thespin);
 	RooRealVar* radius = new RooRealVar(name+"radius",name+"radius",barrierFactor); // not used
 	RooRealVar* ma     = new RooRealVar(name+"ma",    name+"ma",     m1);
-	RooRealVar* mb     = new RooRealVar(name+"mb",    name+"mb",     m2);   
+	RooRealVar* mb     = new RooRealVar(name+"mb",    name+"mb",     m2);
 	
 	return new RooGounarisSakurai(name,name, m,*m0,*g0,*spin, *radius,*ma,*mb);
 }

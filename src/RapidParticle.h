@@ -83,7 +83,7 @@ class RapidParticle {
 		void setOriginVertex(ROOT::Math::XYZPoint v) {originVertex_ = v;}
 		void setDecayVertex(ROOT::Math::XYZPoint v) {decayVertex_ = v;}
 
-		void print(int index); 
+		void print(int index);
 
 		void setMassShape(RooDataSet* ds, double minMass, double maxMass, TString varName);
 		void floatMass();
@@ -137,6 +137,6 @@ class RapidParticle {
 		unsigned int currentHypothesis_;
 
 		ROOT::Math::XYZPoint originVertex_;
-		ROOT::Math::XYZPoint decayVertex_;  
+		ROOT::Math::XYZPoint decayVertex_;
 };
 #endif

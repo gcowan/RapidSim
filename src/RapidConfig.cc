@@ -32,7 +32,7 @@ RapidConfig::~RapidConfig() {
 	while (itr2 != ipSmearCategories_.end()) {
 		delete itr2->second;
 		ipSmearCategories_.erase(itr2++);
-	} 
+	}
 	while(!parts_.empty()) {
 		delete parts_[parts_.size()-1];
 		parts_.pop_back();
@@ -161,14 +161,6 @@ RapidAcceptance* RapidConfig::getAcceptance() {
 
 RapidHistWriter* RapidConfig::getWriter(bool saveTree) {
 	setupDefaultParams();
-
-	std::vector<RapidParticle*>::const_iterator it = parts_.begin();
-	for( ; it!=parts_.end(); ++it) {
-		RapidParticle* part = *it;
-		if(part->nMassHypotheses()>1) {
-			altHypothesisParts_.push_back(part);
-		}
-	}
 
 	if(!writer_) {
 		//strip away path for name of histogram/tuple files - save in PWD
@@ -831,12 +823,12 @@ void RapidConfig::setSmearing(unsigned int particle, TString category) {
 		} else if(!ipSmearCategories_.count(category)) {
 			loadedipsmear = false;
 		}
-	}    
+	}
 	if (loadedipsmear) {
 		parts_[particle]->setSmearing(ipSmearCategories_[category]);
 	}
 
-	return; 
+	return;
 }
 
 bool RapidConfig::loadAcceptRejectHist(TString histFile, TString histName, RapidParam* paramX, RapidParam* paramY) {
