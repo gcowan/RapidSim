@@ -88,7 +88,7 @@ run-B2DplusD0:
     script:
         - export RAPIDSIM_ROOT=$PWD
         - cd build
-        - src/RapidSim.exe ../validation/B2DplusD0 100000
+        - src/RapidSim.exe ../validation/B2DplusD0 10000
         - mkdir plots
         - root -b -q -l "../validation/compareHistograms.C(\"B2DplusD0\")"
     stage: test
