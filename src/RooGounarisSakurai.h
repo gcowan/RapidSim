@@ -3,7 +3,7 @@
 * Package: RooRarFit
  * File: $Id: RooGounarisSakurai.rdl,v 1.2 2011/06/16 13:18:48 fwilson Exp $
  * Authors: Katherine George - University of Liverpool                       *
- * 
+ *
  *****************************************************************************/
 #ifndef ROO_GOUNARISSAKURAI
 #define ROO_GOUNARISSAKURAI
@@ -16,19 +16,19 @@ class RooRealVar;
 class RooGounarisSakurai : public RooAbsPdf {
 
 public:
-  RooGounarisSakurai(const char *name, 
+  RooGounarisSakurai(const char *name,
 		     const char *title,
-		     RooAbsReal& _x, 
-		     RooAbsReal& _mean, 
-		     RooAbsReal& _width, 
-		     RooAbsReal& _spin, 
+		     RooAbsReal& _x,
+		     RooAbsReal& _mean,
+		     RooAbsReal& _width,
+		     RooAbsReal& _spin,
 		     RooAbsReal& _radius,
-		     RooAbsReal& _mass_a, 
+		     RooAbsReal& _mass_a,
 		     RooAbsReal& _mass_b);
-  RooGounarisSakurai(const RooGounarisSakurai& other, 
+  RooGounarisSakurai(const RooGounarisSakurai& other,
 		     const char* name=0) ;
-  virtual TObject* clone(const char* newname) const { 
-    return new RooGounarisSakurai(*this,newname); 
+  virtual TObject* clone(const char* newname) const {
+    return new RooGounarisSakurai(*this,newname);
   }
   inline virtual ~RooGounarisSakurai() { }
 
@@ -41,7 +41,7 @@ public:
   RooRealProxy radius;
   RooRealProxy mass_a;
   RooRealProxy mass_b;
- 
+
   Double_t evaluate() const ;
 
 private:
