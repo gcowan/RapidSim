@@ -86,7 +86,7 @@ bool RapidConfig::load(TString fileName) {
 	for(unsigned int i=0; i<parts_.size(); ++i) {
 		if(parts_[i]->invisible()) {
 			std::cout << "INFO in RapidConfig::load : invisible daughter found." << std::endl
-				<< "                            Adding corrected mass variable for parent particle." << std::endl;
+				  << "                            Adding corrected mass variable for parent particle." << std::endl;
 			std::vector<int> mother;
 			mother.push_back(0);
 			RapidParam* param = new RapidParam("MCorr", RapidParam::MCORR, parts_[0], false);
@@ -195,7 +195,7 @@ bool RapidConfig::loadDecay() {
 	fin.close();
 
 	std::cout << "INFO in RapidConfig::loadDecay : Decay descriptor is:" << std::endl
-		<< "                                 " << decayStr << std::endl;
+		  << "                                 " << decayStr << std::endl;
 
 	decays.push(decayStr);
 
@@ -212,7 +212,7 @@ bool RapidConfig::loadDecay() {
 			int end = decayStr.Index('}',start);
 			if(end < 0) {
 				std::cout << "ERROR in RapidConfig::loadDecay : malformed decay descriptor." << std::endl
-					<< "                                  Mismatched brackets in:" << decayStr << std::endl;
+					  << "                                  Mismatched brackets in:" << decayStr << std::endl;
 				return false;
 			}
 
@@ -229,7 +229,7 @@ bool RapidConfig::loadDecay() {
 			//add to the queue and label the mother so we know which particle to decay
 			decays.push(subDecay);
 			std::cout << "INFO in RapidConfig::loadDecay : Found sub-decay:" << std::endl
-				<< "                                 " << subDecay << std::endl;
+				  << "                                 " << subDecay << std::endl;
 			decayStr.Replace(start,end-start+1,"^"+subDecay(0,subDecay.First(" ")));
 		}
 
@@ -391,7 +391,7 @@ void RapidConfig::writeConfig() {
 bool RapidConfig::configParticle(unsigned int part, TString command, TString value) {
 	if(part > parts_.size()) {
 		std::cout << "ERROR in RapidConfig::configParticle : no particle at index " << part << std::endl
-			<< "                                       fix your configuration file." << std::endl;
+			  << "                                       fix your configuration file." << std::endl;
 		return false;
 	}
 
@@ -427,7 +427,7 @@ bool RapidConfig::configParticle(unsigned int part, TString command, TString val
 	} else if(command=="evtGenModel") {
 		parts_[part]->setEvtGenDecayModel(value);
 		std::cout << "INFO in RapidConfig::configParticle : set EvtGen decay model for particle " << parts_[part]->name() << std::endl
-			<< "                                    : " << value << std::endl;
+			  << "                                    : " << value << std::endl;
 	}
 
 	return true;
@@ -439,7 +439,7 @@ bool RapidConfig::configGlobal(TString command, TString value) {
 		int seed = value.Atoi();
 		gRandom->SetSeed(seed);
 		std::cout << "INFO in RapidConfig::configGlobal : setting seed for random number generation to " << seed << "." << std::endl
-			<< "                                    seed is now " << gRandom->GetSeed() << "." << std::endl;
+			  << "                                    seed is now " << gRandom->GetSeed() << "." << std::endl;
 	} else if(command=="acceptance") {
 		std::cout << "INFO in RapidConfig::configGlobal : setting acceptance type to " << value << "." << std::endl;
 		acceptanceType_ = RapidAcceptance::typeFromString(value);
@@ -450,14 +450,14 @@ bool RapidConfig::configGlobal(TString command, TString value) {
 		std::cout << "INFO in RapidConfig::configGlobal : setting pT range to " << value << "." << std::endl;
 		if(!loadRange("ptRange",value,ptMin_,ptMax_)) {
 			std::cout << "ERROR in RapidConfig::configGlobal : failed to load pT range." << std::endl
-				<< "                                     fix your configuration file." << std::endl;
+				  << "                                     fix your configuration file." << std::endl;
 			return false;
 		}
 	} else if(command=="etaRange") {
 		std::cout << "INFO in RapidConfig::configGlobal : setting eta range to " << value << "." << std::endl;
 		if(!loadRange("etaRange",value,etaMin_,etaMax_)) {
 			std::cout << "ERROR in RapidConfig::configGlobal : failed to load eta range." << std::endl
-				<< "                                     fix your configuration file." << std::endl;
+				  << "                                     fix your configuration file." << std::endl;
 			return false;
 		}
 	} else if(command=="energy") {
@@ -475,24 +475,24 @@ bool RapidConfig::configGlobal(TString command, TString value) {
 	} else if(command=="paramsStable") {
 		paramStrStable_ = value;
 		std::cout << "INFO in RapidConfig::configGlobal : will use the following parameters for all stable particles:" << std::endl
-			<< "                                    " << paramStrStable_ << "." << std::endl;
+			  << "                                    " << paramStrStable_ << "." << std::endl;
 	} else if(command=="paramsDecaying") {
 		paramStrDecaying_ = value;
 		std::cout << "INFO in RapidConfig::configGlobal : will use the following parameters for all decaying particles:" << std::endl
-			<< "                                    " << paramStrDecaying_ << "." << std::endl;
+			  << "                                    " << paramStrDecaying_ << "." << std::endl;
 	} else if(command=="paramsTwoBody") {
 		paramStrTwoBody_ = value;
 		std::cout << "INFO in RapidConfig::configGlobal : will use the following parameters for all two-body daughter combinations:" << std::endl
-			<< "                                    " << paramStrTwoBody_ << "." << std::endl;
+			  << "                                    " << paramStrTwoBody_ << "." << std::endl;
 	} else if(command=="paramsThreeBody") {
 		paramStrThreeBody_ = value;
 		std::cout << "INFO in RapidConfig::configGlobal : will use the following parameters for all three-body daughter combinations:" << std::endl
-			<< "                                    " << paramStrThreeBody_ << "." << std::endl;
+			  << "                                    " << paramStrThreeBody_ << "." << std::endl;
 	} else if(command=="param") {
 		RapidParam* param = loadParam(value);
 		if(!param) {
 			std::cout << "ERROR in RapidConfig::configGlobal : failed to load parameter." << std::endl
-				<< "                                     fix your configuration file." << std::endl;
+				  << "                                     fix your configuration file." << std::endl;
 			return false;
 		} else {
 			std::cout << "INFO in RapidConfig::configGlobal : adding parameter " << param->name() << std::endl;
@@ -502,7 +502,7 @@ bool RapidConfig::configGlobal(TString command, TString value) {
 		RapidCut* cut = loadCut(value);
 		if(!cut) {
 			std::cout << "ERROR in RapidConfig::configGlobal : failed to load cut." << std::endl
-				<< "                                     fix your configuration file." << std::endl;
+				  << "                                     fix your configuration file." << std::endl;
 			return false;
 		} else {
 			std::cout << "INFO in RapidConfig::configGlobal : adding cut " << cut->name() << std::endl;
@@ -581,7 +581,7 @@ RapidParam* RapidConfig::loadParam(TString paramStr) {
 			unsigned int index = buffer.Atoi();
 			if(index>=parts_.size()) {
 				std::cout << "WARNING in RapidConfig::loadParam : particle " << index << "is out of range." << std::endl
-					<< "                                    parameter " << name << " has not been added." << std::endl;
+					  << "                                    parameter " << name << " has not been added." << std::endl;
 				return 0;
 			} else {
 				partlist.push_back(parts_[index]);
@@ -590,13 +590,13 @@ RapidParam* RapidConfig::loadParam(TString paramStr) {
 			truth = true;
 		} else {
 			std::cout << "WARNING in RapidConfig::loadParam : unknown argument " << buffer << "in parameter " << name << "." << std::endl
-				<< "                                    argument will be ignored." << std::endl;
+				  << "                                    argument will be ignored." << std::endl;
 		}
 	}
 
 	if((type == RapidParam::THETA || type == RapidParam::COSTHETA) && partlist.size()<2) {
 		std::cout << "WARNING in RapidConfig::loadParam : (cos)theta parameter expects at least two particles, " << partlist.size() << "were given." << std::endl
-			<< "                                    parameter " << name << " has not been added." << std::endl;
+			  << "                                    parameter " << name << " has not been added." << std::endl;
 		return 0;
 	}
 
@@ -765,7 +765,7 @@ bool RapidConfig::loadSmearing(TString category) {
 
 				if(!hist || !check1D(hist)) {
 					std::cout << "WARNING in RapidConfig::loadSmearing : failed to load histogram " << histname << std::endl
-						<< "                                       threshold will be ignored." << std::endl;
+						  << "                                       threshold will be ignored." << std::endl;
 				}
 
 				hists.push_back(hist);
@@ -812,7 +812,7 @@ void RapidConfig::setSmearing(unsigned int particle, TString category) {
 	if(!momSmearCategories_.count(category)) {
 		if(!loadSmearing(category)) {
 			std::cout << "WARNING in RapidConfig::setSmearing : failed to load momentum smearing category " << category << "." << std::endl
-				<< "                                      smearing functions not set for particle " << particle << "." << std::endl;
+				  << "                                      smearing functions not set for particle " << particle << "." << std::endl;
 			loadedmomsmear = false;
 		} else if(!momSmearCategories_.count(category)) {
 			loadedmomsmear = false;
@@ -826,7 +826,7 @@ void RapidConfig::setSmearing(unsigned int particle, TString category) {
 	if(!ipSmearCategories_.count(category)) {
 		if(!loadSmearing(category)) {
 			std::cout << "WARNING in RapidConfig::setSmearing : failed to load IP smearing category " << category << "." << std::endl
-				<< "                                      smearing functions not set for particle " << particle << "." << std::endl;
+				  << "                                      smearing functions not set for particle " << particle << "." << std::endl;
 			loadedipsmear = false;
 		} else if(!ipSmearCategories_.count(category)) {
 			loadedipsmear = false;
@@ -842,21 +842,21 @@ void RapidConfig::setSmearing(unsigned int particle, TString category) {
 bool RapidConfig::loadAcceptRejectHist(TString histFile, TString histName, RapidParam* paramX, RapidParam* paramY) {
 	if(accRejHisto_) {
 		std::cout << "WARNING in RapidConfig::loadAcceptRejectHist : accept/reject histogram already set." << std::endl
-			<< "                                               original histogram will be used." << std::endl;
+			  << "                                               original histogram will be used." << std::endl;
 		return false;
 	}
 
 	TFile* file = TFile::Open(histFile);
 	if(!file) {
 		std::cout << "WARNING in RapidConfig::loadAcceptRejectHist : could not open file " << histFile << "." << std::endl
-			<< "                                               path should be absolute or relative to '" << getenv("PWD") << "'." << std::endl
-			<< "                                               accept/reject histogram not set." << std::endl;
+			  << "                                               path should be absolute or relative to '" << getenv("PWD") << "'." << std::endl
+			  << "                                               accept/reject histogram not set." << std::endl;
 		return false;
 	}
 	TH1* hist = dynamic_cast<TH1*>(file->Get(histName));
 	if(!hist) {
 		std::cout << "WARNING in RapidConfig::loadAcceptRejectHist : could not load histogram " << histName << "." << std::endl
-			<< "                                               accept/reject histogram not set." << std::endl;
+			  << "                                               accept/reject histogram not set." << std::endl;
 		return false;
 	}
 
@@ -905,11 +905,11 @@ bool RapidConfig::loadParentKinematics() {
 
 		if(file) {
 			std::cout << "INFO in RapidConfig::loadParentKinematics : found kinematics LHC" << motherFlavour_ << ppEnergy_ << " in RAPIDSIM_CONFIG." << std::endl
-				<< "                                            this version will be used." << std::endl;
+				  << "                                            this version will be used." << std::endl;
 			found = true;
 		} else {
 			std::cout << "INFO in RapidConfig::loadParentKinematics : kinematics LHC" << motherFlavour_ << ppEnergy_ << " not found in RAPIDSIM_CONFIG." << std::endl
-				<< "                                            checking RAPIDSIM_ROOT." << std::endl;
+				  << "                                            checking RAPIDSIM_ROOT." << std::endl;
 		}
 	}
 
@@ -924,7 +924,7 @@ bool RapidConfig::loadParentKinematics() {
 
 		if(!file) {
 			std::cout << "ERROR in RapidConfig::loadParentKinematics : unknown kinematics " << motherFlavour_ << "-quark from " << ppEnergy_ << " TeV pp collision." << std::endl
-				<< "                                             file " << fileName << " not found." << std::endl;
+				  << "                                             file " << fileName << " not found." << std::endl;
 			return false;
 		}
 	}
