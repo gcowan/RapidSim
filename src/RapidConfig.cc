@@ -922,7 +922,10 @@ bool RapidConfig::loadPID(TString category) {
                     std::cout << "WARNING in RapidConfig::loadPID : failed to load histogram " << buffer << std::endl;
                 }
                 RapidParam::ParamType type = RapidParam::typeFromString(buffer);
-                pidHists_[type][id] = hist;
+		if(pidHists_.find(type)==pidHists_.end()) {
+			pidHists_[type] = new std::map<unsigned int, TH3D*>();
+		}
+                pidHists_[type]->insert(std::pair<unsigned int,TH3D*>(id, hist));
             } 
             if(pidHists_.empty()) {
                 std::cout << "WARNING in RapidConfig::loadPID : failed to load any histograms for PID category " << category << std::endl;
@@ -1078,8 +1081,8 @@ void RapidConfig::setupDefaultParams() {
             for(unsigned int i=0; i<parts_.size(); ++i) {
                 RapidParticle* part = parts_[i];
                 if(part->nDaughters() == 0) {
-                    std::map<unsigned int, TH3D*> pidHists;
-                    if ( !(pidHists_[type]).empty()) {
+                    std::map<unsigned int, TH3D*>* pidHists=0;
+                    if (pidHists_.find(type)!=pidHists_.end() && pidHists_[type] && !pidHists_[type]->empty()) {
                         pidHists = pidHists_[type];
                     }
                     RapidParam* param = new RapidParam("", type, part, false, pidHists);

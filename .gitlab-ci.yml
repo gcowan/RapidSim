@@ -83,3 +83,15 @@ run-D02Kpi:
     artifacts:
         paths:
             - build/D02Kpi_hists.root
+
+run-B2DplusD0:
+    script:
+        - export RAPIDSIM_ROOT=$PWD
+        - cd build
+        - src/RapidSim.exe ../validation/B2DplusD0 100000
+        - mkdir plots
+        - root -b -q -l "../validation/compareHistograms.C(\"B2DplusD0")"
+    stage: test
+    artifacts:
+        paths:
+            - build/B2DplusD0_hists.root

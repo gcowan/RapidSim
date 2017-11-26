@@ -207,33 +207,37 @@ double RapidParam::evalPID() {
     if (particles_[0]->stable() && particles_[0]->mass() > 0.) {
         RapidParticleData * particleData = RapidParticleData::getInstance();
         unsigned int id(0);
-        if (particles_[0]->massHypothesisName() == "") id = particles_[0]->id();
-        else id = particleData->pdgCode(particles_[0]->massHypothesisName());
+        if (particles_[0]->massHypothesisName() == "") id = TMath::Abs(particles_[0]->id());
+        else id = TMath::Abs(particleData->pdgCode(particles_[0]->massHypothesisName()));
+
+	if(!pidHist_ || pidHist_->find(id)==pidHist_->end()) {
+		std::cout << "WARNING in RapidParam::evalPID : PID histogram not set for " << particles_[0]->id() << " as " << id << std::endl;
+		std::cout << "                                 returning 0" << std::endl;
+		return 0.;
+	}
             
         // TODO 1: Factor everything out into a separate RapidPID class, which might make
         // it easier to deal with alternative implementations, such as Meerkat
         
-		TH3D * pidHist = pidHist_[id];
-    	gRandom->SetSeed(0);
-        if (pidHist) {
-            TH1D * pidHist_x = pidHist->ProjectionX();
-            TH1D * pidHist_y = pidHist->ProjectionY();
-            pidHist_x->Sumw2(false);
-            pidHist_y->Sumw2(false);
-			unsigned int bin_x = pidHist_x->FindBin(particles_[0]->getP().P()*1000.);
-            unsigned int bin_y = pidHist_y->FindBin(particles_[0]->getP().Eta());
-            // TODO 2: Need this to check if we are outside the limits set by the PIDCalib samples
-            // but is there a better way?
-            unsigned int bin_x_last  = pidHist_x->FindLastBinAbove (0);
-            unsigned int bin_y_first = pidHist_y->FindFirstBinAbove(0);
-            unsigned int bin_y_last  = pidHist_y->FindLastBinAbove (0);
-    		bin_x = bin_x > bin_x_last ? bin_x_last : bin_x;
-    		bin_y = bin_y > bin_y_last ? bin_y_last : bin_y;
-            bin_y = bin_y < bin_y_first ? bin_y_first : bin_y;
-			TH1D * prob = pidHist->ProjectionZ("prob", bin_x, bin_x+1, bin_y, bin_y+1);
-            prob->Sumw2(false);
-    		pid = prob->GetRandom();
-        }
+	TH3D * pidHist = pidHist_->at(id);
+        TH1D * pidHist_x = pidHist->ProjectionX();
+        TH1D * pidHist_y = pidHist->ProjectionY();
+        pidHist_x->Sumw2(false);
+        pidHist_y->Sumw2(false);
+	unsigned int bin_x = pidHist_x->FindBin(particles_[0]->getP().P()*1000.);
+        unsigned int bin_y = pidHist_y->FindBin(particles_[0]->getP().Eta());
+        // TODO 2: Need this to check if we are outside the limits set by the PIDCalib samples
+        // but is there a better way?
+        unsigned int bin_x_last  = pidHist_x->FindLastBinAbove (0);
+        unsigned int bin_y_first = pidHist_y->FindFirstBinAbove(0);
+        unsigned int bin_y_last  = pidHist_y->FindLastBinAbove (0);
+    	bin_x = bin_x > bin_x_last ? bin_x_last : bin_x;
+    	bin_y = bin_y > bin_y_last ? bin_y_last : bin_y;
+        bin_y = bin_y < bin_y_first ? bin_y_first : bin_y;
+	TH1D * prob = pidHist->ProjectionZ("prob", bin_x, bin_x+1, bin_y, bin_y+1);
+        prob->Sumw2(false);
+    	pid = prob->GetRandom();
+        
     }
     return pid;
 }
