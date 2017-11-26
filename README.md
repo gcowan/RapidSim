@@ -189,9 +189,15 @@ Particle settings should be defined after the corresponding `@#` tag using the s
 
 * `useEvtGen` :
   * Perform decays using the external EvtGen generator
-  * Syntax is `useEvtGen : TRUE
+  * Syntax is `useEvtGen : TRUE`
   * Note any value for this parameter will turn EvtGen ON (even FALSE)
   * To turn EvtGen OFF do not define this parameter
+
+* `pid` :
+  * Sets the particle identification scheme to use
+  * Syntax is `pid : <scheme>`, where 
+    * `<scheme>` is the name of the file that defines the scheme (default `LHCbGenericPID`)
+  * More types may be defined in $RAPIDSIM_ROOT/config/pid or $RAPIDSIM_CONFIG/config/pid
 
 ### Particle settings
 
@@ -200,8 +206,10 @@ Particle settings should be defined after the corresponding `@#` tag using the s
   * Default: Automatically generated unique name of particle
 
 * `smear`:
-  * The type of momentum smearing to apply to this particle
-  * Supported: `LHCbGeneric`, `LHCbElectron`, `AtlasMuon`, or `AtlasHadron`
+  * The type of momentum or IP smearing to apply to this particle
+    * May be used multiple times for the same particle to define different types of smearing
+  * Supported momentum types: `LHCbGeneric`, `LHCbElectron`, `AtlasMuon`, or `AtlasHadron`
+  * Supported IP types: `LHCbGenericIP`
     * More types may be defined in $RAPIDSIM_ROOT/config/smear or $RAPIDSIM_CONFIG/config/smear
   * Default: `LHCbElectron` (for electrons/positrons), otherwise `LHCbGeneric`
 
@@ -238,6 +246,8 @@ Particle settings should be defined after the corresponding `@#` tag using the s
 * `PY`: The Y momentum of the combination of the given particles
 * `PZ`: The Z momentum of the combination of the given particles
 * `PT`: The transverse momentum of the combination of the given particles
+* `IP` : Impact parameter to own primary vertex
+* `SIGMAIP` : Error on impact parameter to own primary vertex
 * `eta`: The pseudorapidity of the combination
 * `phi`: The azimuthal angle of the combination
 * `y`: The rapidity of the combination
@@ -250,6 +260,11 @@ Particle settings should be defined after the corresponding `@#` tag using the s
 * `costheta`: The cosine of theta
 * `Mcorr`: The corrected mass of the combination of the given particles
   correcting for any invisible particles
+* `ProbNNmu` : Particle ID feature for the muon hypothesis
+* `ProbNNe` : Particle ID feature for the electron hypothesis
+* `ProbNNpi` : Particle ID feature for the pion hypothesis
+* `ProbNNk` : Particle ID feature for the kaon hypothesis
+* `ProbNNp` : Particle ID feature for the proton hypothesis
 
 ## External Generators
 

@@ -349,7 +349,7 @@ TString RapidParam::typeName() {
 		case RapidParam::PT:
 			return "PT";
 		case RapidParam::ETA:
-			return "ETA";
+			return "eta";
 		case RapidParam::PHI:
 			return "phi";
 		case RapidParam::RAPIDITY:
@@ -406,7 +406,7 @@ RapidParam::ParamType RapidParam::typeFromString(TString str) {
 		return RapidParam::PZ;
 	} else if(str=="PT") {
 		return RapidParam::PT;
-	} else if(str=="ETA") {
+	} else if(str=="eta") {
 		return RapidParam::ETA;
 	} else if(str=="phi") {
 		return RapidParam::PHI;
