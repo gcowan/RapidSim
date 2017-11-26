@@ -1,11 +1,11 @@
 /*****************************************************************************
 * Package: RooRarFit
  * File: $Id: RooGounarisSakurai.cc,v 1.2 2011/06/16 13:18:48 fwilson Exp $
- * Authors: A Bevan, Katherine George 
- *                                                                           
- * Gounaris-Sakurai (GS) distribution is a model of the P-wave \pi\pi         
- * scattering amplitude                                                      
- * (G.J.Gounaris and J.J.Sakurai. Phys. Rev. Lett, 21:244 (1968))             
+ * Authors: A Bevan, Katherine George
+ *
+ * Gounaris-Sakurai (GS) distribution is a model of the P-wave \pi\pi
+ * scattering amplitude
+ * (G.J.Gounaris and J.J.Sakurai. Phys. Rev. Lett, 21:244 (1968))
  *
  *****************************************************************************/
 
@@ -46,22 +46,22 @@ RooGounarisSakurai::RooGounarisSakurai(const char *name, const char *title,
 
 //---------------------------------------------------------------------------
 RooGounarisSakurai::RooGounarisSakurai(const RooGounarisSakurai& other,
-				       const char* name) : 
-  RooAbsPdf(other,name), 
-  x("x",this,other.x), 
+				       const char* name) :
+  RooAbsPdf(other,name),
+  x("x",this,other.x),
   mean("mean",this,other.mean),
   width("width",this,other.width),
-  spin("spin", this, other.spin), 
-  radius("radius", this, other.radius), 
-  mass_a("mass_a", this, other.mass_a), 
-  mass_b("mass_b", this, other.mass_b) 
+  spin("spin", this, other.spin),
+  radius("radius", this, other.radius),
+  mass_a("mass_a", this, other.mass_a),
+  mass_b("mass_b", this, other.mass_b)
 {
 }
 
 //---------------------------------------------------------------------------
 Double_t RooGounarisSakurai::evaluate() const
 {
-  Double_t arg= x*x - mean*mean - fFunction(x);  
+  Double_t arg= x*x - mean*mean - fFunction(x);
   Double_t gammaf = mean*Gamma();
 
   //  return (1 + d * width/mean)*(1 + d * width/mean) / (arg*arg + gammaf*gammaf);
@@ -75,8 +75,8 @@ Double_t RooGounarisSakurai::evaluate() const
 Double_t RooGounarisSakurai::Gamma() const
 {
   /*
-   * This is the mass (and momentum) dependent width 
-   * For the GS model, there is no Blatt-Weisskopf FF ratio 
+   * This is the mass (and momentum) dependent width
+   * For the GS model, there is no Blatt-Weisskopf FF ratio
    */
   Double_t kx = KFunction((double)x);
   Double_t km = KFunction(mean);
@@ -88,7 +88,7 @@ Double_t RooGounarisSakurai::Gamma() const
     }
     if(spin ==2){
       rk = rk*rk*rk*rk*rk;
-    }    
+    }
   }
   return width*(mean/x)*rk;
 }
@@ -97,12 +97,12 @@ Double_t RooGounarisSakurai::Gamma() const
 Double_t RooGounarisSakurai::FFunction(Double_t X) const
 {
   /*
-   * These are the Blatt-Weisskopf form factors.  The argument 
+   * These are the Blatt-Weisskopf form factors.  The argument
    *  X = sqrt(s)
    */
   if(spin==0) return 1.0;
   if(spin==1) return 1.0/(1 + X*X);
-  if(spin==2) return 1.0/(9 + 3*X*X + X*X*X*X); 
+  if(spin==2) return 1.0/(9 + 3*X*X + X*X*X*X);
   return 1.0;
 }
 
@@ -125,7 +125,7 @@ Double_t RooGounarisSakurai::hFunction(Double_t X) const
    */
   if(X == 0.0) return 0.0;
   // assume that the pion mass is the average of the two pion masses used.
-  Double_t mpi  = 0.5*(mass_a + mass_b); 
+  Double_t mpi  = 0.5*(mass_a + mass_b);
   Double_t k = KFunction(X);
 
   Double_t theLog =  log( (X + 2.0*k) / (2.0* mpi) );
@@ -169,9 +169,9 @@ Double_t RooGounarisSakurai::KFunction(Double_t X) const
 Double_t RooGounarisSakurai::dFunction() const
 {
   // assume that the pion mass is the average of the two pion masses used.
-  Double_t mpi  = 0.5*(mass_a + mass_b); 
-  Double_t mpi2 = mpi*mpi; 
-  Double_t kfunc = KFunction(mean); 
+  Double_t mpi  = 0.5*(mass_a + mass_b);
+  Double_t mpi2 = mpi*mpi;
+  Double_t kfunc = KFunction(mean);
   Double_t kfunc2 = kfunc*kfunc;
 
   Double_t logCoeff = (3*mpi2)/(M_PI*kfunc2);

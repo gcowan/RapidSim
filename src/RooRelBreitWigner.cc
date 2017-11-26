@@ -2,21 +2,21 @@
 * Project: BaBar detector at the SLAC PEP-II B-factory
 * Package: RooRarFit
  *    File: $Id: RooRelBreitWigner.cc,v 1.7 2012/05/25 08:53:43 fwilson Exp $
- * Authors:                                                                  
- *                                             
+ * Authors:
+ *
  *****************************************************************************/
 
 // -- CLASS DESCRIPTION [PDF] --
 // This is an implementation of Relativistic Breit Wigner for Spin 0,1,2 particles
-// with Blatt-Weisskopf form factors and barrier functions for RooRarFit. 
-// The meson radius is set to 3.1 GeV^-1 which is similar to the EvtGen number 
+// with Blatt-Weisskopf form factors and barrier functions for RooRarFit.
+// The meson radius is set to 3.1 GeV^-1 which is similar to the EvtGen number
 // but may not be appropriate for every meson. See Phys Rev D 72, 052002 (2005).
 //////////////////////////////////////////////////////
 //
 // BEGIN_HTML
 // This is an implementation of Relativistic Breit Wigner for Spin 0,1,2 particles
-// with Blatt-Weisskopf form factors and barrier functions for RooRarFit. 
-// The meson radius is set to 3.1 GeV^-1 which is similar to the EvtGen number 
+// with Blatt-Weisskopf form factors and barrier functions for RooRarFit.
+// The meson radius is set to 3.1 GeV^-1 which is similar to the EvtGen number
 // but may not be appropriate for every meson. See Phys Rev D 72, 052002 (2005).
 // END_HTML
 //
@@ -37,8 +37,8 @@
 //------------------------------------------------------------------
 RooRelBreitWigner::RooRelBreitWigner(const char *name, const char *title,
 				     RooAbsReal& _x, RooAbsReal& _mean,
-				     RooAbsReal& _width, RooAbsReal& _radius, 
-				     RooAbsReal& _mass_a, RooAbsReal& _mass_b, 
+				     RooAbsReal& _width, RooAbsReal& _radius,
+				     RooAbsReal& _mass_a, RooAbsReal& _mass_b,
 				     RooAbsReal& _spin) :
   RooAbsPdf(name,title),
   x("x","Dependent",this,_x),
@@ -52,10 +52,10 @@ RooRelBreitWigner::RooRelBreitWigner(const char *name, const char *title,
 }
 
 //------------------------------------------------------------------
-RooRelBreitWigner::RooRelBreitWigner(const RooRelBreitWigner& other, 
-				     const char* name) : 
-  RooAbsPdf(other,name), 
-  x("x",this,other.x), 
+RooRelBreitWigner::RooRelBreitWigner(const RooRelBreitWigner& other,
+				     const char* name) :
+  RooAbsPdf(other,name),
+  x("x",this,other.x),
   mean("mean",this,other.mean),
   width("width",this,other.width),
   radius("radius",this,other.radius),
@@ -91,7 +91,7 @@ Double_t RooRelBreitWigner::getWidth() const
   Double_t result(0.0);
 
   if (q>0 && q0>0 && x>0 && mean>0) {
-    result = width * getQterm(q,q0) * (mean/x) 
+    result = width * getQterm(q,q0) * (mean/x)
       * (getFF(q) / getFF(q0));
   }
   return (result);
@@ -107,7 +107,7 @@ Double_t RooRelBreitWigner::getQterm(Double_t q, Double_t q0) const
 //------------------------------------------------------------------
 Double_t RooRelBreitWigner::getFF(Double_t q) const
 {
-  
+
   Double_t z = q * radius;
   Double_t result(1.0);
 

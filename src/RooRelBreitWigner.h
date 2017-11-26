@@ -12,19 +12,19 @@ public:
 
   inline RooRelBreitWigner() {};
 
-  RooRelBreitWigner(const char *name, 
+  RooRelBreitWigner(const char *name,
 		    const char *title,
-		    RooAbsReal& _x, 
-		    RooAbsReal& _mean, 
+		    RooAbsReal& _x,
+		    RooAbsReal& _mean,
 		    RooAbsReal& _width,
 		    RooAbsReal& _radius,
 		    RooAbsReal& _mass_a,
 		    RooAbsReal& _mass_b,
 		    RooAbsReal& _spin);
-  RooRelBreitWigner(const RooRelBreitWigner& other, 
+  RooRelBreitWigner(const RooRelBreitWigner& other,
 		    const char* name=0) ;
-  virtual TObject* clone(const char* newname) const { 
-    return new RooRelBreitWigner(*this,newname); 
+  virtual TObject* clone(const char* newname) const {
+    return new RooRelBreitWigner(*this,newname);
   }
   inline virtual ~RooRelBreitWigner() { }
 
@@ -37,7 +37,7 @@ protected:
   RooRealProxy mass_a ; // mass of first daughter from decay
   RooRealProxy mass_b ; // mass of second daughter from decay
   RooRealProxy spin ; // spin (= 0,1,2)
-  
+
   Double_t evaluate() const ;
 
 private:

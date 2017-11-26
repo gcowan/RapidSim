@@ -10,21 +10,6 @@
 #include "RapidMomentumSmearHisto.h"
 #include "RapidParticleData.h"
 
-RapidParticle::RapidParticle( const RapidParticle& part )
-    : index_(part.index_), id_(part.id_), name_(part.name_), mass_(part.mass_),
-    charge_(part.charge_), ctau_(part.ctau_),
-    mother_(part.mother_), next_(0), invisible_(part.invisible_), momSmear_(0),
-	massData_(0), minMass_(part.minMass_), maxMass_(part.maxMass_),
-	evtGenModel_(part.evtGenModel_),
-    altMasses_(part.altMasses_),
-    currentHypothesis_(0),
-    originVertex_(0,0,0),
-    decayVertex_(0,0,0)
-{
-    setPtEtaPhi(0,0,0);
-    std::cout << "INFO RapidParticle::RapidParticle" << std::endl;
-}
-
 void RapidParticle::addDaughter(RapidParticle* part) {
 	if(!daughters_.empty()) {
 		daughters_[daughters_.size()-1]->next_ = part;
@@ -35,8 +20,7 @@ void RapidParticle::addDaughter(RapidParticle* part) {
 }
 
 void RapidParticle::addMassHypothesis(TString name, double mass) {
-    std::cout << "INFO in RapidParticle::addMassHypothesis " << name << " " << mass << std::endl;
-    altMasses_.push_back(mass);
+	altMasses_.push_back(mass);
 	massHypothesisNames_.push_back(name);
 }
 
@@ -81,27 +65,27 @@ void RapidParticle::smearMomentum() {
 		}
 	}
 }
-    
+
 void RapidParticle::smearIP() {
-    if(nDaughters() != 0) {
-        // Do not smear the IP of decaying particles
-        // It is a derived quantity which can be computed from their
-        // smeared origin & decay vertices and momentum
-        ipSmeared_ = ip_;
-        sigmaip_ = 0.;
-    } else {
-        if(invisible_) {
-            ipSmeared_ = ip_;
-            sigmaip_ = 0.;
-        } else if (ipSmear_) {
-            std::pair<double,double> smearedips = ipSmear_->smearIP(ip_,p_.Pt());
-            ipSmeared_ = smearedips.first;
-            sigmaip_   = smearedips.second;
-        } else {
-            ipSmeared_ = ip_;
-            sigmaip_ = 0.;
-        }
-    }
+	if(nDaughters() != 0) {
+		// Do not smear the IP of decaying particles
+		// It is a derived quantity which can be computed from their
+		// smeared origin & decay vertices and momentum
+		ipSmeared_ = ip_;
+		sigmaip_ = 0.;
+	} else {
+		if(invisible_) {
+			ipSmeared_ = ip_;
+			sigmaip_ = 0.;
+		} else if (ipSmear_) {
+			std::pair<double,double> smearedips = ipSmear_->smearIP(ip_,p_.Pt());
+			ipSmeared_ = smearedips.first;
+			sigmaip_   = smearedips.second;
+		} else {
+			ipSmeared_ = ip_;
+			sigmaip_ = 0.;
+		}
+	}
 }
 
 double RapidParticle::deltaMass() {
@@ -113,7 +97,7 @@ double RapidParticle::deltaMass() {
 }
 
 TString RapidParticle::massHypothesisName() {
-    if(currentHypothesis_==0) return "";
+	if(currentHypothesis_==0) return "";
 	else return massHypothesisNames_[currentHypothesis_-1];
 }
 

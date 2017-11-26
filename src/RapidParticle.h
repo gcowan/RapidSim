@@ -17,44 +17,42 @@ class RapidParticle {
 	public:
 		RapidParticle(int id, TString name, double mass, double charge, double ctau, RapidParticle* mother)
 			: index_(0), id_(id), name_(name), mass_(mass), charge_(charge), ctau_(ctau),
-			  mother_(mother), next_(0), invisible_(false), momSmear_(0),
+			  mother_(mother), next_(0), invisible_(false), momSmear_(0), ipSmear_(0),
 			  massData_(0), minMass_(mass), maxMass_(mass),
 			  evtGenModel_("PHSP"),
 			  currentHypothesis_(0),
-              originVertex_(0,0,0),
-              decayVertex_(0,0,0)
+			  originVertex_(0,0,0),
+			  decayVertex_(0,0,0)
 			{setPtEtaPhi(0,0,0);}
 
-		RapidParticle( const RapidParticle& );
 		~RapidParticle() {}
 
 		void addDaughter(RapidParticle* part);
 
 		void addMassHypothesis(TString name, double mass);
 		void setMassHypothesis(unsigned int i);
-		unsigned int getMassHypothesis() { return currentHypothesis_; };
 
 		bool generate();
-        double getIP() { return ip_; }
-        double getSigmaIP() { return sigmaip_; }
-        double getIPSmeared() { return ipSmeared_; }
-        TLorentzVector& getP() { return p_; }
+		double getIP() { return ip_; }
+		double getSigmaIP() { return sigmaip_; }
+		double getIPSmeared() { return ipSmeared_; }
+		TLorentzVector& getP() { return p_; }
 		TLorentzVector& getPSmeared() { return pSmeared_; }
-        
+
 		void smearMomentum();
-        void smearIP();
+		void smearIP();
 
 		int id() { return id_; }
 		TString name() { return name_; }
 		double mass() { return mass_; }
 		double deltaMass();
 		double ctau() { return ctau_; }
-        double charge() { return charge_; }
+		double charge() { return charge_; }
 		double minMass() { return minMass_; }
 		double maxMass() { return maxMass_; }
 
-        ROOT::Math::XYZPoint getOriginVertex() {return originVertex_;}        
-        ROOT::Math::XYZPoint getDecayVertex() {return decayVertex_;}
+		ROOT::Math::XYZPoint getOriginVertex() {return originVertex_;}
+		ROOT::Math::XYZPoint getDecayVertex() {return decayVertex_;}
 
 		unsigned int nDaughters() { return daughters_.size(); }
 
@@ -77,15 +75,15 @@ class RapidParticle {
 
 		void setInvisible(bool invisible=true) { invisible_ = invisible; }
 		void setSmearing(RapidMomentumSmear* momSmear) { momSmear_ = momSmear; }
-        void setSmearing(RapidIPSmear* ipSmear) { ipSmear_ = ipSmear; }
+		void setSmearing(RapidIPSmear* ipSmear) { ipSmear_ = ipSmear; }
 
 		void setP(TLorentzVector p) { p_ = p; }
-		void setIP(double ip) { ip_ = ip; }        
+		void setIP(double ip) { ip_ = ip; }
 		void setPtEtaPhi(double pt, double eta, double phi) { p_.SetPtEtaPhiM(pt,eta,phi,mass_); }
-        void setOriginVertex(ROOT::Math::XYZPoint v) {originVertex_ = v;}        
-        void setDecayVertex(ROOT::Math::XYZPoint v) {decayVertex_ = v;}
+		void setOriginVertex(ROOT::Math::XYZPoint v) {originVertex_ = v;}
+		void setDecayVertex(ROOT::Math::XYZPoint v) {decayVertex_ = v;}
 
-		void print(int index); 
+		void print(int index);
 
 		void setMassShape(RooDataSet* ds, double minMass, double maxMass, TString varName);
 		void floatMass();
@@ -105,25 +103,25 @@ class RapidParticle {
 
 		int id_;
 		TString name_;
-        double mass_;
-		double charge_;        
-		double ctau_;      
+		double mass_;
+		double charge_;
+		double ctau_;
 
 		RapidParticle* mother_;
 		std::vector<RapidParticle*> daughters_;
 		RapidParticle* next_;
 		std::vector<double> daughterMasses_;
 
-        double ip_;
-        double sigmaip_;
-        double ipSmeared_;
+		double ip_;
+		double sigmaip_;
+		double ipSmeared_;
 		TLorentzVector p_;
 		TLorentzVector pSmeared_;
 
 		bool invisible_;
 
 		RapidMomentumSmear* momSmear_;
-        RapidIPSmear* ipSmear_;
+		RapidIPSmear* ipSmear_;
 
 		RooDataSet* massData_;
 		double minMass_;
@@ -138,7 +136,7 @@ class RapidParticle {
 
 		unsigned int currentHypothesis_;
 
-        ROOT::Math::XYZPoint originVertex_;
-        ROOT::Math::XYZPoint decayVertex_;  
+		ROOT::Math::XYZPoint originVertex_;
+		ROOT::Math::XYZPoint decayVertex_;
 };
 #endif

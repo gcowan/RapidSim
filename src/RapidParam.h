@@ -23,8 +23,8 @@ class RapidParam {
 			PY,       //Y-momentum
 			PZ,       //Z-momentum
 			PT,       //Transverse momentum
-            IP,       //IP to own PV
-            SIGMAIP,  //Error on IP to own PV
+			IP,       //IP to own PV
+			SIGMAIP,  //Error on IP to own PV
 			ETA,      //Pseudorapidity
 			PHI,      //Azimuthal angle
 			RAPIDITY, //Rapidity
@@ -69,8 +69,8 @@ class RapidParam {
 		//double eval(const TLorentzVector& mom, std::pair<double,double> ip);
 		//double eval(const TLorentzVector& mom) {return eval(mom,std::pair<double,double>(0.,0.));}
 
-        bool canBeSmeared();
-        bool canBeTrue();
+		bool canBeSmeared();
+		bool canBeTrue();
 
 		TString name();
 		void setName(TString name) { name_ = name; };

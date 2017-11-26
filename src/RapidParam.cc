@@ -18,15 +18,15 @@ double RapidParam::eval() {
 	if(truth_) {
 		for(unsigned int i=0; i<particles_.size(); ++i) {
 			mom_ += particles_[i]->getP();
-        }
+	}
 	} else {
 		ip = particles_[0]->getIPSmeared();
-        for(unsigned int i=0; i<particles_.size(); ++i) {
+		for(unsigned int i=0; i<particles_.size(); ++i) {
 			mom_ += particles_[i]->getPSmeared();
 		}
 	}
 
-    switch(type_) {
+	switch(type_) {
 		case RapidParam::M:
 			return mom_.M();
 		case RapidParam::M2:
@@ -57,10 +57,10 @@ double RapidParam::eval() {
 			return mom_.Gamma();
 		case RapidParam::BETA:
 			return mom_.Beta();
-        case RapidParam::IP:
-            return ip;
-        case RapidParam::SIGMAIP:
-            return ipSigma;
+		case RapidParam::IP:
+			return ip;
+		case RapidParam::SIGMAIP:
+			return ipSigma;
 		case RapidParam::ProbNNmu:
 		case RapidParam::ProbNNpi:
 		case RapidParam::ProbNNk:
@@ -114,9 +114,9 @@ bool RapidParam::canBeSmeared() {
 			return true;
 		case RapidParam::BETA:
 			return true;
-        case RapidParam::IP:
+		case RapidParam::IP:
 			return true;
-        case RapidParam::SIGMAIP:
+		case RapidParam::SIGMAIP:
 			return false;
         case RapidParam::ProbNNmu:
 			return true;
@@ -174,9 +174,9 @@ bool RapidParam::canBeTrue() {
 			return true;
 		case RapidParam::BETA:
 			return true;
-        case RapidParam::IP:
+		case RapidParam::IP:
 			return true;
-        case RapidParam::SIGMAIP:
+		case RapidParam::SIGMAIP:
 			return false;
         case RapidParam::ProbNNmu:
 			return false;
@@ -307,7 +307,7 @@ double RapidParam::evalTheta() {
 TString RapidParam::name() {
 	if(name_.Length()==0) {
 		//construct default name
-        std::vector<RapidParticle*>::iterator it = particles_.begin();
+		std::vector<RapidParticle*>::iterator it = particles_.begin();
 		for( ; it!= particles_.end(); ++it) {
 			name_ += (*it)->name();
 			name_ += "_";
@@ -331,10 +331,10 @@ TString RapidParam::typeName() {
 		case RapidParam::MT:
 			return "MT";
 		case RapidParam::IP:
-            return "IP";
-        case RapidParam::SIGMAIP:
-            return "SIGMAIP";
-        case RapidParam::E:
+			return "IP";
+		case RapidParam::SIGMAIP:
+			return "SIGMAIP";
+		case RapidParam::E:
 			return "E";
 		case RapidParam::ET:
 			return "ET";
@@ -389,10 +389,10 @@ RapidParam::ParamType RapidParam::typeFromString(TString str) {
 	} else if(str=="MT") {
 		return RapidParam::MT;
 	} else if(str=="IP") {
-        return RapidParam::IP;
-    } else if(str=="SIGMAIP") {
-        return RapidParam::SIGMAIP;
-    } else if(str=="E") {
+		return RapidParam::IP;
+	} else if(str=="SIGMAIP") {
+		return RapidParam::SIGMAIP;
+	} else if(str=="E") {
 		return RapidParam::E;
 	} else if(str=="ET") {
 		return RapidParam::ET;
@@ -491,8 +491,8 @@ void RapidParam::setDefaultMinMax(const std::vector<RapidParticle*>& parts, doub
 			min = min*min;
 			max = max*max;
 			break;
-        case RapidParam::IP:
-        case RapidParam::SIGMAIP:
+		case RapidParam::IP:
+		case RapidParam::SIGMAIP:
 		case RapidParam::E:
 		case RapidParam::ET:
 		case RapidParam::P:
