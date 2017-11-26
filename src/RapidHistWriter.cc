@@ -65,6 +65,7 @@ void RapidHistWriter::fill() {
 			part1->setMassHypothesis(0);
 		}
 	}
+
 	if(tree_) tree_->Fill();
 }
 
@@ -128,94 +129,43 @@ void RapidHistWriter::setupHistos() {
 void RapidHistWriter::setupSingleHypothesis(TString suffix) {
 	std::vector<RapidParam*>::iterator itParam;
 
-	TString baseName;
 	TString histName;
-	TString axisTitle;
 	TH1F* hist(0);
-
 	double min(0), max(0);
 
-	for(unsigned int i=0; i<parts_.size(); ++i) {
-		RapidParticle* part = parts_[i];
-		baseName = part->name();
+	// Following code could be made better by passing in the list of params
+	for(itParam=paramsDecaying_.begin(); itParam!=paramsDecaying_.end(); ++itParam) {
+		histName = (*itParam)->name() + suffix;
+		(*itParam)->getMinMax(min,max,true);
+		hist = new TH1F(histName, "", 100, min, max);
+		histos_.push_back(hist);
+	}
 
-		if(part->nDaughters()==0) {
-			for(itParam=paramsStable_.begin(); itParam!=paramsStable_.end(); ++itParam) {
-				RapidParam* param = *itParam;
-				histName  = baseName+"_"+param->name();
-				histName += suffix;
-				axisTitle = param->name() + "(" + baseName + ")";
-				param->getMinMax(part,min,max);
-				hist = new TH1F(histName, "", 100, min, max);
-				hist->GetXaxis()->SetTitle(axisTitle);
-				histos_.push_back(hist);
-			}
-		} else {
-			for(itParam=paramsDecaying_.begin(); itParam!=paramsDecaying_.end(); ++itParam) {
-				RapidParam* param = *itParam;
-				histName  = baseName+"_"+param->name();
-				histName += suffix;
-				axisTitle = param->name() + "(" + baseName + ")";
-				param->getMinMax(part,min,max);
-				hist = new TH1F(histName, "", 100, min, max);
-				hist->GetXaxis()->SetTitle(axisTitle);
-				histos_.push_back(hist);
-			}
+	for(itParam=paramsStable_.begin(); itParam!=paramsStable_.end(); ++itParam) {
+		histName = (*itParam)->name() + suffix;
+		(*itParam)->getMinMax(min,max,true);
+		hist = new TH1F(histName, "", 100, min, max);
+		histos_.push_back(hist);
+	}
 
-			//2-body IMs
-			if(part->nDaughters() > 2) {
-				RapidParticle* jDaug = part->daughter(0);
+	for(itParam=paramsTwoBody_.begin(); itParam!=paramsTwoBody_.end(); ++itParam) {
+		histName = (*itParam)->name() + suffix;
+		(*itParam)->getMinMax(min,max,true);
+		hist = new TH1F(histName, "", 100, min, max);
+		histos_.push_back(hist);
+	}
 
-				for( ; jDaug!=0; jDaug=jDaug->next()) {
-					for(RapidParticle* kDaug=jDaug->next(); kDaug!=0; kDaug=kDaug->next()) {
-						for(itParam=paramsTwoBody_.begin(); itParam!=paramsTwoBody_.end(); ++itParam) {
-							RapidParam* param = *itParam;
-							histName  = jDaug->name()+"_";
-							histName += kDaug->name()+"_";
-							histName += param->name();
-							histName += suffix;
-							axisTitle = param->name() + "(" + jDaug->name() + "_" + kDaug->name() + ")";
-							param->getMinMax(jDaug,kDaug,min,max);
-							hist = new TH1F(histName, "", 100, min, max);
-							hist->GetXaxis()->SetTitle(axisTitle);
-							histos_.push_back(hist);
-						}
-					}
-				}
-			}
-
-			//3-body IMs
-			if(part->nDaughters() > 3) {
-				RapidParticle* jDaug = part->daughter(0);
-
-				for( ; jDaug!=0; jDaug=jDaug->next()) {
-					for(RapidParticle* kDaug=jDaug->next(); kDaug!=0; kDaug=kDaug->next()) {
-						for(RapidParticle* lDaug=kDaug->next(); lDaug!=0; lDaug=lDaug->next()) {
-							for(itParam=paramsThreeBody_.begin(); itParam!=paramsThreeBody_.end(); ++itParam) {
-								RapidParam* param = *itParam;
-								histName  = jDaug->name()+"_";
-								histName += kDaug->name()+"_";
-								histName += lDaug->name()+"_";
-								histName += param->name();
-								histName += suffix;
-								axisTitle = param->name() + "(" + jDaug->name() + "_" + kDaug->name() + "_" + lDaug->name() + ")";
-								param->getMinMax(jDaug,kDaug,lDaug,min,max);
-								hist = new TH1F(histName, "", 100, min, max);
-								hist->GetXaxis()->SetTitle(axisTitle);
-								histos_.push_back(hist);
-							}
-						}
-
-					}
-				}
-			}
-		}
+	for(itParam=paramsThreeBody_.begin(); itParam!=paramsThreeBody_.end(); ++itParam) {
+		histName = (*itParam)->name() + suffix;
+		(*itParam)->getMinMax(min,max,true);
+		hist = new TH1F(histName, "", 100, min, max);
+		histos_.push_back(hist);
 	}
 
 	for( itParam=params_.begin(); itParam!= params_.end(); ++itParam) {
-		RapidParam* param = (*itParam);
-		param->getMinMax(min,max,true);
-		TH1F* hist = new TH1F(param->name()+suffix, "", 100, min, max);
+		histName = (*itParam)->name() + suffix;
+		(*itParam)->getMinMax(min,max,true);
+		TH1F* hist = new TH1F(histName, "", 100, min, max);
 		histos_.push_back(hist);
 	}
 }
@@ -237,84 +187,35 @@ void RapidHistWriter::setupTree() {
 unsigned int RapidHistWriter::fillSingleHypothesis(unsigned int offset) {
 
 	std::vector<RapidParam*>::iterator itParam;
-	TLorentzVector pSumTruth;
-	TLorentzVector pSum;
 
-	for(unsigned int i=0; i<parts_.size(); ++i) {
-		RapidParticle* part = parts_[i];
+	// Following code could be made a bit nicer by passing the params list
+	// Note that the ordering here must be the same as in setupSingleHypothesis
+	for(itParam=paramsDecaying_.begin(); itParam!=paramsDecaying_.end(); ++itParam) {
+		RapidParam* param = *itParam;
+		vars_[offset] = param->eval();
+		histos_[offset]->Fill(vars_[offset]);
+		++offset;
+	}
+	for(itParam=paramsStable_.begin(); itParam!=paramsStable_.end(); ++itParam) {
+		RapidParam* param = *itParam;
+		vars_[offset] = param->eval();
+		histos_[offset]->Fill(vars_[offset]);
+		++offset;
+	}
+	//2-body IMs
+	for(itParam=paramsTwoBody_.begin(); itParam!=paramsTwoBody_.end(); ++itParam) {
+		RapidParam* param = *itParam;
+		vars_[offset] = param->eval();
+		histos_[offset]->Fill(vars_[offset]);
+		++offset;
+	}
 
-		if(part->nDaughters() < 2) {
-			for(itParam=paramsStable_.begin(); itParam!=paramsStable_.end(); ++itParam) {
-				RapidParam* param = *itParam;
-				if(param->truth()) {
-					vars_[offset] = param->eval(part->getP(),std::pair<double,double>(part->getIP(),part->getSigmaIP()));
-				} else {
-					vars_[offset] = param->eval(part->getPSmeared(),std::pair<double,double>(part->getIPSmeared(),part->getSigmaIP()));
-				}
-
-				histos_[offset]->Fill(vars_[offset]);
-				++offset;
-			}
-		} else {
-			for(itParam=paramsDecaying_.begin(); itParam!=paramsDecaying_.end(); ++itParam) {
-				RapidParam* param = *itParam;
-				if(param->truth()) {
-					vars_[offset] = param->eval(part->getP(),std::pair<double,double>(part->getIP(),part->getSigmaIP()));
-				} else {
-					vars_[offset] = param->eval(part->getPSmeared(),std::pair<double,double>(part->getIPSmeared(),part->getSigmaIP()));
-				}
-				histos_[offset]->Fill(vars_[offset]);
-				++offset;
-			}
-
-			//2-body IMs
-			if(part->nDaughters() > 2) {
-				RapidParticle* jDaug = part->daughter(0);
-
-				for( ; jDaug!=0; jDaug=jDaug->next()) {
-					for(RapidParticle* kDaug=jDaug->next(); kDaug!=0; kDaug=kDaug->next()) {
-						pSumTruth = jDaug->getP() + kDaug->getP();
-						pSum = jDaug->getPSmeared() + kDaug->getPSmeared();
-
-						for(itParam=paramsTwoBody_.begin(); itParam!=paramsTwoBody_.end(); ++itParam) {
-							RapidParam* param = *itParam;
-							if(param->truth()) {
-								vars_[offset] = param->eval(pSumTruth);
-							} else {
-								vars_[offset] = param->eval(pSum);
-							}
-							histos_[offset]->Fill(vars_[offset]);
-							++offset;
-						}
-					}
-				}
-			}
-
-			//3-body IMs
-			if(part->nDaughters() > 3) {
-				RapidParticle* jDaug = part->daughter(0);
-
-				for( ; jDaug!=0; jDaug=jDaug->next()) {
-					for(RapidParticle* kDaug=jDaug->next(); kDaug!=0; kDaug=kDaug->next()) {
-						for(RapidParticle* lDaug=kDaug->next(); lDaug!=0; lDaug=lDaug->next()) {
-							pSumTruth = jDaug->getP() + kDaug->getP() + lDaug->getP();
-							pSum = jDaug->getPSmeared() + kDaug->getPSmeared() + lDaug->getPSmeared();
-
-							for(itParam=paramsThreeBody_.begin(); itParam!=paramsThreeBody_.end(); ++itParam) {
-								RapidParam* param = *itParam;
-								if(param->truth()) {
-									vars_[offset] = param->eval(pSumTruth);
-								} else {
-									vars_[offset] = param->eval(pSum);
-								}
-								histos_[offset]->Fill(vars_[offset]);
-								++offset;
-							}
-						}
-					}
-				}
-			}
-		}
+	//3-body IMs
+	for(itParam=paramsThreeBody_.begin(); itParam!=paramsThreeBody_.end(); ++itParam) {
+		RapidParam* param = *itParam;
+		vars_[offset] = param->eval();
+		histos_[offset]->Fill(vars_[offset]);
+		++offset;
 	}
 
 	std::vector<RapidParam*>::iterator it = params_.begin();

@@ -65,27 +65,27 @@ void RapidParticle::smearMomentum() {
 		}
 	}
 }
-    
+
 void RapidParticle::smearIP() {
-    if(nDaughters() != 0) {
-        // Do not smear the IP of decaying particles
-        // It is a derived quantity which can be computed from their
-        // smeared origin & decay vertices and momentum
-        ipSmeared_ = ip_;
-        sigmaip_ = 0.;
-    } else {
-        if(invisible_) {
-            ipSmeared_ = ip_;
-            sigmaip_ = 0.;
-        } else if (ipSmear_) {
-            std::pair<double,double> smearedips = ipSmear_->smearIP(ip_,p_.Pt());
-            ipSmeared_ = smearedips.first;
-            sigmaip_   = smearedips.second;
-        } else {
-            ipSmeared_ = ip_;
-            sigmaip_ = 0.;
-        }
-    }
+	if(nDaughters() != 0) {
+		// Do not smear the IP of decaying particles
+		// It is a derived quantity which can be computed from their
+		// smeared origin & decay vertices and momentum
+		ipSmeared_ = ip_;
+		sigmaip_ = 0.;
+	} else {
+		if(invisible_) {
+			ipSmeared_ = ip_;
+			sigmaip_ = 0.;
+		} else if (ipSmear_) {
+			std::pair<double,double> smearedips = ipSmear_->smearIP(ip_,p_.Pt());
+			ipSmeared_ = smearedips.first;
+			sigmaip_   = smearedips.second;
+		} else {
+			ipSmeared_ = ip_;
+			sigmaip_ = 0.;
+		}
+	}
 }
 
 double RapidParticle::deltaMass() {

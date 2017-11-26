@@ -86,7 +86,7 @@ Particle settings should be defined after the corresponding `@#` tag using the s
 
 * `seed`:
   * Sets the seed for the random number generator
-  * Default: 4357
+  * Default: 0
 
 * `acceptance`:
   * Sets the type of geometric acceptance to apply to the decay

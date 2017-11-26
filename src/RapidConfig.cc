@@ -28,11 +28,11 @@ RapidConfig::~RapidConfig() {
 		delete itr->second;
 		momSmearCategories_.erase(itr++);
 	}
-    std::map<TString, RapidIPSmear*>::iterator itr2 = ipSmearCategories_.begin();
-    while (itr2 != ipSmearCategories_.end()) {
-        delete itr2->second;
-        ipSmearCategories_.erase(itr2++);
-    } 
+	std::map<TString, RapidIPSmear*>::iterator itr2 = ipSmearCategories_.begin();
+	while (itr2 != ipSmearCategories_.end()) {
+		delete itr2->second;
+		ipSmearCategories_.erase(itr2++);
+	}
 	while(!parts_.empty()) {
 		delete parts_[parts_.size()-1];
 		parts_.pop_back();
@@ -692,15 +692,15 @@ bool RapidConfig::loadSmearing(TString category) {
 
 	TString filename("");
 	filename.ReadToken(fin);
-    TFile* file = NULL;
-    if (filename != "NULL") {
-        file = TFile::Open(path+"/rootfiles/smear/"+filename);
-	    if(!file) {
-	        std::cout << "WARNING in RapidConfig::loadSmearing : failed to load root file " << filename << std::endl;
-	        fin.close();
-	        return false;
-	    }
-    }
+	TFile* file = NULL;
+	if (filename != "NULL") {
+		file = TFile::Open(path+"/rootfiles/smear/"+filename);
+		if(!file) {
+			std::cout << "WARNING in RapidConfig::loadSmearing : failed to load root file " << filename << std::endl;
+			fin.close();
+			return false;
+		}
+	}
 
 	TString type("");
 	type.ReadToken(fin);
@@ -717,23 +717,23 @@ bool RapidConfig::loadSmearing(TString category) {
 
 		momSmearCategories_[category] = new RapidMomentumSmearGauss(graph);
 
-    }else if(type=="GAUSSIP") {
-        double intercept(0.);
-        double slope(0.);
-        fin >> intercept;
-        fin >> slope;
-        if ((intercept < 0) || (slope < 0) ) {
-            std::cout << "WARNING in RapidConfig::loadSmearing : failed to load IP smearing" << std::endl;
-            file->Close();
-            fin.close();
-            return false;
-        }
-        ipSmearCategories_[category] = new RapidIPSmearGauss(intercept,slope);
-    }else if(type=="GAUSSPTETA") {
+	}else if(type=="GAUSSIP") {
+		double intercept(0.);
+		double slope(0.);
+		fin >> intercept;
+		fin >> slope;
+		if ((intercept < 0) || (slope < 0) ) {
+			std::cout << "WARNING in RapidConfig::loadSmearing : failed to load IP smearing" << std::endl;
+			file->Close();
+			fin.close();
+			return false;
+		}
+		ipSmearCategories_[category] = new RapidIPSmearGauss(intercept,slope);
+	}else if(type=="GAUSSPTETA") {
 		TString histname("");
 		histname.ReadToken(fin);
 		TH2* hist = dynamic_cast<TH2*>(file->Get(histname));
-		    if(!hist) {
+		if(!hist) {
 			std::cout << "WARNING in RapidConfig::loadSmearing : failed to load histogram " << histname << std::endl;
 			file->Close();
 			fin.close();
@@ -800,35 +800,35 @@ void RapidConfig::setSmearing(unsigned int particle, TString category) {
 
 	std::cout << "INFO in RapidConfig::setSmearing : setting smearing functions for particle " << particle << " (category: " << category << ")" << std::endl;
 
-    bool loadedmomsmear = true;
+	bool loadedmomsmear = true;
 	if(!momSmearCategories_.count(category)) {
 		if(!loadSmearing(category)) {
 			std::cout << "WARNING in RapidConfig::setSmearing : failed to load momentum smearing category " << category << "." << std::endl
 				  << "                                      smearing functions not set for particle " << particle << "." << std::endl;
-            loadedmomsmear = false;
+			loadedmomsmear = false;
 		} else if(!momSmearCategories_.count(category)) {
-            loadedmomsmear = false;
-        }
+			loadedmomsmear = false;
+		}
 	}
-    if (loadedmomsmear) {
-        parts_[particle]->setSmearing(momSmearCategories_[category]);
-    }
+	if (loadedmomsmear) {
+		parts_[particle]->setSmearing(momSmearCategories_[category]);
+	}
 
-    bool loadedipsmear = true;
-    if(!ipSmearCategories_.count(category)) {
-        if(!loadSmearing(category)) {
-            std::cout << "WARNING in RapidConfig::setSmearing : failed to load IP smearing category " << category << "." << std::endl
-                  << "                                      smearing functions not set for particle " << particle << "." << std::endl;
-            loadedipsmear = false;
-        } else if(!ipSmearCategories_.count(category)) {
-            loadedipsmear = false;
-        }
-    }    
-    if (loadedipsmear) {
-        parts_[particle]->setSmearing(ipSmearCategories_[category]);
-    }
+	bool loadedipsmear = true;
+	if(!ipSmearCategories_.count(category)) {
+		if(!loadSmearing(category)) {
+			std::cout << "WARNING in RapidConfig::setSmearing : failed to load IP smearing category " << category << "." << std::endl
+				  << "                                      smearing functions not set for particle " << particle << "." << std::endl;
+			loadedipsmear = false;
+		} else if(!ipSmearCategories_.count(category)) {
+			loadedipsmear = false;
+		}
+	}
+	if (loadedipsmear) {
+		parts_[particle]->setSmearing(ipSmearCategories_[category]);
+	}
 
-    return; 
+	return;
 }
 
 bool RapidConfig::loadAcceptRejectHist(TString histFile, TString histName, RapidParam* paramX, RapidParam* paramY) {
@@ -897,7 +897,7 @@ bool RapidConfig::loadParentKinematics() {
 
 		if(file) {
 			std::cout << "INFO in RapidConfig::loadParentKinematics : found kinematics LHC" << motherFlavour_ << ppEnergy_ << " in RAPIDSIM_CONFIG." << std::endl
-			          << "                                            this version will be used." << std::endl;
+				  << "                                            this version will be used." << std::endl;
 			found = true;
 		} else {
 			std::cout << "INFO in RapidConfig::loadParentKinematics : kinematics LHC" << motherFlavour_ << ppEnergy_ << " not found in RAPIDSIM_CONFIG." << std::endl
@@ -916,7 +916,7 @@ bool RapidConfig::loadParentKinematics() {
 
 		if(!file) {
 			std::cout << "ERROR in RapidConfig::loadParentKinematics : unknown kinematics " << motherFlavour_ << "-quark from " << ppEnergy_ << " TeV pp collision." << std::endl
-			          << "                                             file " << fileName << " not found." << std::endl;
+				  << "                                             file " << fileName << " not found." << std::endl;
 			return false;
 		}
 	}
@@ -954,30 +954,137 @@ bool RapidConfig::loadParentKinematics() {
 }
 
 void RapidConfig::setupDefaultParams() {
-	setupDefaultParams(paramStrStable_, paramsStable_);
-	setupDefaultParams(paramStrDecaying_, paramsDecaying_);
-	setupDefaultParams(paramStrTwoBody_, paramsTwoBody_);
-	setupDefaultParams(paramStrThreeBody_, paramsThreeBody_);
-}
-
-void RapidConfig::setupDefaultParams(TString paramStr, std::vector<RapidParam*>& params) {
 	int from(0);
 	TString buffer;
-	RapidParam* param(0);
+	TString baseName;
 
-	while(paramStr.Tokenize(buffer,from," ")) {
+	// we could factor some of this code out into separate functions
+	// Stable particles
+	while(TString(paramStrStable_).Tokenize(buffer,from," ")) {
 		buffer = buffer.Strip(TString::kBoth,',');
 		RapidParam::ParamType type = RapidParam::typeFromString(buffer);
 		if(type==RapidParam::UNKNOWN) {
 			std::cout << "WARNING in RapidConfig::setDefaultParams : Unknown parameter type " << buffer << "ignored." << std::endl;
 			continue;
 		} else {
-			param = new RapidParam(type, false);
-			params.push_back(param);
-            if ( param->canBeTrue() ) {
-			    param = new RapidParam(type, true);
-			    params.push_back(param);
-            }
+			for(unsigned int i=0; i<parts_.size(); ++i) {
+				RapidParticle* part = parts_[i];
+				if(part->nDaughters() == 0) {
+					std::vector<RapidParticle*> partlist;
+					partlist.push_back(part);
+					RapidParam* param = new RapidParam("", type, partlist, false);
+					param->name();
+					paramsStable_.push_back(param);
+					if ( param->canBeTrue() ) {
+						param = new RapidParam("", type, partlist, true);
+						param->name();
+						paramsStable_.push_back(param);
+					}
+				}
+			}
+		}
+	}
+
+	from = 0;
+	// Decaying particles
+	while(TString(paramStrDecaying_).Tokenize(buffer,from," ")) {
+		buffer = buffer.Strip(TString::kBoth,',');
+		RapidParam::ParamType type = RapidParam::typeFromString(buffer);
+		if(type==RapidParam::UNKNOWN) {
+			std::cout << "WARNING in RapidConfig::setDefaultParams : Unknown parameter type " << buffer << "ignored." << std::endl;
+			continue;
+		} else {
+			for(unsigned int i=0; i<parts_.size(); ++i) {
+				RapidParticle* part = parts_[i];
+				if(part->nDaughters() > 0) {
+					std::vector<RapidParticle*> partlist;
+					partlist.push_back(part);
+					RapidParam* param = new RapidParam("", type, partlist, false);
+					param->name();
+					paramsDecaying_.push_back(param);
+					if ( param->canBeTrue() ) {
+						param = new RapidParam("", type, partlist, true);
+						param->name();
+						paramsDecaying_.push_back(param);
+					}
+				}
+			}
+		}
+	}
+
+	from = 0;
+	//2-body IMs
+	while(TString(paramStrTwoBody_).Tokenize(buffer,from," ")) {
+		buffer = buffer.Strip(TString::kBoth,',');
+		RapidParam::ParamType type = RapidParam::typeFromString(buffer);
+		if(type==RapidParam::UNKNOWN) {
+			std::cout << "WARNING in RapidConfig::setDefaultParams : Unknown parameter type " << buffer << "ignored." << std::endl;
+			continue;
+		} else {
+			for(unsigned int i=0; i<parts_.size(); ++i) {
+				RapidParticle* part = parts_[i];
+				if(part->nDaughters() > 2) {
+					RapidParticle* jDaug = part->daughter(0);
+
+					for( ; jDaug!=0; jDaug=jDaug->next()) {
+						for(RapidParticle* kDaug=jDaug->next(); kDaug!=0; kDaug=kDaug->next()) {
+							std::vector<RapidParticle*> partlist;
+							partlist.push_back(jDaug);
+							partlist.push_back(kDaug);
+							baseName  = jDaug->name()+"_";
+							baseName += kDaug->name()+"_";
+							RapidParam* param = new RapidParam("", type, partlist, false);
+							param->name();
+							paramsTwoBody_.push_back(param);
+							if ( param->canBeTrue() ) {
+								param = new RapidParam("", type, partlist, true);
+								param->name();
+								paramsTwoBody_.push_back(param);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	from = 0;
+	//3-body IMs
+	while(TString(paramStrThreeBody_).Tokenize(buffer,from," ")) {
+		buffer = buffer.Strip(TString::kBoth,',');
+		RapidParam::ParamType type = RapidParam::typeFromString(buffer);
+		if(type==RapidParam::UNKNOWN) {
+			std::cout << "WARNING in RapidConfig::setDefaultParams : Unknown parameter type " << buffer << "ignored." << std::endl;
+			continue;
+		} else {
+			for(unsigned int i=0; i<parts_.size(); ++i) {
+				RapidParticle* part = parts_[i];
+				if(part->nDaughters() > 3) {
+					RapidParticle* jDaug = part->daughter(0);
+
+					for( ; jDaug!=0; jDaug=jDaug->next()) {
+						for(RapidParticle* kDaug=jDaug->next(); kDaug!=0; kDaug=kDaug->next()) {
+							for(RapidParticle* lDaug=kDaug->next(); lDaug!=0; lDaug=lDaug->next()) {
+								std::vector<RapidParticle*> partlist;
+								partlist.push_back(jDaug);
+								partlist.push_back(kDaug);
+								partlist.push_back(lDaug);
+								baseName  = jDaug->name()+"_";
+								baseName += kDaug->name()+"_";
+								baseName += lDaug->name()+"_";
+								RapidParam* param = new RapidParam("", type, partlist, false);
+								param->name();
+								paramsThreeBody_.push_back(param);
+								if ( param->canBeTrue() ) {
+									param = new RapidParam("", type, partlist, true);
+									param->name();
+									paramsThreeBody_.push_back(param);
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 }

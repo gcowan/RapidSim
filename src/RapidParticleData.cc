@@ -51,8 +51,8 @@ void RapidParticleData::loadData(TString file) {
 		buffer.ReadToken(fin);
 		spin = buffer.Atof();
 		lineshape.ReadToken(fin);
-        buffer.ReadToken(fin);
-        ctau = buffer.Atof();
+		buffer.ReadToken(fin);
+		ctau = buffer.Atof();
 
 		if(!fin.good()) break;
 		addEntry(id,part,mass,width,spin,charge,lineshape,ctau);
@@ -72,12 +72,12 @@ double RapidParticleData::getMass(int id) {
 }
 
 double RapidParticleData::getCT(int id) {
-    if(idToCT_.count(id)) {
-        return idToCT_[id];
-    } else {
-        std::cout << "WARNING in RapidParticleData::getCT : Unknown particle ID " << id << std::endl;
-        return 0.; 
-    }   
+	if(idToCT_.count(id)) {
+		return idToCT_[id];
+	} else {
+		std::cout << "WARNING in RapidParticleData::getCT : Unknown particle ID " << id << std::endl;
+		return 0.;
+	}
 }
 
 double RapidParticleData::getWidth(int id) {
@@ -132,7 +132,7 @@ int RapidParticleData::pdgCode(TString name) {
 
 RapidParticle* RapidParticleData::makeParticle(int id, RapidParticle* mother) {
 
-    double ctau = getCT(id);	
+	double ctau = getCT(id);	
 	double mass = getMass(id);
 	double charge = getCharge(id);
 	TString name = getName(id);
@@ -144,7 +144,7 @@ RapidParticle* RapidParticleData::makeParticle(int id, RapidParticle* mother) {
 RapidParticle* RapidParticleData::makeParticle(TString name, RapidParticle* mother) {
 
 	int id = pdgCode(name);
-    double ctau = getCT(id);
+	double ctau = getCT(id);
 	double mass = getMass(id);
 	double charge = getCharge(id);
 	name = makeUniqName(name);
@@ -215,7 +215,7 @@ void RapidParticleData::addEntry(int id, TString name, double mass, double width
 		std::cout << "                                      second definition will be ignored." << std::endl;
 	}
 
-    idToCT_[id] = ctau;
+	idToCT_[id] = ctau;
 	idToMass_[id] = mass;
 	idToWidth_[id] = width;
 	idToSpin_[id] = spin;
@@ -286,7 +286,7 @@ RooRelBreitWigner* RapidParticleData::makeRelBW(RooRealVar& m, double mean, doub
 	RooRealVar* spin   = new RooRealVar(name+"spin",  name+"spin",  thespin);
 	RooRealVar* radius = new RooRealVar(name+"radius",name+"radius",barrierFactor); // not used
 	RooRealVar* ma     = new RooRealVar(name+"ma",    name+"ma",     m1);
-	RooRealVar* mb     = new RooRealVar(name+"mb",    name+"mb",     m2);   
+	RooRealVar* mb     = new RooRealVar(name+"mb",    name+"mb",     m2);
 	
 	return new RooRelBreitWigner(name,name, m,*m0,*g0,*radius,*ma,*mb,*spin);
 }
@@ -300,7 +300,7 @@ RooGounarisSakurai* RapidParticleData::makeGS(RooRealVar& m, double mean, double
 	RooRealVar* spin   = new RooRealVar(name+"spin",  name+"spin",  thespin);
 	RooRealVar* radius = new RooRealVar(name+"radius",name+"radius",barrierFactor); // not used
 	RooRealVar* ma     = new RooRealVar(name+"ma",    name+"ma",     m1);
-	RooRealVar* mb     = new RooRealVar(name+"mb",    name+"mb",     m2);   
+	RooRealVar* mb     = new RooRealVar(name+"mb",    name+"mb",     m2);
 	
 	return new RooGounarisSakurai(name,name, m,*m0,*g0,*spin, *radius,*ma,*mb);
 }

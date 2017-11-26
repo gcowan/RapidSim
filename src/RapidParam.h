@@ -20,8 +20,8 @@ class RapidParam {
 			PY,       //Y-momentum
 			PZ,       //Z-momentum
 			PT,       //Transverse momentum
-            IP,       //IP to own PV
-            SIGMAIP,  //Error on IP to own PV
+			IP,       //IP to own PV
+			SIGMAIP,  //Error on IP to own PV
 			ETA,      //Pseudorapidity
 			PHI,      //Azimuthal angle
 			RAPIDITY, //Rapidity
@@ -42,7 +42,7 @@ class RapidParam {
 
 		RapidParam(TString name, ParamType type, RapidParticle* part, bool truth)
 			: name_(name), type_(type),
-			  truth_(truth), minVal_(0.), maxVal_(0.) 
+			  truth_(truth), minVal_(0.), maxVal_(0.)
 			{particles_.push_back(part); setDefaultMinMax();}
 
 		RapidParam(ParamType type, bool truth)
@@ -53,13 +53,14 @@ class RapidParam {
 		~RapidParam() {}
 
 		double eval();//TODO make virtual and give a warning in the base class
-		double eval(const TLorentzVector& mom, std::pair<double,double> ip);
-		double eval(const TLorentzVector& mom) {return eval(mom,std::pair<double,double>(0.,0.));}
+		//double eval(const TLorentzVector& mom, std::pair<double,double> ip);
+		//double eval(const TLorentzVector& mom) {return eval(mom,std::pair<double,double>(0.,0.));}
 
-        bool canBeSmeared();
-        bool canBeTrue();
+		bool canBeSmeared();
+		bool canBeTrue();
 
 		TString name();
+		void setName(TString name) { name_ = name; };
 		TString typeName();
 		bool truth() { return truth_; }
 		double min() { return minVal_; }//TODO make virtual and give a warning in the base class

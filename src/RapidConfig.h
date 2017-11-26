@@ -59,7 +59,6 @@ class RapidConfig {
 		bool loadParentKinematics();
 
 		void setupDefaultParams();
-		void setupDefaultParams(TString paramStr, std::vector<RapidParam*>& params);
 
 		bool check1D(TH1* hist) { return (dynamic_cast<TH1F*>(hist) || dynamic_cast<TH1D*>(hist)); }
 		bool check2D(TH1* hist) { return (dynamic_cast<TH2F*>(hist) || dynamic_cast<TH2D*>(hist)); }
@@ -89,10 +88,10 @@ class RapidConfig {
 
 		//mometum smearing lookup for each smearing category
 		std::map<TString, RapidMomentumSmear*> momSmearCategories_;
-        //IP smearing lookup for each smearing category
-        std::map<TString, RapidIPSmear*> ipSmearCategories_;
-        //Vtx smearing lookup for each smearing category, placeholder for now
-        //std::map<TString, RapidVtxSmear*> vtxSmearCategories_;
+		//IP smearing lookup for each smearing category
+		std::map<TString, RapidIPSmear*> ipSmearCategories_;
+		//Vtx smearing lookup for each smearing category, placeholder for now
+		//std::map<TString, RapidVtxSmear*> vtxSmearCategories_;
 
 		//accept reject hist to sculpt kinematics
 		TH1* accRejHisto_;
