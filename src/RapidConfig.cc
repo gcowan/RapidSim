@@ -33,15 +33,16 @@ RapidConfig::~RapidConfig() {
 		delete itr2->second;
 		ipSmearCategories_.erase(itr2++);
 	}
-	/*    std::map<RapidParam::ParamType, std::map<unsigned int, TH2D*>>::iterator itr3 = pidHists_.begin();
-	      while (itr3 != pidHists_.end()) {
-	      std::map<unsigned int, TH2D*>::iterator itr4 = (*itr3).begin();
-	      while (itr4 != (*itr3).end()) {
-	      delete itr4->second;
-	      (*itr3).erase(itr3++);
-	      }
-	      pidHists_.erase(itr3++);
-	      }*/ 
+	std::map<RapidParam::ParamType, std::map<unsigned int, TH3D*>*>::iterator itr3 = pidHists_.begin();
+	while (itr3 != pidHists_.end()) {
+		std::map<unsigned int, TH3D*>::iterator itr4 = (*itr3).second->begin();
+		while (itr4 != (*itr3).second->end()) {
+			delete itr4->second;
+			(*itr3).second->erase(itr4++);
+		}
+		delete itr3->second;
+		pidHists_.erase(itr3++);
+	}
 	while(!parts_.empty()) {
 		delete parts_[parts_.size()-1];
 		parts_.pop_back();
