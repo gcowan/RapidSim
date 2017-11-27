@@ -14,6 +14,19 @@ build:
         paths:
             - build/src/RapidSim.exe
 
+build-evtgen:
+    script:
+        - export ROOTSYS=/usr/local/
+        - export EVTGEN_ROOT=~/evtgen/EvtGen/evtgen/
+        - mkdir build-evtgen
+        - cd build-evtgen
+        - cmake ../
+        - make
+    stage: build
+    artifacts:
+        paths:
+                - build-evtgen/src/RapidSim.exe
+
 run-B2Kee:
     script:
         - export RAPIDSIM_ROOT=$PWD
@@ -95,3 +108,17 @@ run-B2DplusD0:
     artifacts:
         paths:
             - build/B2DplusD0_hists.root
+
+run-Ds2KKpi:
+    script:
+        - export RAPIDSIM_ROOT=$PWD
+        - export EVTGEN_ROOT=~/evtgen/EvtGen/evtgen/
+        - cd build-evtgen
+        - src/RapidSim.exe ../validation/Ds2KKpi 10000
+        - mkdir plots
+        - root -b -q -l "../validation/compareHistograms.C(\"Ds2KKpi\")"
+    stage: test
+    artifacts:
+        paths:
+                - build-evtgen/Ds2KKpi_hists.root
+
