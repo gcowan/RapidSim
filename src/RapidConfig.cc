@@ -893,7 +893,8 @@ bool RapidConfig::loadPID(TString category) {
 		while (line.Tokenize(buffer, from)) {
 			if (buffer.Contains(".root") && !fileLoaded) {
 				std::cout << "INFO in RapidConfig::loadPID : loading root file " << buffer << std::endl;
-				file = TFile::Open(path+"/rootfiles/pid/"+buffer);
+				if (buffer.BeginsWith("/") || buffer.BeginsWith(".")) file = TFile::Open(buffer);
+                else file = TFile::Open(path+"/rootfiles/pid/"+buffer);
 				fileLoaded = true;
 				if(!file) {
 					std::cout << "WARNING in RapidConfig::loadPID : failed to load root file " << buffer << std::endl;

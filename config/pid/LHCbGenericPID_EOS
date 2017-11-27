@@ -1,0 +1,5 @@
+/eos/lhcb/user/g/gcowan/RapidSim/rootfiles/pid/K_20_10_20/LHCb_K_PID.root 321 ProbNNk ProbNNmu ProbNNpi ProbNNp ProbNNe
+/eos/lhcb/user/g/gcowan/RapidSim/rootfiles/pid/Pi_20_10_20/LHCb_Pi_PID.root 211 ProbNNk ProbNNmu ProbNNpi ProbNNp ProbNNe
+/eos/lhcb/user/g/gcowan/RapidSim/rootfiles/pid/Mu_20_10_20/LHCb_Mu_PID.root 13 ProbNNk ProbNNmu ProbNNpi ProbNNp ProbNNe
+/eos/lhcb/user/g/gcowan/RapidSim/rootfiles/pid/P_10_10_10/LHCb_P_PID.root 2212 ProbNNk ProbNNmu ProbNNpi ProbNNp ProbNNe
+/eos/lhcb/user/g/gcowan/RapidSim/rootfiles/pid/E_10_10_10/LHCb_e_PID.root 11 ProbNNk ProbNNmu ProbNNpi ProbNNp ProbNNe
