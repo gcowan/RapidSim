@@ -40,6 +40,7 @@ run-B2Kee:
     artifacts:
         paths:
             - build/B2Kee_hists.root
+            - build/plots/B2Kee_pval.pdf
 
 run-B2Kee-tree:
     script:
@@ -62,6 +63,7 @@ run-Bs2Jpsiphi:
     artifacts:
         paths:
             - build/Bs2Jpsiphi_hists.root
+            - build/plots/Bs2Jpsiphi_pval.pdf
 
 run-Bd2D0rho0:
     script:
@@ -74,6 +76,7 @@ run-Bd2D0rho0:
     artifacts:
         paths:
             - build/Bd2D0rho0_hists.root
+            - build/plots/Bd2D0rho0_pval.pdf
 
 run-Bs2D0Kpi:
     script:
@@ -86,6 +89,7 @@ run-Bs2D0Kpi:
     artifacts:
         paths:
             - build/Bs2D0Kpi_hists.root
+            - build/plots/Bs2D0Kpi_pval.pdf
 
 run-D02Kpi:
     script:
@@ -98,6 +102,7 @@ run-D02Kpi:
     artifacts:
         paths:
             - build/D02Kpi_hists.root
+            - build/plots/D02Kpi_pval.pdf
 
 run-B2DplusD0:
     script:
@@ -110,6 +115,7 @@ run-B2DplusD0:
     artifacts:
         paths:
             - build/B2DplusD0_hists.root
+            - build/plots/B2DplusD0_pval.pdf
 
 run-Ds2KKpi:
     script:
@@ -124,5 +130,6 @@ run-Ds2KKpi:
     stage: test
     artifacts:
         paths:
-                - build-evtgen/Ds2KKpi_hists.root
+            - build-evtgen/Ds2KKpi_hists.root
+            - build-evtgen/plots/Ds2KKpi_pval.pdf
 
