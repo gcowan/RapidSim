@@ -17,6 +17,8 @@ build:
 build-evtgen:
     script:
         - export ROOTSYS=/usr/local/
+        - export LD_LIBRARY_PATH=/root/evtgen/EvtGen/external/HepMC/lib:/root/evtgen/EvtGen/external/pythia8186/lib:/root/evtgen/EvtGen/external/PHOTOS/lib:/root/evtgen/EvtGen/external/TAUOLA/lib:/root/evtgen/EvtGen/evtgen/lib:$LD_LIBRARY_PATH
+        - export PYTHIA8DATA=/root/evtgen/EvtGen/external/pythia8186/xmldoc
         - export EVTGEN_ROOT=~/evtgen/EvtGen/evtgen/
         - mkdir build-evtgen
         - cd build-evtgen
@@ -112,6 +114,8 @@ run-B2DplusD0:
 run-Ds2KKpi:
     script:
         - export RAPIDSIM_ROOT=$PWD
+        - export LD_LIBRARY_PATH=/root/evtgen/EvtGen/external/HepMC/lib:/root/evtgen/EvtGen/external/pythia8186/lib:/root/evtgen/EvtGen/external/PHOTOS/lib:/root/evtgen/EvtGen/external/TAUOLA/lib:/root/evtgen/EvtGen/evtgen/lib:$LD_LIBRARY_PATH
+        - export PYTHIA8DATA=/root/evtgen/EvtGen/external/pythia8186/xmldoc
         - export EVTGEN_ROOT=~/evtgen/EvtGen/evtgen/
         - cd build-evtgen
         - src/RapidSim.exe ../validation/Ds2KKpi 10000
