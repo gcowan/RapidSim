@@ -55,7 +55,6 @@ class RapidDecay {
 		bool genDecay(bool acceptAny=false);
 		bool genDecayAccRej();
 		void smearMomenta();
-		void smearIPs();
 		double getParticleIP(ROOT::Math::XYZPoint, ROOT::Math::XYZPoint, TLorentzVector);
 
 		//the particles
