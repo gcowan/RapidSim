@@ -12,6 +12,7 @@
 #include "RapidParam.h"
 #include "RapidParticle.h"
 #include "RapidParticleData.h"
+#include "RapidBeamData.h"
 
 void RapidDecay::setParentKinematics(TH1* ptHisto, TH1* etaHisto) {
 	std::cout << "INFO in RapidDecay::setParentKinematics : setting kinematics of the parent." << std::endl;
@@ -80,7 +81,6 @@ bool RapidDecay::generate() {
 	}
 
 	smearMomenta();
-	smearIPs();
 
 	return true;
 }
@@ -91,13 +91,6 @@ void RapidDecay::smearMomenta() {
 		parts_[i]->smearMomentum();
 	}
 
-}
-
-void RapidDecay::smearIPs() {
-	//run backwards so that we reach the daughters first
-	for(int i=parts_.size()-1; i>=0; --i) {//don't change to unsigned - needs to hit -1 to break loop
-		parts_[i]->smearIP();
-	}
 }
 
 void RapidDecay::setup() {
@@ -195,9 +188,10 @@ bool RapidDecay::genDecay(bool acceptAny) {
 	//The origin vertex of the signal is always 0,0,0
 	ROOT::Math::XYZPoint signalpv(0.,0.,0.);
     //Now the pileup vertices
-    unsigned int numpileup_ = gRandom->Poisson(6);
-    double sigmapvxy_ = 35.;
-    double sigmapvz_  = 60000.;
+    RapidBeamData* beam = RapidBeamData::getInstance();
+    unsigned int numpileup_ = gRandom->Poisson(beam->getPileup());
+    double sigmapvxy_ = beam->getSigmaXY();
+    double sigmapvz_  = beam->getSigmaZ();
     std::vector<ROOT::Math::XYZPoint> pileuppvs;
     for(unsigned int i=0; i<numpileup_; ++i) {
       pileuppvs.push_back(ROOT::Math::XYZPoint(gRandom->Gaus(0,sigmapvxy_),gRandom->Gaus(0,sigmapvxy_),gRandom->Gaus(0,sigmapvz_)));
@@ -256,13 +250,34 @@ bool RapidDecay::genDecay(bool acceptAny) {
 				double ip(0.),minip(0.);
 				ip = getParticleIP(signalpv,jDaug->getOriginVertex(),jDaug->getP());
 				jDaug->setIP(ip);
-                //Now the pileup
+                jDaug->smearIP();
+                //Now the pileup, we cache the results of the IP smearing first... 
+                double cachedip = jDaug->getIP();
+                double cachedipsmeared = jDaug->getIPSmeared();
+                double cachedsigmaip = jDaug->getSigmaIP();
+                //The cache for the pileup IP, very dirty but see comment below why... 
+                double cachedminip = cachedip;
+                double cachedminipsmeared = cachedipsmeared;
+                double cachedsigmaminip = cachedsigmaip;
                 minip = ip;
                 for(unsigned int i=0; i<numpileup_; ++i) {
                   double thisip = getParticleIP(pileuppvs[i],jDaug->getOriginVertex(),jDaug->getP());
-                  if (thisip < minip) minip = thisip;
-                } 
-				jDaug->setMinIP(minip);                
+                  jDaug->setMinIP(thisip);
+                  jDaug->smearIP(); 
+                  if (std::fabs(jDaug->getMinIPSmeared()) < std::fabs(cachedminipsmeared)) {
+                      cachedminip = jDaug->getMinIP();
+                      cachedminipsmeared = jDaug->getMinIPSmeared();
+                      cachedsigmaminip = jDaug->getSigmaMinIP();
+                  }
+                }
+                // Use the cached information to set things now... this is not the best coding ever but mandated
+                // by the fact that the particle owns the smearing tool...  
+				jDaug->setIP(cachedip);     
+				jDaug->setIPSmeared(cachedipsmeared);     
+				jDaug->setIPSigma(cachedsigmaip);     
+				jDaug->setMinIP(cachedminip);     
+				jDaug->setMinIPSmeared(cachedminipsmeared);     
+				jDaug->setMinIPSigma(cachedsigmaminip);                           
 			}
 		}
 	}

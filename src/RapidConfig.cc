@@ -1079,14 +1079,16 @@ void RapidConfig::setupDefaultParams() {
 					if (pidHists_.find(type)!=pidHists_.end() && pidHists_[type] && !pidHists_[type]->empty()) {
 						pidHists = pidHists_[type];
 					}
-					RapidParam* param = new RapidParam("", type, part, false, pidHists);
-					param->name();
-					paramsStable_.push_back(param);
+  					RapidParam* param = new RapidParam("", type, part, false, pidHists);                    
+					if ( param->canBeSmeared() ) {                    
+					    param->name();
+					    paramsStable_.push_back(param);
+                    } else delete param;
+    			  	param = new RapidParam("", type, part, true, pidHists);                               
 					if ( param->canBeTrue() ) {
-						param = new RapidParam("", type, part, true, pidHists);
 						param->name();
 						paramsStable_.push_back(param);
-					}
+					} else delete param;
 				}
 			}
 		}
@@ -1104,14 +1106,16 @@ void RapidConfig::setupDefaultParams() {
 			for(unsigned int i=0; i<parts_.size(); ++i) {
 				RapidParticle* part = parts_[i];
 				if(part->nDaughters() > 0) {
-					RapidParam* param = new RapidParam("", type, part, false);
-					param->name();
-					paramsDecaying_.push_back(param);
+					RapidParam* param = new RapidParam("", type, part, false);                    
+                    if ( param->canBeSmeared() ) {
+					    param->name();
+					    paramsDecaying_.push_back(param);
+                    } else delete param;
+					param = new RapidParam("", type, part, true);
 					if ( param->canBeTrue() ) {
-						param = new RapidParam("", type, part, true);
 						param->name();
 						paramsDecaying_.push_back(param);
-					}
+					} else delete param;
 				}
 			}
 		}
@@ -1138,14 +1142,16 @@ void RapidConfig::setupDefaultParams() {
 							partlist.push_back(kDaug);
 							baseName  = jDaug->name()+"_";
 							baseName += kDaug->name()+"_";
-							RapidParam* param = new RapidParam("", type, partlist, false);
-							param->name();
-							paramsTwoBody_.push_back(param);
+		    				RapidParam* param = new RapidParam("", type, partlist, false);                            
+                            if ( param->canBeSmeared() ) {                            
+			    				param->name();
+				    			paramsTwoBody_.push_back(param);
+                            } else delete param;
+						  	param = new RapidParam("", type, partlist, true);
 							if ( param->canBeTrue() ) {
-								param = new RapidParam("", type, partlist, true);
 								param->name();
 								paramsTwoBody_.push_back(param);
-							}
+							} else delete param;
 						}
 					}
 				}
@@ -1177,14 +1183,16 @@ void RapidConfig::setupDefaultParams() {
 								baseName  = jDaug->name()+"_";
 								baseName += kDaug->name()+"_";
 								baseName += lDaug->name()+"_";
-								RapidParam* param = new RapidParam("", type, partlist, false);
-								param->name();
-								paramsThreeBody_.push_back(param);
+    							RapidParam* param = new RapidParam("", type, partlist, false);
+                                if ( param->canBeSmeared() ) {                                
+	    							param->name();
+		    						paramsThreeBody_.push_back(param);
+                                } else delete param;
+								param = new RapidParam("", type, partlist, true);                                
 								if ( param->canBeTrue() ) {
-									param = new RapidParam("", type, partlist, true);
 									param->name();
 									paramsThreeBody_.push_back(param);
-								}
+								} else delete param;
 							}
 						}
 					}
