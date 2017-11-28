@@ -117,6 +117,19 @@ run-B2DplusD0:
             - build/B2DplusD0_hists.root
             - build/plots/B2DplusD0_pval.pdf
 
+run-Lb2chicpK:
+    script:
+        - export RAPIDSIM_ROOT=$PWD
+        - cd build
+        - src/RapidSim.exe ../validation/Lb2chicpK 10000
+        - mkdir plots
+        - root -b -q -l "../validation/compareHistograms.C(\"Lb2chicpK\")"
+    stage: test
+    artifacts:
+        paths:
+            - build/Lb2chicpK_hists.root
+            - build/plots/Lb2chicpK_pval.pdf
+
 run-Ds2KKpi:
     script:
         - export RAPIDSIM_ROOT=$PWD

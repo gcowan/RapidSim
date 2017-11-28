@@ -376,6 +376,8 @@ void RapidConfig::writeConfig() {
 		if(part->nDaughters()==0) {
 			if(TMath::Abs(part->id()) == 11) {
 				fout << "\tsmear : LHCbElectron\n";
+			} else if(TMath::Abs(part->id()) == 22) {
+				fout << "\tsmear : LHCbPhoton\n";
 			} else {
 				fout << "\tsmear : LHCbGeneric\n";
 			}
