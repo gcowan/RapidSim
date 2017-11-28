@@ -36,7 +36,7 @@ class RapidDecay {
 		void setExternal(RapidExternalGenerator* external);
 
 		bool checkDecay();
-		bool generate();
+		bool generate(bool genpar=true);
 
 	private:
 		void setup();

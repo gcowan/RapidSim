@@ -59,12 +59,12 @@ bool RapidDecay::checkDecay() {
 	return true;
 }
 
-bool RapidDecay::generate() {
+bool RapidDecay::generate(bool genpar) {
 	//keep resonance masses and parent kinematics independent of the accept/reject decision
 	//these will only be biased if the function is very inefficient for certain values
 	//however, one should not use an a/r function the is highly correlated to these variables
 	floatMasses();
-	genParent();
+    if (genpar) genParent();
 
 	bool decayed(false);
 	if(external_) {
