@@ -178,6 +178,7 @@ void RapidHistWriter::setupTree() {
 	tree_ = new TTree("DecayTree","DecayTree");
 	tree_->SetDirectory(treeFile_);
 
+    tree_->Branch("nEvent",&nevent_);
 	for(unsigned int i=0; i<histos_.size(); ++i) {
 		tree_->Branch(histos_[i]->GetName(), &vars_[i]);
 	}
