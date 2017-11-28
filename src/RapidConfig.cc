@@ -16,6 +16,7 @@
 #include "RapidHistWriter.h"
 #include "RapidIPSmearGauss.h"
 #include "RapidMomentumSmearGauss.h"
+#include "RapidMomentumSmearEnergyGauss.h"
 #include "RapidMomentumSmearGaussPtEtaDep.h"
 #include "RapidMomentumSmearHisto.h"
 #include "RapidParam.h"
@@ -375,6 +376,8 @@ void RapidConfig::writeConfig() {
 		if(part->nDaughters()==0) {
 			if(TMath::Abs(part->id()) == 11) {
 				fout << "\tsmear : LHCbElectron\n";
+			} else if(TMath::Abs(part->id()) == 22) {
+				fout << "\tsmear : LHCbPhoton\n";
 			} else {
 				fout << "\tsmear : LHCbGeneric\n";
 			}
@@ -748,6 +751,19 @@ bool RapidConfig::loadSmearing(TString category) {
 			return false;
 		}
 		ipSmearCategories_[category] = new RapidIPSmearGauss(intercept,slope);
+	}else if(type=="GAUSSPHOTON") {
+		double stochastic(0.);
+		double constant(0.);
+		fin >> stochastic;
+		fin >> constant;
+		if ((stochastic < 0) || (constant < 0) ) {
+			std::cout << "WARNING in RapidConfig::loadSmearing : failed to load photon smearing" << std::endl;
+			file->Close();
+			fin.close();
+			return false;
+		}
+		std::cout << "INFO in RapidConfig::loadSmearing : load photon smearing for particle " << std::endl;
+		momSmearCategories_[category] = new RapidMomentumSmearEnergyGauss(stochastic,constant);
 	}else if(type=="GAUSSPTETA") {
 		TString histname("");
 		histname.ReadToken(fin);

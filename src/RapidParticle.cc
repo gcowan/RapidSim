@@ -6,6 +6,7 @@
 #include "TRandom.h"
 
 #include "RapidIPSmearGauss.h"
+#include "RapidMomentumSmearEnergyGauss.h"
 #include "RapidMomentumSmearGauss.h"
 #include "RapidMomentumSmearHisto.h"
 #include "RapidParticleData.h"
