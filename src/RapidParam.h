@@ -25,6 +25,9 @@ class RapidParam {
 			PT,       //Transverse momentum
 			IP,       //IP to own PV
 			SIGMAIP,  //Error on IP to own PV
+			MINIP,    //IP to geometrically closest PV
+			SIGMAMINIP,  //Error on geometrically closest PV
+            FD,       //FD to own origin vertex
 			ETA,      //Pseudorapidity
 			PHI,      //Azimuthal angle
 			RAPIDITY, //Rapidity

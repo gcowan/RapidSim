@@ -1,6 +1,7 @@
 #include "RapidDecay.h"
 
 #include <iostream>
+#include <vector>
 
 #include "TMath.h"
 #include "TRandom.h"
@@ -193,6 +194,14 @@ void RapidDecay::genParent() {
 bool RapidDecay::genDecay(bool acceptAny) {
 	//The origin vertex of the signal is always 0,0,0
 	ROOT::Math::XYZPoint signalpv(0.,0.,0.);
+    //Now the pileup vertices
+    unsigned int numpileup_ = gRandom->Poisson(6);
+    double sigmapvxy_ = 35.;
+    double sigmapvz_  = 60000.;
+    std::vector<ROOT::Math::XYZPoint> pileuppvs;
+    for(unsigned int i=0; i<numpileup_; ++i) {
+      pileuppvs.push_back(ROOT::Math::XYZPoint(gRandom->Gaus(0,sigmapvxy_),gRandom->Gaus(0,sigmapvxy_),gRandom->Gaus(0,sigmapvz_)));
+    }
 	for(unsigned int i=0; i<parts_.size(); ++i) {
 		RapidParticle* part = parts_[i];
 		if(part->nDaughters()>0) {
@@ -244,9 +253,16 @@ bool RapidDecay::genDecay(bool acceptAny) {
 			for(RapidParticle* jDaug=part->daughter(0); jDaug!=0; jDaug=jDaug->next()) {
 				jDaug->setP(*decay_.GetDecay(j++));
 				jDaug->setOriginVertex(part->getDecayVertex());
-				double ip(0.);
+				double ip(0.),minip(0.);
 				ip = getParticleIP(signalpv,jDaug->getOriginVertex(),jDaug->getP());
 				jDaug->setIP(ip);
+                //Now the pileup
+                minip = ip;
+                for(unsigned int i=0; i<numpileup_; ++i) {
+                  double thisip = getParticleIP(pileuppvs[i],jDaug->getOriginVertex(),jDaug->getP());
+                  if (thisip < minip) minip = thisip;
+                } 
+				jDaug->setMinIP(minip);                
 			}
 		}
 	}
