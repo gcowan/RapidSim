@@ -247,7 +247,7 @@ bool RapidDecay::genDecay(bool acceptAny) {
 			for(RapidParticle* jDaug=part->daughter(0); jDaug!=0; jDaug=jDaug->next()) {
 				jDaug->setP(*decay_.GetDecay(j++));
 				jDaug->setOriginVertex(part->getDecayVertex());
-				double ip(0.),minip(0.);
+				double ip(0.);
 				ip = getParticleIP(signalpv,jDaug->getOriginVertex(),jDaug->getP());
 				jDaug->setIP(ip);
                 jDaug->smearIP();
@@ -259,7 +259,6 @@ bool RapidDecay::genDecay(bool acceptAny) {
                 double cachedminip = cachedip;
                 double cachedminipsmeared = cachedipsmeared;
                 double cachedsigmaminip = cachedsigmaip;
-                minip = ip;
                 for(unsigned int i=0; i<numpileup_; ++i) {
                   double thisip = getParticleIP(pileuppvs[i],jDaug->getOriginVertex(),jDaug->getP());
                   jDaug->setMinIP(thisip);
