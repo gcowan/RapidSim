@@ -14,7 +14,7 @@ RapidSim.exe ${RAPIDSIM_ROOT}/validation/Bs2Jpsiphi 100000
 RapidSim.exe ${RAPIDSIM_ROOT}/validation/Bd2D0rho0 100000
 RapidSim.exe ${RAPIDSIM_ROOT}/validation/Bs2D0Kpi 10000
 RapidSim.exe ${RAPIDSIM_ROOT}/validation/D02Kpi 100000
-
+RapidSim.exe ${RAPIDSIM_ROOT}/validation/Lb2chicpK 100000
 
 root -b -q -l "${RAPIDSIM_ROOT}/validation/compareHistograms.C(\"B2Kee\")"
 root -b -q -l "${RAPIDSIM_ROOT}/validation/compareHistograms.C(\"Bs2Jpsiphi\")"
