@@ -59,12 +59,12 @@ bool RapidDecay::checkDecay() {
 	return true;
 }
 
-bool RapidDecay::generate() {
+bool RapidDecay::generate(bool genpar) {
 	//keep resonance masses and parent kinematics independent of the accept/reject decision
 	//these will only be biased if the function is very inefficient for certain values
 	//however, one should not use an a/r function the is highly correlated to these variables
 	floatMasses();
-	genParent();
+    if (genpar) genParent();
 
 	bool decayed(false);
 	if(external_) {
@@ -286,9 +286,8 @@ bool RapidDecay::genDecay(bool acceptAny) {
 
 double RapidDecay::getParticleIP(ROOT::Math::XYZPoint pv, ROOT::Math::XYZPoint dv, TLorentzVector p) {
   ROOT::Math::XYZVector v1 = pv - dv;
-  ROOT::Math::XYZVector dispv(dv.X() + p.X(), dv.Y()+p.Y(), dv.Z()+p.Z());
   ROOT::Math::XYZVector lengthv(p.X(), p.Y(), p.Z());
-  ROOT::Math::XYZVector v2 = pv - (dv + dispv);
+  ROOT::Math::XYZVector v2 = v1 + lengthv;
 
   ROOT::Math::XYZVector impact = v1.Cross(v2)/sqrt(lengthv.Mag2());
 
