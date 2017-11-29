@@ -27,7 +27,7 @@ class RapidParam {
 			SIGMAIP,  //Error on IP to own PV
 			MINIP,    //IP to geometrically closest PV
 			SIGMAMINIP,  //Error on geometrically closest PV
-            FD,       //FD to own origin vertex
+			FD,       //FD to own origin vertex
 			ETA,      //Pseudorapidity
 			PHI,      //Azimuthal angle
 			RAPIDITY, //Rapidity
@@ -53,12 +53,12 @@ class RapidParam {
 
 		RapidParam(TString name, ParamType type, RapidParticle* part, bool truth, std::map<unsigned int, TH3D*>* pidHist)
 			: name_(name), type_(type),
-			  truth_(truth), pidHist_(pidHist), minVal_(0.), maxVal_(0.) 
+			  truth_(truth), pidHist_(pidHist), minVal_(0.), maxVal_(0.)
 			{particles_.push_back(part); setDefaultMinMax();}
 
 		RapidParam(TString name, ParamType type, RapidParticle* part, bool truth)
 			: name_(name), type_(type),
-			  truth_(truth), pidHist_(0), minVal_(0.), maxVal_(0.) 
+			  truth_(truth), pidHist_(0), minVal_(0.), maxVal_(0.)
 			{particles_.push_back(part); setDefaultMinMax();}
 
 		RapidParam(ParamType type, bool truth)

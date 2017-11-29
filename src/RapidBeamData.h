@@ -19,23 +19,23 @@ class RapidBeamData {
 		double getSigmaXY() { return sigmaxy_; }
 		double getSigmaZ() { return sigmaz_; }
 
-		
+
 	private:
 
 		static RapidBeamData* instance_;
 
-        RapidBeamData()
+		RapidBeamData()
 		: pileup_(0), sigmaxy_(0.), sigmaz_(0.) {}
 
-        ~RapidBeamData() {}
+		~RapidBeamData() {}
 
 		//copy constructor and copy assignment operator not implemented
 		RapidBeamData( const RapidBeamData& other );
 		RapidBeamData& operator=( const RapidBeamData& other );
 
 		int pileup_;
-        double sigmaxy_;
-        double sigmaz_;
+		double sigmaxy_;
+		double sigmaz_;
 
 
 };

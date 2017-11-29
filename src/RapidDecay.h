@@ -28,7 +28,7 @@ class RapidDecay {
 			{setup();}
 
 		~RapidDecay() {}
-		
+
 		void setMaxGen(int mg) { maxgen_ = mg; }
 		void setParentKinematics(TH1* ptHisto, TH1* etaHisto);
 		void setAcceptRejectHist(TH1* histo, RapidParam* param);
@@ -59,7 +59,7 @@ class RapidDecay {
 
 		//the particles
 		std::vector<RapidParticle*> parts_;
-		
+
 		//max number of attempts to generate an event
 		int maxgen_;
 

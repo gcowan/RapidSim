@@ -68,13 +68,13 @@ void RapidParticle::smearMomentum() {
 }
 
 double RapidParticle::getFD() {
-   if(nDaughters() == 0) { // If stable true flight distance is infinite, return -1 as default
-     return -1.;
-   } else {
-     return sqrt(pow(decayVertex_.X()-originVertex_.X(),2) + \
-                 pow(decayVertex_.Y()-originVertex_.Y(),2) + \
-                 pow(decayVertex_.Z()-originVertex_.Z(),2) );
-   }
+	if(nDaughters() == 0) { // If stable true flight distance is infinite, return -1 as default
+		return -1.;
+	} else {
+		return sqrt(pow(decayVertex_.X()-originVertex_.X(),2) + \
+			    pow(decayVertex_.Y()-originVertex_.Y(),2) + \
+			    pow(decayVertex_.Z()-originVertex_.Z(),2) );
+	}
 }
 
 void RapidParticle::smearIP() {
@@ -84,14 +84,14 @@ void RapidParticle::smearIP() {
 		// smeared origin & decay vertices and momentum
 		ipSmeared_ = ip_;
 		sigmaip_ = 0.;
-        minipSmeared_ = minip_;        
-        sigmaminip_ = 0.;
+		minipSmeared_ = minip_;
+		sigmaminip_ = 0.;
 	} else {
 		if(invisible_) {
 			ipSmeared_ = ip_;
 			sigmaip_ = 0.;
-            minipSmeared_ = minip_;        
-            sigmaminip_ = 0.;
+			minipSmeared_ = minip_;
+			sigmaminip_ = 0.;
 		} else if (ipSmear_) {
 			std::pair<double,double> smearedips = ipSmear_->smearIP(ip_,p_.Pt());
 			ipSmeared_ = smearedips.first;
@@ -102,8 +102,8 @@ void RapidParticle::smearIP() {
 		} else {
 			ipSmeared_ = ip_;
 			sigmaip_ = 0.;
-            minipSmeared_ = minip_;        
-            sigmaminip_ = 0.;
+			minipSmeared_ = minip_;
+			sigmaminip_ = 0.;
 		}
 	}
 }

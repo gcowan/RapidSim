@@ -12,9 +12,9 @@ double RapidParam::eval() {
 	if(type_ == RapidParam::ProbNNmu || type_ == RapidParam::ProbNNpi || type_ == RapidParam::ProbNNe ||
 	   type_ == RapidParam::ProbNNk || type_ == RapidParam::ProbNNp) return evalPID();
 
-    double fd      = particles_[0]->getFD();
+	double fd      = particles_[0]->getFD();
 	double ip      = particles_[0]->getIP();
-	double minip   = particles_[0]->getMinIP();    
+	double minip   = particles_[0]->getMinIP();
 	double ipSigma = particles_[0]->getSigmaIP();
 	double minipSigma = particles_[0]->getSigmaMinIP();
 	mom_.SetPxPyPzE(0.,0.,0.,0.);
@@ -24,7 +24,7 @@ double RapidParam::eval() {
 		}
 	} else {
 		ip = particles_[0]->getIPSmeared();
-        minip = particles_[0]->getMinIPSmeared();
+		minip = particles_[0]->getMinIPSmeared();
 		for(unsigned int i=0; i<particles_.size(); ++i) {
 			mom_ += particles_[i]->getPSmeared();
 		}
@@ -65,9 +65,9 @@ double RapidParam::eval() {
 			return ip;
 		case RapidParam::SIGMAIP:
 			return ipSigma;
-        case RapidParam::MINIP:
+		case RapidParam::MINIP:
 			return minip;
-        case RapidParam::SIGMAMINIP:
+		case RapidParam::SIGMAMINIP:
 			return minipSigma;
 		case RapidParam::FD:
 			return fd;
@@ -128,11 +128,11 @@ bool RapidParam::canBeSmeared() {
 			return true;
 		case RapidParam::SIGMAIP:
 			return false;
-        case RapidParam::MINIP:
+		case RapidParam::MINIP:
 			return true;
 		case RapidParam::SIGMAMINIP:
 			return false;
-        case RapidParam::FD:
+		case RapidParam::FD:
 			return false;
 		case RapidParam::ProbNNmu:
 			return true;
@@ -194,11 +194,11 @@ bool RapidParam::canBeTrue() {
 			return true;
 		case RapidParam::SIGMAIP:
 			return true;
-        case RapidParam::MINIP:
+		case RapidParam::MINIP:
 			return true;
 		case RapidParam::SIGMAMINIP:
 			return true;
-        case RapidParam::FD:
+		case RapidParam::FD:
 			return true;
 		case RapidParam::ProbNNmu:
 			return false;
@@ -259,7 +259,7 @@ double RapidParam::evalPID() {
 		TH1D * prob = pidHist->ProjectionZ("prob", bin_x, bin_x+1, bin_y, bin_y+1);
 		prob->Sumw2(false);
 		pid = prob->GetRandom();
-	
+
 	}
 	return pid;
 }
@@ -336,7 +336,7 @@ TString RapidParam::name() {
 		}
 
 		name_ += typeName();
-		
+
 		if(truth_) {
 			name_ += "_TRUE";
 		}
@@ -420,7 +420,7 @@ RapidParam::ParamType RapidParam::typeFromString(TString str) {
 		return RapidParam::IP;
 	} else if(str=="SIGMAIP") {
 		return RapidParam::SIGMAIP;
-    } else if(str=="MINIP") {
+	} else if(str=="MINIP") {
 		return RapidParam::MINIP;
 	} else if(str=="SIGMAMINIP") {
 		return RapidParam::SIGMAMINIP;
@@ -619,7 +619,7 @@ void RapidParam::setMassMinMax(const std::vector<RapidParticle*>& parts, double&
 		//first check whether any of the particles we've been given have a hierarchical relationship
 		if(rpd->checkHierarchy(parts)) {
 			std::cout << "WARNING in RapidParam::setMassMinMax : some of the particles used in parameter " << name() << " are repeated or have a hierarchical relationship." << std::endl
-			          << "                                       setting default mass range." << std::endl;
+				  << "                                       setting default mass range." << std::endl;
 			min=0.;
 			max=10.;
 			return;
@@ -631,7 +631,7 @@ void RapidParam::setMassMinMax(const std::vector<RapidParticle*>& parts, double&
 		//this shouldn't happen
 		if(!commonAncestor) {
 			std::cout << "WARNING in RapidParam::setMassMinMax : some of the particles used in parameter " << name() << " have no common ancestors." << std::endl
-			          << "                                       setting default mass range." << std::endl;
+				  << "                                       setting default mass range." << std::endl;
 			min=0.;
 			max=10.;
 			return;

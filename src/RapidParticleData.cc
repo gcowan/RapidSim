@@ -120,7 +120,7 @@ TString RapidParticleData::getSanitisedName(int id) {
 	TString name = getName(id);
 	return sanitiseName(name);
 }
-		
+
 int RapidParticleData::pdgCode(TString name) {
 	if(nameToId_.count(name)) {
 		return nameToId_[name];
@@ -134,7 +134,7 @@ int RapidParticleData::pdgCode(TString name) {
 
 RapidParticle* RapidParticleData::makeParticle(int id, RapidParticle* mother) {
 
-	double ctau = getCT(id);	
+	double ctau = getCT(id);
 	double mass = getMass(id);
 	double charge = getCharge(id);
 	TString name = getName(id);
@@ -201,7 +201,7 @@ void RapidParticleData::setupMass(RapidParticle* part) {
 			break;
 		default:
 			std::cout << "WARNING in RapidParticleData::setupMass : unknown lineshape for " << name << "." << std::endl
-			  	  << "                                        : using a relativistic Breit-Wigner." << std::endl;
+				  << "                                        : using a relativistic Breit-Wigner." << std::endl;
 		/* FALLTHRU */
 		case RapidParticleData::RelBW:
 			pdf = makeRelBW(m, mass, width, spin, mA, mB, name);
@@ -290,7 +290,7 @@ RooRelBreitWigner* RapidParticleData::makeRelBW(RooRealVar& m, double mean, doub
 	RooRealVar* radius = new RooRealVar(name+"radius",name+"radius",barrierFactor); // not used
 	RooRealVar* ma     = new RooRealVar(name+"ma",    name+"ma",     m1);
 	RooRealVar* mb     = new RooRealVar(name+"mb",    name+"mb",     m2);
-	
+
 	return new RooRelBreitWigner(name,name, m,*m0,*g0,*radius,*ma,*mb,*spin);
 }
 
@@ -304,7 +304,7 @@ RooGounarisSakurai* RapidParticleData::makeGS(RooRealVar& m, double mean, double
 	RooRealVar* radius = new RooRealVar(name+"radius",name+"radius",barrierFactor); // not used
 	RooRealVar* ma     = new RooRealVar(name+"ma",    name+"ma",     m1);
 	RooRealVar* mb     = new RooRealVar(name+"mb",    name+"mb",     m2);
-	
+
 	return new RooGounarisSakurai(name,name, m,*m0,*g0,*spin, *radius,*ma,*mb);
 }
 

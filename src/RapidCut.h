@@ -9,7 +9,7 @@ class RapidCut {
 	public:
 		RapidCut(RapidParam* param, double min=NOLIMIT, double max=NOLIMIT, bool veto=false)
 			: param_(param), min_(min), max_(max), veto_(veto) {}
-		
+
 		TString name();
 
 		bool passCut();

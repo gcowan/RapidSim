@@ -82,14 +82,14 @@ class RapidParticle {
 		void setSmearing(RapidIPSmear* ipSmear) { ipSmear_ = ipSmear; }
 
 		void setP(TLorentzVector p) { p_ = p; }
-        void setIP(double ip) { ip_ = ip; }
+		void setIP(double ip) { ip_ = ip; }
 		void setMinIP(double ip) { minip_ = ip; }
-        // Next four methods should not be used except in a special case, this is filthy coding
-        void setIPSmeared(double ip) { ipSmeared_ = ip; }
+		// Next four methods should not be used except in a special case, this is filthy coding
+		void setIPSmeared(double ip) { ipSmeared_ = ip; }
 		void setMinIPSmeared(double ip) { minipSmeared_ = ip; }
-        void setIPSigma(double sigma) { sigmaip_ = sigma; }
+		void setIPSigma(double sigma) { sigmaip_ = sigma; }
 		void setMinIPSigma(double sigma) { sigmaminip_ = sigma; }
-        //
+		//
 		void setPtEtaPhi(double pt, double eta, double phi) { p_.SetPtEtaPhiM(pt,eta,phi,mass_); }
 		void setOriginVertex(ROOT::Math::XYZPoint v) {originVertex_ = v;}
 		void setDecayVertex(ROOT::Math::XYZPoint v) {decayVertex_ = v;}
@@ -123,13 +123,13 @@ class RapidParticle {
 		RapidParticle* next_;
 		std::vector<double> daughterMasses_;
 
-        double fd_;
+		double fd_;
 		double ip_;
-        double minip_;
+		double minip_;
 		double sigmaip_;
-        double sigmaminip_;
+		double sigmaminip_;
 		double ipSmeared_;
-        double minipSmeared_;
+		double minipSmeared_;
 		TLorentzVector p_;
 		TLorentzVector pSmeared_;
 

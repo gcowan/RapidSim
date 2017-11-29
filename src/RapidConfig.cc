@@ -910,7 +910,7 @@ bool RapidConfig::loadPID(TString category) {
 			if (buffer.Contains(".root") && !fileLoaded) {
 				std::cout << "INFO in RapidConfig::loadPID : loading root file " << buffer << std::endl;
 				if (buffer.BeginsWith("/") || buffer.BeginsWith(".")) file = TFile::Open(buffer);
-                else file = TFile::Open(path+"/rootfiles/pid/"+buffer);
+				else file = TFile::Open(path+"/rootfiles/pid/"+buffer);
 				fileLoaded = true;
 				if(!file) {
 					std::cout << "WARNING in RapidConfig::loadPID : failed to load root file " << buffer << std::endl;
@@ -1095,12 +1095,12 @@ void RapidConfig::setupDefaultParams() {
 					if (pidHists_.find(type)!=pidHists_.end() && pidHists_[type] && !pidHists_[type]->empty()) {
 						pidHists = pidHists_[type];
 					}
-  					RapidParam* param = new RapidParam("", type, part, false, pidHists);                    
-					if ( param->canBeSmeared() ) {                    
-					    param->name();
-					    paramsStable_.push_back(param);
-                    } else delete param;
-    			  	param = new RapidParam("", type, part, true, pidHists);                               
+					RapidParam* param = new RapidParam("", type, part, false, pidHists);
+					if ( param->canBeSmeared() ) {
+						param->name();
+						paramsStable_.push_back(param);
+					} else delete param;
+					param = new RapidParam("", type, part, true, pidHists);
 					if ( param->canBeTrue() ) {
 						param->name();
 						paramsStable_.push_back(param);
@@ -1122,11 +1122,11 @@ void RapidConfig::setupDefaultParams() {
 			for(unsigned int i=0; i<parts_.size(); ++i) {
 				RapidParticle* part = parts_[i];
 				if(part->nDaughters() > 0) {
-					RapidParam* param = new RapidParam("", type, part, false);                    
-                    if ( param->canBeSmeared() ) {
-					    param->name();
-					    paramsDecaying_.push_back(param);
-                    } else delete param;
+					RapidParam* param = new RapidParam("", type, part, false);
+					if ( param->canBeSmeared() ) {
+						param->name();
+						paramsDecaying_.push_back(param);
+					} else delete param;
 					param = new RapidParam("", type, part, true);
 					if ( param->canBeTrue() ) {
 						param->name();
@@ -1158,12 +1158,12 @@ void RapidConfig::setupDefaultParams() {
 							partlist.push_back(kDaug);
 							baseName  = jDaug->name()+"_";
 							baseName += kDaug->name()+"_";
-		    				RapidParam* param = new RapidParam("", type, partlist, false);                            
-                            if ( param->canBeSmeared() ) {                            
-			    				param->name();
-				    			paramsTwoBody_.push_back(param);
-                            } else delete param;
-						  	param = new RapidParam("", type, partlist, true);
+							RapidParam* param = new RapidParam("", type, partlist, false);
+							if ( param->canBeSmeared() ) {
+								param->name();
+								paramsTwoBody_.push_back(param);
+							} else delete param;
+							param = new RapidParam("", type, partlist, true);
 							if ( param->canBeTrue() ) {
 								param->name();
 								paramsTwoBody_.push_back(param);
@@ -1199,12 +1199,12 @@ void RapidConfig::setupDefaultParams() {
 								baseName  = jDaug->name()+"_";
 								baseName += kDaug->name()+"_";
 								baseName += lDaug->name()+"_";
-    							RapidParam* param = new RapidParam("", type, partlist, false);
-                                if ( param->canBeSmeared() ) {                                
-	    							param->name();
-		    						paramsThreeBody_.push_back(param);
-                                } else delete param;
-								param = new RapidParam("", type, partlist, true);                                
+								RapidParam* param = new RapidParam("", type, partlist, false);
+								if ( param->canBeSmeared() ) {
+									param->name();
+									paramsThreeBody_.push_back(param);
+								} else delete param;
+								param = new RapidParam("", type, partlist, true);
 								if ( param->canBeTrue() ) {
 									param->name();
 									paramsThreeBody_.push_back(param);
