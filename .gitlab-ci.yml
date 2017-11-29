@@ -104,6 +104,20 @@ run-D02Kpi:
             - build/D02Kpi_hists.root
             - build/plots/D02Kpi_pval.pdf
 
+run-D02Kpi-redecay:
+    script:
+        - export RAPIDSIM_ROOT=$PWD
+        - cd build
+        - src/RapidSim.exe ../validation/D02Kpi 10000 0 9
+        - mv D02Kpi_hists.root D02Kpi-redecay_hists.root
+        - mkdir plots
+        - root -b -q -l "../validation/compareHistograms.C(\"D02Kpi-redecay\")"
+    stage: test
+    artifacts:
+        paths:
+            - build/D02Kpi-redecay_hists.root
+            - build/plots/D02Kpi-redecay_pval.pdf
+
 run-B2DplusD0:
     script:
         - export RAPIDSIM_ROOT=$PWD

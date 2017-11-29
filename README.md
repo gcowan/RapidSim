@@ -254,6 +254,9 @@ Particle settings should be defined after the corresponding `@#` tag using the s
 * `PT`: The transverse momentum of the combination of the given particles
 * `IP` : Impact parameter to own primary vertex
 * `SIGMAIP` : Error on impact parameter to own primary vertex
+* `IP` : Minimum impact parameter to any primary vertex
+* `SIGMAIP` : Error on minimum impact parameter to a primary vertex
+* `FD` : Flight distance
 * `eta`: The pseudorapidity of the combination
 * `phi`: The azimuthal angle of the combination
 * `y`: The rapidity of the combination

@@ -8,7 +8,7 @@
 #include "RapidDecay.h"
 #include "RapidHistWriter.h"
 
-int rapidSim(const TString mode, const int nEvtToGen, bool saveTree=false, bool reDecay=false, int nToReDecay=0) {
+int rapidSim(const TString mode, const int nEvtToGen, bool saveTree=false, int nToReDecay=0) {
 
     if(!getenv("RAPIDSIM_ROOT")) {
         std::cout << "ERROR in rapidSim : environment variable RAPIDSIM_ROOT is not set" << std::endl
@@ -46,7 +46,12 @@ int rapidSim(const TString mode, const int nEvtToGen, bool saveTree=false, bool 
         if (!decay->generate()) continue;
         ++ngenerated;
 
-        if (reDecay) {
+        if(!acceptance->isSelected()) continue;
+        ++nselected;
+
+        writer->fill();
+
+        if (nToReDecay>0) {
             for (Int_t nrd=0; nrd<nToReDecay; ++nrd) {
                 if (!decay->generate(false)) continue;
                 ++ngenerated;
@@ -56,11 +61,6 @@ int rapidSim(const TString mode, const int nEvtToGen, bool saveTree=false, bool 
 
                 writer->fill();
             }
-        } else {
-            if(!acceptance->isSelected()) continue;
-            ++nselected;
-
-            writer->fill();
         }
     }
 
@@ -75,27 +75,23 @@ int rapidSim(const TString mode, const int nEvtToGen, bool saveTree=false, bool 
 int main(int argc, char * argv[])
 {
     if (argc < 3) {
-        printf("Usage: %s mode numberToGenerate [saveTree=0] [reDecay=0] [numberToRedecay=0]\n", argv[0]);
+        printf("Usage: %s mode numberToGenerate [saveTree=0] [numberToRedecay=0]\n", argv[0]);
         return 1;
     }
 
     const TString mode = argv[1];
     const int number = atoi(argv[2]);
     bool saveTree = false;
-    bool reDecay = false;
     int nToReDecay = 0;
 
     if(argc>3) {
         saveTree = atoi(argv[3]);
     }
     if(argc>4) {
-        reDecay = atoi(argv[4]);
-    }
-    if(argc>5) {
-        nToReDecay = atoi(argv[5]);
+        nToReDecay = atoi(argv[4]);
     }
 
-    int status = rapidSim(mode, number, saveTree, reDecay, nToReDecay);
+    int status = rapidSim(mode, number, saveTree, nToReDecay);
 
     return status;
 }
