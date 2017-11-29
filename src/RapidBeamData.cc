@@ -12,9 +12,10 @@ RapidBeamData* RapidBeamData::getInstance() {
 		TString path;
 		path=getenv("RAPIDSIM_CONFIG");
 		if(path!="") instance_->loadData(path+"/config/beam.dat");
-
-		path=getenv("RAPIDSIM_ROOT");
-		instance_->loadData(path+"/config/beam.dat");
+		else {
+			path=getenv("RAPIDSIM_ROOT");
+			instance_->loadData(path+"/config/beam.dat");
+		}
 	}
 	return instance_;
 }
