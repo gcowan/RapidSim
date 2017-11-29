@@ -286,9 +286,8 @@ bool RapidDecay::genDecay(bool acceptAny) {
 
 double RapidDecay::getParticleIP(ROOT::Math::XYZPoint pv, ROOT::Math::XYZPoint dv, TLorentzVector p) {
   ROOT::Math::XYZVector v1 = pv - dv;
-  ROOT::Math::XYZVector dispv(dv.X() + p.X(), dv.Y()+p.Y(), dv.Z()+p.Z());
   ROOT::Math::XYZVector lengthv(p.X(), p.Y(), p.Z());
-  ROOT::Math::XYZVector v2 = pv - (dv + dispv);
+  ROOT::Math::XYZVector v2 = v1 + lengthv;
 
   ROOT::Math::XYZVector impact = v1.Cross(v2)/sqrt(lengthv.Mag2());
 

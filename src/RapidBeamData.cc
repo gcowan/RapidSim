@@ -28,17 +28,13 @@ void RapidBeamData::loadData(TString file) {
 	TString buffer;
 	buffer.ReadLine(fin);//ignore title line
 
-	while(fin.good()) {
-		buffer.ReadToken(fin);
-		pileup_ = buffer.Atoi();
-		buffer.ReadToken(fin);
-		sigmaxy_ = buffer.Atof();
-		buffer.ReadToken(fin);
-		sigmaz_ = buffer.Atof();
+	buffer.ReadToken(fin);
+	pileup_ = buffer.Atoi();
+	buffer.ReadToken(fin);
+	sigmaxy_ = buffer.Atof();
+	buffer.ReadToken(fin);
+	sigmaz_ = buffer.Atof();
 
-		if(!fin.good()) break;
-
-	}
 	fin.close();
 }
 
