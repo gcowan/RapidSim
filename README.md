@@ -44,7 +44,13 @@ $ $RAPIDSIM_ROOT/build/src/RapidSim.exe <decay mode> <events to generate> <save 
 To run an example try:
 
 ```shell
-$ $RAPIDSIM_ROOT/bin/RapidSim.exe $RAPIDSIM_ROOT/bin/validation/Bs2Jpsiphi 10000 1
+$ $RAPIDSIM_ROOT/build/src/RapidSim.exe $RAPIDSIM_ROOT/validation/Bs2Jpsiphi 10000 1
+```
+
+or
+
+```shell
+$ $RAPIDSIM_ROOT/bin/RapidSim.exe $RAPIDSIM_ROOT/validation/Bs2Jpsiphi 10000 1
 ```
 
 To run the full system validation:
@@ -256,8 +262,8 @@ Particle settings should be defined after the corresponding `@#` tag using the s
 * `PT`: The transverse momentum of the combination of the given particles
 * `IP` : Impact parameter to own primary vertex
 * `SIGMAIP` : Error on impact parameter to own primary vertex
-* `IP` : Minimum impact parameter to any primary vertex
-* `SIGMAIP` : Error on minimum impact parameter to a primary vertex
+* `MINIP` : Minimum impact parameter to any primary vertex
+* `SIGMAMINIP` : Error on minimum impact parameter to a primary vertex
 * `FD` : Flight distance
 * `eta`: The pseudorapidity of the combination
 * `phi`: The azimuthal angle of the combination
