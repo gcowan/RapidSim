@@ -12,28 +12,33 @@ int rapidSim(const TString mode, const int nEvtToGen, bool saveTree=false, int n
 
 	if(!getenv("RAPIDSIM_ROOT")) {
 		std::cout << "ERROR in rapidSim : environment variable RAPIDSIM_ROOT is not set" << std::endl
-			<< "                    Terminating" << std::endl;
+			  << "                    Terminating" << std::endl;
 		return 1;
 	}
 
 	TString configEnv=getenv("RAPIDSIM_CONFIG");
 	if(configEnv!="") {
 		std::cout << "INFO in rapidSim : environment variable RAPIDSIM_CONFIG is set" << std::endl
-			<< "                   Settings in " << configEnv << " will be used" << std::endl;
+			  << "                   Settings in " << configEnv << " will be used" << std::endl;
 	}
 
 	RapidConfig config;
 	if(!config.load(mode)) {
 		std::cout << "ERROR in rapidSim : failed to load configuration for decay mode " << mode << std::endl
-			<< "                    Terminating" << std::endl;
+			  << "                    Terminating" << std::endl;
 		return 1;
 	}
 
 	RapidDecay* decay = config.getDecay();
 	if(!decay) {
 		std::cout << "ERROR in rapidSim : failed to setup decay for decay mode " << mode << std::endl
-			<< "                    Terminating" << std::endl;
+			  << "                    Terminating" << std::endl;
 		return 1;
+	}
+
+	if(nToReDecay>0) {
+		std::cout << "INFO in rapidSim : re-decay mode is active" << std::endl
+			  << "                   Each parent will be re-decayed " << nToReDecay << " times" << std::endl;
 	}
 
 	RapidAcceptance* acceptance = config.getAcceptance();
@@ -51,16 +56,14 @@ int rapidSim(const TString mode, const int nEvtToGen, bool saveTree=false, int n
 
 		writer->fill();
 
-		if (nToReDecay>0) {
-			for (Int_t nrd=0; nrd<nToReDecay; ++nrd) {
-				if (!decay->generate(false)) continue;
-				++ngenerated;
+		for (Int_t nrd=0; nrd<nToReDecay; ++nrd) {
+			if (!decay->generate(false)) continue;
+			++ngenerated;
 
-				if(!acceptance->isSelected()) continue;
-				++nselected;
+			if(!acceptance->isSelected()) continue;
+			++nselected;
 
-				writer->fill();
-			}
+			writer->fill();
 		}
 	}
 

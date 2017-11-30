@@ -38,7 +38,7 @@ $ # Setup the RAPIDSIM_ROOT environment variable (or add to .bashrc)
 $ export RAPIDSIM_ROOT=/path/to/RapidSim/install/location
 $ # Optionally setup the RAPIDSIM_CONFIG environment variable
 $ export RAPIDSIM_CONFIG=/path/to/additional/configuration/files
-$ $RAPIDSIM_ROOT/build/src/RapidSim.exe <decay mode> <events to generate> <save tree?> <re-decay?> <num times to re-decay each hadron>
+$ $RAPIDSIM_ROOT/build/src/RapidSim.exe <decay mode> <events to generate> <save tree?> <num times to re-decay each hadron>
 ```
 
 To run an example try:
@@ -74,7 +74,7 @@ Note that when lines are removed from the `.config` file this behaviour may chan
 
 ## Re-decay
 
-It is possible to specify command-line options to re-decay a particular heavy-quark hadron.
+It is possible to specify a command-line option to re-decay a particular heavy-quark hadron.
 This means that for a particular hadron, the same parent kinematics are retained but the 
 kinematics of the decay products (and their various detector-level smearings) are recomputed.
 
