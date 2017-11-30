@@ -222,6 +222,8 @@ Particle settings should be defined after the corresponding `@#` tag using the s
 * `invisible`:
   * Whether the particle should be treated as invisible
   * Invisible particles are not included when determining non-truth parameters
+  * Invisible particles are also ignored when applying the `AllIn` or `AllDownstream` 
+    acceptance requirement for the default LHCb geometry
   * A corrected mass parameter will be added automatically if any particles are invisible
   * Default: `true` (for neutrinos), otherwise `false`
 

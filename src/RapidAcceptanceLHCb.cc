@@ -21,6 +21,8 @@ void RapidAcceptanceLHCb::getDefaultEtaRange(double& min, double& max) {
 
 bool RapidAcceptanceLHCb::partInAcceptance(RapidParticle* part) {
 
+	if(part->invisible()) return true;
+
 	TLorentzVector vec = part->getP();
 
 	if (TMath::Abs(vec.Px()/vec.Pz()) > 0.3) return false;
@@ -31,6 +33,8 @@ bool RapidAcceptanceLHCb::partInAcceptance(RapidParticle* part) {
 }
 
 bool RapidAcceptanceLHCb::partInDownstream(RapidParticle* part) {
+
+	if(part->invisible()) return true;
 
 	TLorentzVector vec = part->getP();
 	double charge = part->charge();
