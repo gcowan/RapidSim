@@ -22,6 +22,7 @@
 #include "RapidParam.h"
 #include "RapidParticle.h"
 #include "RapidParticleData.h"
+#include "RapidPID.h"
 
 RapidConfig::~RapidConfig() {
 	std::map<TString, RapidMomentumSmear*>::iterator itr = momSmearCategories_.begin();
@@ -34,13 +35,8 @@ RapidConfig::~RapidConfig() {
 		delete itr2->second;
 		ipSmearCategories_.erase(itr2++);
 	}
-	std::map<RapidParam::ParamType, std::map<unsigned int, TH3D*>*>::iterator itr3 = pidHists_.begin();
+	std::map<RapidParam::ParamType, RapidPID*>::iterator itr3 = pidHists_.begin();
 	while (itr3 != pidHists_.end()) {
-		std::map<unsigned int, TH3D*>::iterator itr4 = (*itr3).second->begin();
-		while (itr4 != (*itr3).second->end()) {
-			delete itr4->second;
-			(*itr3).second->erase(itr4++);
-		}
 		delete itr3->second;
 		pidHists_.erase(itr3++);
 	}
@@ -928,18 +924,18 @@ bool RapidConfig::loadPID(TString category) {
 				std::cout << "INFO in RapidConfig::loadPID : loading histogram " << buffer << std::endl;
 				TH3D * hist = dynamic_cast<TH3D*>(file->Get(buffer));
 				if ( hist->GetMinimum() < 0 ) {
-                    for (int i = 0; i < hist->GetNcells(); ++i) {
-                        if (hist->GetBinContent(i) < 0.) hist->SetBinContent(i, 0.);
-                    }
-                }
+					for (int i = 0; i < hist->GetNcells(); ++i) {
+						if (hist->GetBinContent(i) < 0.) hist->SetBinContent(i, 0.);
+					}
+				}
 				if(!hist) {
 					std::cout << "WARNING in RapidConfig::loadPID : failed to load histogram " << buffer << std::endl;
 				}
 				RapidParam::ParamType type = RapidParam::typeFromString(buffer);
 				if(pidHists_.find(type)==pidHists_.end()) {
-					pidHists_[type] = new std::map<unsigned int, TH3D*>();
+					pidHists_[type] = new RapidPID(buffer);
 				}
-				pidHists_[type]->insert(std::pair<unsigned int,TH3D*>(id, hist));
+				pidHists_[type]->addPID(id, hist);
 			}
 			if(pidHists_.empty()) {
 				std::cout << "WARNING in RapidConfig::loadPID : failed to load any histograms for PID category " << category << std::endl;
@@ -1095,8 +1091,8 @@ void RapidConfig::setupDefaultParams() {
 			for(unsigned int i=0; i<parts_.size(); ++i) {
 				RapidParticle* part = parts_[i];
 				if(part->nDaughters() == 0) {
-					std::map<unsigned int, TH3D*>* pidHists=0;
-					if (pidHists_.find(type)!=pidHists_.end() && pidHists_[type] && !pidHists_[type]->empty()) {
+					RapidPID* pidHists=0;
+					if (pidHists_.find(type)!=pidHists_.end() && pidHists_[type] ) {
 						pidHists = pidHists_[type];
 					}
 					RapidParam* param = new RapidParam("", type, part, false, pidHists);

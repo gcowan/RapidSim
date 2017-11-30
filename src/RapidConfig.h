@@ -20,6 +20,7 @@ class RapidIPSmear;
 class RapidVtxSmear;
 class RapidParam;
 class RapidParticle;
+class RapidPID;
 
 class RapidConfig {
 	public:
@@ -103,7 +104,7 @@ class RapidConfig {
 
 		// PID histogram file
 		bool pidLoaded_;
-		std::map<RapidParam::ParamType, std::map<unsigned int, TH3D*>*> pidHists_;
+		std::map<RapidParam::ParamType, RapidPID*> pidHists_;
 
 		//type of geometric acceptance to apply
 		RapidAcceptance::AcceptanceType acceptanceType_;

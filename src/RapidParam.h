@@ -9,6 +9,7 @@
 #include "RapidParticleData.h"
 
 class RapidParticle;
+class RapidPID;
 
 class RapidParam {
 	public:
@@ -51,7 +52,7 @@ class RapidParam {
 			: name_(name), type_(type), truth_(truth), pidHist_(0), particles_(particles),
 			  minVal_(0.), maxVal_(0.) {setDefaultMinMax();}
 
-		RapidParam(TString name, ParamType type, RapidParticle* part, bool truth, std::map<unsigned int, TH3D*>* pidHist)
+		RapidParam(TString name, ParamType type, RapidParticle* part, bool truth, RapidPID* pidHist)
 			: name_(name), type_(type),
 			  truth_(truth), pidHist_(pidHist), minVal_(0.), maxVal_(0.)
 			{particles_.push_back(part); setDefaultMinMax();}
@@ -103,7 +104,7 @@ class RapidParam {
 		TString name_;
 		ParamType type_;
 		bool truth_;
-		std::map<unsigned int, TH3D *>* pidHist_;
+		RapidPID* pidHist_;
 
 		//the following are only used for specific parameters
 		////TODO refactor into an inherited class RapidParamSpecific

@@ -291,7 +291,7 @@ EvtGen may be used to generate decays allowing for non-phasespace decay models.
 
 * EvtGen must be compiled with all external generators included (Pythia, PHOTOS, Tauola)
   * This can be achieved by running the EvtGen setup
-  [script]: http://evtgen.warwick.ac.uk/static/srcrep/setupEvtGen.sh
+  [script]: http://evtgen.hepforge.org/git?p=evtgen.git;a=blob_plain;f=setupEvtGen.sh;hb=HEAD
   * Note the manual step to set the required environment variables after installation
 * To compile RapidSim against EvtGen the environment variable EVTGEN_ROOT must be set
 * At present, all identical particles must decay into the same mode

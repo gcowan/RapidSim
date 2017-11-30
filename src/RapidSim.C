@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <iostream>
+#include <ctime>
 
 #include "TString.h"
 
@@ -9,6 +10,10 @@
 #include "RapidHistWriter.h"
 
 int rapidSim(const TString mode, const int nEvtToGen, bool saveTree=false, int nToReDecay=0) {
+
+	clock_t t0,t1,t2;
+
+	t0=clock();
 
 	if(!getenv("RAPIDSIM_ROOT")) {
 		std::cout << "ERROR in rapidSim : environment variable RAPIDSIM_ROOT is not set" << std::endl
@@ -45,6 +50,8 @@ int rapidSim(const TString mode, const int nEvtToGen, bool saveTree=false, int n
 
 	RapidHistWriter* writer = config.getWriter(saveTree);
 
+	t1=clock();
+
 	int ngenerated = 0; int nselected = 0;
 	for (Int_t n=0; n<nEvtToGen; ++n) {
 		writer->setNEvent(n);
@@ -69,8 +76,12 @@ int rapidSim(const TString mode, const int nEvtToGen, bool saveTree=false, int n
 
 	writer->save();
 
-	std::cout << "Generated " << ngenerated << std::endl;
-	std::cout << "Selected " << nselected << std::endl;
+	t2=clock();
+
+	std::cout << "INFO in rapidSim : Generated " << ngenerated << std::endl;
+	std::cout << "INFO in rapidSim : Selected " << nselected << std::endl;
+	std::cout << "INFO in rapidSim : " << (float(t1) - float(t0)) / CLOCKS_PER_SEC << " seconds to initialise." << std::endl;
+	std::cout << "INFO in rapidSim : " << (float(t2) - float(t1)) / CLOCKS_PER_SEC << " seconds to generate." << std::endl;
 
 	return 0;
 }
