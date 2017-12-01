@@ -24,14 +24,20 @@ RapidPID::~RapidPID() {
 double RapidPID::getPID(unsigned int id, double p, double eta) {
 	//first check that we have a histogram for the given particle ID
 	if(pidHists_.find(id)==pidHists_.end()) {
-		std::cout << "WARNING in RapidPID::getPID : PID histogram not set for " << name_ << " " << id << std::endl;
-		std::cout << "                              returning 0" << std::endl;
+		if(suppressWarning_.find(id)==suppressWarning_.end()) {
+			std::cout << "WARNING in RapidPID::getPID : PID histogram not set for " << name_ << " " << id << std::endl;
+			std::cout << "                              returning 0" << std::endl;
+			suppressWarning_.insert(id);
+		}
 		return 0.;
 	}
 	TH3D* h = pidHists_.at(id);
 	if(!h) {
-		std::cout << "WARNING in RapidPID::getPID : PID histogram not set for " << name_ << " " << id << std::endl;
-		std::cout << "                              returning 0" << std::endl;
+		if(suppressWarning_.find(id)==suppressWarning_.end()) {
+			std::cout << "WARNING in RapidPID::getPID : PID histogram not set for " << name_ << " " << id << std::endl;
+			std::cout << "                              returning 0" << std::endl;
+			suppressWarning_.insert(id);
+		}
 		return 0.;
 	}
 

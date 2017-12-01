@@ -2,6 +2,7 @@
 #define RAPIDPID_H
 
 #include <map>
+#include <set>
 
 #include "TH3.h"
 #include "TString.h"
@@ -28,6 +29,8 @@ class RapidPID {
 		std::map<unsigned int, double> maxP_;
 		std::map<unsigned int, double> minEta_;
 		std::map<unsigned int, double> maxEta_;
+
+		std::set<unsigned int> suppressWarning_;
 };
 
 #endif

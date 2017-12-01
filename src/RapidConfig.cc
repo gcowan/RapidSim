@@ -923,13 +923,14 @@ bool RapidConfig::loadPID(TString category) {
 			if ( fileLoaded && idLoaded && buffer.Contains("Prob")) {
 				std::cout << "INFO in RapidConfig::loadPID : loading histogram " << buffer << std::endl;
 				TH3D * hist = dynamic_cast<TH3D*>(file->Get(buffer));
+				if(!hist) {
+					std::cout << "WARNING in RapidConfig::loadPID : failed to load histogram " << buffer << std::endl;
+					continue;
+				}
 				if ( hist->GetMinimum() < 0 ) {
 					for (int i = 0; i < hist->GetNcells(); ++i) {
 						if (hist->GetBinContent(i) < 0.) hist->SetBinContent(i, 0.);
 					}
-				}
-				if(!hist) {
-					std::cout << "WARNING in RapidConfig::loadPID : failed to load histogram " << buffer << std::endl;
 				}
 				RapidParam::ParamType type = RapidParam::typeFromString(buffer);
 				if(pidHists_.find(type)==pidHists_.end()) {
