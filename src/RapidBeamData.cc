@@ -26,6 +26,13 @@ void RapidBeamData::loadData(TString file) {
 
 	std::ifstream fin;
 	fin.open(file, std::ifstream::in);
+
+	if(!fin.good()) {
+		std::cout << "WARNING in RapidBeamData::loadDecay : file " << file << " not found." << std::endl;
+		std::cout << "                                      Using default values." << std::endl;
+		return;
+	}
+
 	TString buffer;
 	buffer.ReadLine(fin);//ignore title line
 
@@ -35,6 +42,10 @@ void RapidBeamData::loadData(TString file) {
 	sigmaxy_ = buffer.Atof();
 	buffer.ReadToken(fin);
 	sigmaz_ = buffer.Atof();
+	if(!fin.good()) {
+		std::cout << "WARNING in RapidBeamData::loadDecay : file " << file << " ended sooner than expected." << std::endl;
+		std::cout << "                                      Some values may not be set." << std::endl;
+	}
 
 	fin.close();
 }
