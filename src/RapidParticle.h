@@ -7,6 +7,7 @@
 #include "TString.h"
 
 #include "RooDataSet.h"
+#include "RapidVertex.h"
 
 class RapidMomentumSmear;
 class RapidParticleData;
@@ -21,8 +22,8 @@ class RapidParticle {
 			  massData_(0), minMass_(mass), maxMass_(mass),
 			  evtGenModel_("PHSP"),
 			  currentHypothesis_(0),
-			  originVertex_(0,0,0),
-			  decayVertex_(0,0,0)
+			  originVertex_(0),
+			  decayVertex_(0)
 			{setPtEtaPhi(0,0,0);}
 
 		~RapidParticle() {}
@@ -55,8 +56,8 @@ class RapidParticle {
 		double minMass() { return minMass_; }
 		double maxMass() { return maxMass_; }
 
-		ROOT::Math::XYZPoint getOriginVertex() {return originVertex_;}
-		ROOT::Math::XYZPoint getDecayVertex() {return decayVertex_;}
+		RapidVertex * getOriginVertex() {return originVertex_;}
+		RapidVertex * getDecayVertex() {return decayVertex_;}
 
 		unsigned int nDaughters() { return daughters_.size(); }
 
@@ -91,8 +92,8 @@ class RapidParticle {
 		void setMinIPSigma(double sigma) { sigmaminip_ = sigma; }
 		//
 		void setPtEtaPhi(double pt, double eta, double phi) { p_.SetPtEtaPhiM(pt,eta,phi,mass_); }
-		void setOriginVertex(ROOT::Math::XYZPoint v) {originVertex_ = v;}
-		void setDecayVertex(ROOT::Math::XYZPoint v) {decayVertex_ = v;}
+		void setOriginVertex(RapidVertex * v) {originVertex_ = v;}
+		void setDecayVertex(RapidVertex * v) {decayVertex_ = v;}
 
 		void print(int index);
 
@@ -151,7 +152,7 @@ class RapidParticle {
 
 		unsigned int currentHypothesis_;
 
-		ROOT::Math::XYZPoint originVertex_;
-		ROOT::Math::XYZPoint decayVertex_;
+		RapidVertex * originVertex_;
+		RapidVertex * decayVertex_;
 };
 #endif

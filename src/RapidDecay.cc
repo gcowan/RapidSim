@@ -238,13 +238,14 @@ bool RapidDecay::genDecay(bool acceptAny) {
 			// Now generate the decay vertex for long-lived particles
 			// First set the origin vertex to be the PV for the head of the chain
 			// in all other cases, the origin vertex will already be set in the loop below
-			if (!part->mother()) part->setOriginVertex(signalpv->getVertex().first);
+			if (!part->mother()) part->setOriginVertex(signalpv);
 			if (part->ctau()>0) {
 				double dist = part->getP().P()*gRandom->Exp(part->ctau())/part->mass();
-				double dvx  = part->getOriginVertex().X() + part->getP().Vect().Unit().X()*dist;
-				double dvy  = part->getOriginVertex().Y() + part->getP().Vect().Unit().Y()*dist;
-				double dvz  = part->getOriginVertex().Z() + part->getP().Vect().Unit().Z()*dist;
-				part->setDecayVertex(ROOT::Math::XYZPoint(dvx,dvy,dvz));
+				double dvx  = part->getOriginVertex()->getVertex().first.X() + part->getP().Vect().Unit().X()*dist;
+				double dvy  = part->getOriginVertex()->getVertex().first.Y() + part->getP().Vect().Unit().Y()*dist;
+				double dvz  = part->getOriginVertex()->getVertex().first.Z() + part->getP().Vect().Unit().Z()*dist;
+				RapidVertex * vtx = new RapidVertex(dvx, dvy, dvz);
+                part->setDecayVertex(vtx);
 			} else part->setDecayVertex(part->getOriginVertex());
 
 			int j=0;
@@ -252,7 +253,7 @@ bool RapidDecay::genDecay(bool acceptAny) {
 				jDaug->setP(*decay_.GetDecay(j++));
 				jDaug->setOriginVertex(part->getDecayVertex());
 				double ip(0.);
-				ip = getParticleIP(signalpv->getVertex().first,jDaug->getOriginVertex(),jDaug->getP());
+				ip = getParticleIP(signalpv->getVertex().first,jDaug->getOriginVertex()->getVertex().first,jDaug->getP());
 				jDaug->setIP(ip);
 				jDaug->smearIP();
 				//Now the pileup, we cache the results of the IP smearing first...
@@ -265,7 +266,7 @@ bool RapidDecay::genDecay(bool acceptAny) {
 				double cachedsigmaminip = cachedsigmaip;
                 std::vector<RapidVertex*>::iterator itrVtx;
                 for(itrVtx = pileuppvs.begin(); itrVtx != pileuppvs.end(); ++itrVtx) {
-					double thisip = getParticleIP((*itrVtx)->getVertex().first,jDaug->getOriginVertex(),jDaug->getP());
+					double thisip = getParticleIP((*itrVtx)->getVertex().first,jDaug->getOriginVertex()->getVertex().first,jDaug->getP());
 					jDaug->setMinIP(thisip);
 					jDaug->smearIP();
 					if (std::fabs(jDaug->getMinIPSmeared()) < std::fabs(cachedminipsmeared)) {
