@@ -45,7 +45,7 @@ class RapidParticle {
 
 		void smearMomentum();
 		void smearIP();
-		double getFD();
+		double getFD(bool truth);
 
 		int id() { return id_; }
 		TString name() { return name_; }

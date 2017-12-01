@@ -67,13 +67,22 @@ void RapidParticle::smearMomentum() {
 	}
 }
 
-double RapidParticle::getFD() {
+double RapidParticle::getFD(bool truth) {
 	if(nDaughters() == 0) { // If stable true flight distance is infinite, return -1 as default
 		return -1.;
 	} else {
-		return sqrt(pow(decayVertex_->getVertex().first.X()-originVertex_->getVertex().first.X(),2) + \
-			    pow(decayVertex_->getVertex().first.Y()-originVertex_->getVertex().first.Y(),2) + \
-			    pow(decayVertex_->getVertex().first.Z()-originVertex_->getVertex().first.Z(),2) );
+        ROOT::Math::XYZPoint decVtx;
+        ROOT::Math::XYZPoint oriVtx;
+        if (truth) {
+            decVtx = decayVertex_->getVertex().first;
+            oriVtx = originVertex_->getVertex().first;
+        } else {
+            decVtx = decayVertex_->getVertex().second;
+            oriVtx = originVertex_->getVertex().second;
+        }
+		return sqrt(pow(decVtx.X()-oriVtx.X(),2) + \
+			        pow(decVtx.Y()-oriVtx.Y(),2) + \
+			        pow(decVtx.Z()-oriVtx.Z(),2) );
 	}
 }
 
