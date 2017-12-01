@@ -13,6 +13,7 @@
 #include "RapidParticle.h"
 #include "RapidParticleData.h"
 #include "RapidBeamData.h"
+#include "RapidVertex.h"
 
 void RapidDecay::setParentKinematics(TH1* ptHisto, TH1* etaHisto) {
 	std::cout << "INFO in RapidDecay::setParentKinematics : setting kinematics of the parent." << std::endl;
@@ -186,15 +187,18 @@ void RapidDecay::genParent() {
 
 bool RapidDecay::genDecay(bool acceptAny) {
 	//The origin vertex of the signal is always 0,0,0
-	ROOT::Math::XYZPoint signalpv(0.,0.,0.);
-	//Now the pileup vertices
+	//ROOT::Math::XYZPoint signalpv(0.,0.,0.);
+	RapidVertex * signalpv = new RapidVertex(0., 0., 0.);
+    //Now the pileup vertices
 	RapidBeamData* beam = RapidBeamData::getInstance();
 	unsigned int numpileup_ = gRandom->Poisson(beam->getPileup());
 	double sigmapvxy_ = beam->getSigmaXY();
 	double sigmapvz_  = beam->getSigmaZ();
-	std::vector<ROOT::Math::XYZPoint> pileuppvs;
-	for(unsigned int i=0; i<numpileup_; ++i) {
-		pileuppvs.push_back(ROOT::Math::XYZPoint(gRandom->Gaus(0,sigmapvxy_),gRandom->Gaus(0,sigmapvxy_),gRandom->Gaus(0,sigmapvz_)));
+	//std::vector<ROOT::Math::XYZPoint> pileuppvs;
+    std::vector<RapidVertex *> pileuppvs;	
+    for(unsigned int i=0; i<numpileup_; ++i) {
+        RapidVertex * vtx = new RapidVertex(gRandom->Gaus(0,sigmapvxy_),gRandom->Gaus(0,sigmapvxy_),gRandom->Gaus(0,sigmapvz_));
+        pileuppvs.push_back(vtx);
 	}
 	for(unsigned int i=0; i<parts_.size(); ++i) {
 		RapidParticle* part = parts_[i];
@@ -234,7 +238,7 @@ bool RapidDecay::genDecay(bool acceptAny) {
 			// Now generate the decay vertex for long-lived particles
 			// First set the origin vertex to be the PV for the head of the chain
 			// in all other cases, the origin vertex will already be set in the loop below
-			if (!part->mother()) part->setOriginVertex(signalpv);
+			if (!part->mother()) part->setOriginVertex(signalpv->getVertex().first);
 			if (part->ctau()>0) {
 				double dist = part->getP().P()*gRandom->Exp(part->ctau())/part->mass();
 				double dvx  = part->getOriginVertex().X() + part->getP().Vect().Unit().X()*dist;
@@ -248,7 +252,7 @@ bool RapidDecay::genDecay(bool acceptAny) {
 				jDaug->setP(*decay_.GetDecay(j++));
 				jDaug->setOriginVertex(part->getDecayVertex());
 				double ip(0.);
-				ip = getParticleIP(signalpv,jDaug->getOriginVertex(),jDaug->getP());
+				ip = getParticleIP(signalpv->getVertex().first,jDaug->getOriginVertex(),jDaug->getP());
 				jDaug->setIP(ip);
 				jDaug->smearIP();
 				//Now the pileup, we cache the results of the IP smearing first...
@@ -259,8 +263,9 @@ bool RapidDecay::genDecay(bool acceptAny) {
 				double cachedminip = cachedip;
 				double cachedminipsmeared = cachedipsmeared;
 				double cachedsigmaminip = cachedsigmaip;
-				for(unsigned int i=0; i<numpileup_; ++i) {
-					double thisip = getParticleIP(pileuppvs[i],jDaug->getOriginVertex(),jDaug->getP());
+                std::vector<RapidVertex*>::iterator itrVtx;
+                for(itrVtx = pileuppvs.begin(); itrVtx != pileuppvs.end(); ++itrVtx) {
+					double thisip = getParticleIP((*itrVtx)->getVertex().first,jDaug->getOriginVertex(),jDaug->getP());
 					jDaug->setMinIP(thisip);
 					jDaug->smearIP();
 					if (std::fabs(jDaug->getMinIPSmeared()) < std::fabs(cachedminipsmeared)) {
