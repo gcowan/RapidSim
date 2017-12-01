@@ -7,7 +7,7 @@
 void RapidVertex::smearVertex() {
     double xS = 0.010817 + 0.03784*TMath::Exp(-0.0815*vertexTrue_.X());
     double yS = 0.010817 + 0.03784*TMath::Exp(-0.0815*vertexTrue_.Y());
-    double zS = 0.010817 + 0.03784*TMath::Exp(-0.0815*vertexTrue_.Z());
+    double zS = 0.04252  + 0.2235 *TMath::Exp(-0.0814*vertexTrue_.Z());
     vertexSmeared_ = ROOT::Math::XYZPoint(xS, yS, zS);
     vertex_ = std::make_pair(vertexTrue_, vertexSmeared_);
 }
