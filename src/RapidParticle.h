@@ -92,8 +92,6 @@ class RapidParticle {
 		void setMinIPSigma(double sigma) { sigmaminip_ = sigma; }
 		//
 		void setPtEtaPhi(double pt, double eta, double phi) { p_.SetPtEtaPhiM(pt,eta,phi,mass_); }
-		//void setOriginVertex(RapidVertex * v) {originVertex_ = v;}
-		//void setDecayVertex(RapidVertex * v) {decayVertex_ = v;}
 
 		void print(int index);
 
