@@ -240,9 +240,9 @@ bool RapidDecay::genDecay(bool acceptAny) {
 			// in all other cases, the origin vertex will already be set in the loop below
 			if (part->ctau()>0) {
 				double dist = part->getP().P()*gRandom->Exp(part->ctau())/part->mass();
-				double dvx  = part->getOriginVertex()->getVertex().first.X() + part->getP().Vect().Unit().X()*dist;
-				double dvy  = part->getOriginVertex()->getVertex().first.Y() + part->getP().Vect().Unit().Y()*dist;
-				double dvz  = part->getOriginVertex()->getVertex().first.Z() + part->getP().Vect().Unit().Z()*dist;
+				double dvx  = part->getOriginVertex()->getVertex(true).X() + part->getP().Vect().Unit().X()*dist;
+				double dvy  = part->getOriginVertex()->getVertex(true).Y() + part->getP().Vect().Unit().Y()*dist;
+				double dvz  = part->getOriginVertex()->getVertex(true).Z() + part->getP().Vect().Unit().Z()*dist;
 				part->getDecayVertex()->setXYZ(dvx,dvy,dvz);
 			}
 
@@ -251,7 +251,7 @@ bool RapidDecay::genDecay(bool acceptAny) {
 				jDaug->setP(*decay_.GetDecay(j++));
 				//jDaug->setOriginVertex(part->getDecayVertex());
 				double ip(0.);
-				ip = getParticleIP(signalpv->getVertex().first,jDaug->getOriginVertex()->getVertex().first,jDaug->getP());
+				ip = getParticleIP(signalpv->getVertex(true),jDaug->getOriginVertex()->getVertex(true),jDaug->getP());
 				jDaug->setIP(ip);
 				jDaug->smearIP();
 				//Now the pileup, we cache the results of the IP smearing first...
@@ -264,7 +264,7 @@ bool RapidDecay::genDecay(bool acceptAny) {
 				double cachedsigmaminip = cachedsigmaip;
 				std::vector<RapidVertex>::iterator itrVtx;
 				for(itrVtx = pileuppvs_.begin(); itrVtx != pileuppvs_.end(); ++itrVtx) {
-					double thisip = getParticleIP((*itrVtx).getVertex().first,jDaug->getOriginVertex()->getVertex().first,jDaug->getP());
+					double thisip = getParticleIP((*itrVtx).getVertex(true),jDaug->getOriginVertex()->getVertex(true),jDaug->getP());
 					jDaug->setMinIP(thisip);
 					jDaug->smearIP();
 					if (std::fabs(jDaug->getMinIPSmeared()) < std::fabs(cachedminipsmeared)) {

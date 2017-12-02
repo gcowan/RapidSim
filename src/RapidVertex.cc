@@ -5,6 +5,11 @@
 #include "TMath.h"
 #include "TRandom.h"
 
+ROOT::Math::XYZPoint RapidVertex::getVertex(bool truth) {
+	if(truth) return vertexTrue_;
+	else return vertexSmeared_;
+}
+
 void RapidVertex::setXYZ(double x, double y, double z) {
 	vertexTrue_ = ROOT::Math::XYZPoint(x,y,z);
 	smearVertex();
@@ -21,6 +26,5 @@ void RapidVertex::smearVertex() {
 			vertexTrue_.X() + gRandom->Gaus(0,xS)*1000., \
 			vertexTrue_.Y() + gRandom->Gaus(0,yS)*1000., \
 			vertexTrue_.Z() + gRandom->Gaus(0,zS)*1000.);
-	vertex_ = std::make_pair(vertexTrue_, vertexSmeared_);
 }
 

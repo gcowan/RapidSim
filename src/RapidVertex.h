@@ -11,7 +11,7 @@ class RapidVertex {
 		RapidVertex(double x, double y, double z)
 			: nPVTracks_(5), vertexTrue_(x, y, z) {smearVertex();}
 
-		std::pair<ROOT::Math::XYZPoint, ROOT::Math::XYZPoint> getVertex() {return vertex_;};
+		ROOT::Math::XYZPoint getVertex(bool truth);
 
 		void setXYZ(double x, double y, double z);
 
@@ -21,7 +21,6 @@ class RapidVertex {
 
 		ROOT::Math::XYZPoint vertexTrue_;
 		ROOT::Math::XYZPoint vertexSmeared_;
-		std::pair<ROOT::Math::XYZPoint, ROOT::Math::XYZPoint> vertex_;
 };
 
 #endif

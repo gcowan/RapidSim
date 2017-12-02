@@ -71,15 +71,9 @@ double RapidParticle::getFD(bool truth) {
 	if(nDaughters() == 0) { // If stable true flight distance is infinite, return -1 as default
 		return -1.;
 	} else {
-		ROOT::Math::XYZPoint decVtx;
-		ROOT::Math::XYZPoint oriVtx;
-		if (truth) {
-			decVtx = decayVertex_->getVertex().first;
-			oriVtx = originVertex_->getVertex().first;
-		} else {
-			decVtx = decayVertex_->getVertex().second;
-			oriVtx = originVertex_->getVertex().second;
-		}
+		ROOT::Math::XYZPoint decVtx = decayVertex_->getVertex(truth);
+		ROOT::Math::XYZPoint oriVtx = originVertex_->getVertex(truth);
+
 		return sqrt(pow(decVtx.X()-oriVtx.X(),2) + \
 				pow(decVtx.Y()-oriVtx.Y(),2) + \
 				pow(decVtx.Z()-oriVtx.Z(),2) );
