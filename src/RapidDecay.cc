@@ -249,7 +249,6 @@ bool RapidDecay::genDecay(bool acceptAny) {
 			int j=0;
 			for(RapidParticle* jDaug=part->daughter(0); jDaug!=0; jDaug=jDaug->next()) {
 				jDaug->setP(*decay_.GetDecay(j++));
-				//jDaug->setOriginVertex(part->getDecayVertex());
 				double ip(0.);
 				ip = getParticleIP(signalpv->getVertex(true),jDaug->getOriginVertex()->getVertex(true),jDaug->getP());
 				jDaug->setIP(ip);
