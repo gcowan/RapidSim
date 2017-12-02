@@ -68,14 +68,14 @@ bool RapidExternalEvtGen::decay(std::vector<RapidParticle*>& parts) {
 
 			if (child != 0) {
 				p4Evt = child->getP4Lab();
-				x4Evt = theParticle->get4Pos();
+				x4Evt = child->get4Pos();
 				p4TLV.SetPxPyPzE(p4Evt.get(1),p4Evt.get(2),p4Evt.get(3),p4Evt.get(0));
 				if(parts.size() < iPart+1u) {
 					std::cout << "WARNING in RapidExternalEvtGen::decay : EvtGen has produced too many particles." << std::endl;
 					return false;
 				}
 				parts[iPart]->setP(p4TLV);
-				parts[iPart]->getOriginVertex()->setXYZ(x4Evt.get(1),x4Evt.get(2),x4Evt.get(3));
+				parts[iPart]->getOriginVertex()->setXYZ(1e3*x4Evt.get(1),1e3*x4Evt.get(2),1e3*x4Evt.get(3));
 				++iPart;
 				evtParts.push(child);
 			}
