@@ -13,7 +13,7 @@ double RapidParam::eval() {
 	if(type_ == RapidParam::ProbNNmu || type_ == RapidParam::ProbNNpi || type_ == RapidParam::ProbNNe ||
 	   type_ == RapidParam::ProbNNk || type_ == RapidParam::ProbNNp) return evalPID();
 
-	double fd      = particles_[0]->getFD();
+	double fd      = particles_[0]->getFD(truth_);
 	double ip      = particles_[0]->getIP();
 	double minip   = particles_[0]->getMinIP();
 	double ipSigma = particles_[0]->getSigmaIP();
@@ -134,7 +134,7 @@ bool RapidParam::canBeSmeared() {
 		case RapidParam::SIGMAMINIP:
 			return false;
 		case RapidParam::FD:
-			return false;
+			return true;
 		case RapidParam::ProbNNmu:
 			return true;
 		case RapidParam::ProbNNpi:

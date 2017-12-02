@@ -67,13 +67,16 @@ void RapidParticle::smearMomentum() {
 	}
 }
 
-double RapidParticle::getFD() {
+double RapidParticle::getFD(bool truth) {
 	if(nDaughters() == 0) { // If stable true flight distance is infinite, return -1 as default
 		return -1.;
 	} else {
-		return sqrt(pow(decayVertex_.X()-originVertex_.X(),2) + \
-			    pow(decayVertex_.Y()-originVertex_.Y(),2) + \
-			    pow(decayVertex_.Z()-originVertex_.Z(),2) );
+		ROOT::Math::XYZPoint decVtx = decayVertex_->getVertex(truth);
+		ROOT::Math::XYZPoint oriVtx = originVertex_->getVertex(truth);
+
+		return sqrt(pow(decVtx.X()-oriVtx.X(),2) + \
+				pow(decVtx.Y()-oriVtx.Y(),2) + \
+				pow(decVtx.Z()-oriVtx.Z(),2) );
 	}
 }
 
@@ -205,4 +208,15 @@ void RapidParticle::updateMomenta() {
 	if(mother_) {
 		mother_->updateMomenta();
 	}
+}
+
+void RapidParticle::setupVertices() {
+	if(mother_) {
+		originVertex_ = mother_->decayVertex_;
+	} else {
+		originVertex_ = new RapidVertex(0.,0.,0.);
+	}
+	if(ctau_>0) {
+		decayVertex_ = new RapidVertex(0.,0.,0);
+	} else decayVertex_ = originVertex_;
 }

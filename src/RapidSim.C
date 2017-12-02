@@ -58,10 +58,10 @@ int rapidSim(const TString mode, const int nEvtToGen, bool saveTree=false, int n
 		if (!decay->generate()) continue;
 		++ngenerated;
 
-		if(!acceptance->isSelected()) continue;
-		++nselected;
-
-		writer->fill();
+		if(acceptance->isSelected()) {
+			++nselected;
+			writer->fill();
+		}
 
 		for (Int_t nrd=0; nrd<nToReDecay; ++nrd) {
 			if (!decay->generate(false)) continue;
