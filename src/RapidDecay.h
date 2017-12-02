@@ -13,6 +13,8 @@
 #include "Math/Point3D.h"
 #include "Math/Vector3D.h"
 
+#include "RapidVertex.h"
+
 class RapidParticle;
 class RapidParam;
 class RapidExternalGenerator;
@@ -59,6 +61,9 @@ class RapidDecay {
 
 		//the particles
 		std::vector<RapidParticle*> parts_;
+
+		//pileup vertices
+		std::vector<RapidVertex> pileuppvs_;
 
 		//max number of attempts to generate an event
 		int maxgen_;

@@ -215,3 +215,14 @@ void RapidParticle::updateMomenta() {
 		mother_->updateMomenta();
 	}
 }
+
+void RapidParticle::setupVertices() {
+	if(mother_) {
+		originVertex_ = mother_->decayVertex_;
+	} else {
+		originVertex_ = new RapidVertex(0.,0.,0.);
+	}
+	if(ctau_>0) {
+		decayVertex_ = new RapidVertex(0.,0.,0);
+	} else decayVertex_ = originVertex_;
+}

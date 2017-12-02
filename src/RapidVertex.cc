@@ -5,6 +5,11 @@
 #include "TMath.h"
 #include "TRandom.h"
 
+void RapidVertex::setXYZ(double x, double y, double z) {
+	vertexTrue_ = ROOT::Math::XYZPoint(x,y,z);
+	smearVertex();
+}
+
 void RapidVertex::smearVertex() {
 	// Obviously at the moment we are just using the same smearing for PV and SV.
 	// Need to sample from some nPVTracks distribution

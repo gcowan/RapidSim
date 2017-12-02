@@ -13,6 +13,8 @@ class RapidVertex {
 
 		std::pair<ROOT::Math::XYZPoint, ROOT::Math::XYZPoint> getVertex() {return vertex_;};
 
+		void setXYZ(double x, double y, double z);
+
 	private:
 		void smearVertex();
 		unsigned int nPVTracks_;

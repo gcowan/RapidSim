@@ -24,7 +24,7 @@ class RapidParticle {
 			  currentHypothesis_(0),
 			  originVertex_(0),
 			  decayVertex_(0)
-			{setPtEtaPhi(0,0,0);}
+			{setPtEtaPhi(0,0,0); setupVertices();}
 
 		~RapidParticle() {}
 
@@ -92,8 +92,8 @@ class RapidParticle {
 		void setMinIPSigma(double sigma) { sigmaminip_ = sigma; }
 		//
 		void setPtEtaPhi(double pt, double eta, double phi) { p_.SetPtEtaPhiM(pt,eta,phi,mass_); }
-		void setOriginVertex(RapidVertex * v) {originVertex_ = v;}
-		void setDecayVertex(RapidVertex * v) {decayVertex_ = v;}
+		//void setOriginVertex(RapidVertex * v) {originVertex_ = v;}
+		//void setDecayVertex(RapidVertex * v) {decayVertex_ = v;}
 
 		void print(int index);
 
@@ -110,6 +110,8 @@ class RapidParticle {
 		void updateDaughterMass(unsigned int index);
 
 		void updateMomenta();
+
+		void setupVertices();
 
 		unsigned int index_;
 

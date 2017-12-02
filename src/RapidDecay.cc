@@ -183,23 +183,23 @@ void RapidDecay::genParent() {
 	if(ptHisto_)   pt = ptHisto_->GetRandom();
 	if(etaHisto_) eta = etaHisto_->GetRandom();
 	parts_[0]->setPtEtaPhi(pt,eta,phi);
-}
 
-bool RapidDecay::genDecay(bool acceptAny) {
-	//The origin vertex of the signal is always 0,0,0
-	//ROOT::Math::XYZPoint signalpv(0.,0.,0.);
-	RapidVertex * signalpv = new RapidVertex(0., 0., 0.);
 	//Now the pileup vertices
 	RapidBeamData* beam = RapidBeamData::getInstance();
 	unsigned int numpileup_ = gRandom->Poisson(beam->getPileup());
 	double sigmapvxy_ = beam->getSigmaXY();
 	double sigmapvz_  = beam->getSigmaZ();
-	//std::vector<ROOT::Math::XYZPoint> pileuppvs;
-	std::vector<RapidVertex *> pileuppvs;
+
+	pileuppvs_.clear();
 	for(unsigned int i=0; i<numpileup_; ++i) {
-		RapidVertex * vtx = new RapidVertex(gRandom->Gaus(0,sigmapvxy_),gRandom->Gaus(0,sigmapvxy_),gRandom->Gaus(0,sigmapvz_));
-		pileuppvs.push_back(vtx);
+		RapidVertex vtx(gRandom->Gaus(0,sigmapvxy_),gRandom->Gaus(0,sigmapvxy_),gRandom->Gaus(0,sigmapvz_));
+		pileuppvs_.push_back(vtx);
 	}
+}
+
+bool RapidDecay::genDecay(bool acceptAny) {
+	//The origin vertex of the signal is always 0,0,0
+	RapidVertex * signalpv = parts_[0]->getOriginVertex();
 	for(unsigned int i=0; i<parts_.size(); ++i) {
 		RapidParticle* part = parts_[i];
 		if(part->nDaughters()>0) {
@@ -238,20 +238,18 @@ bool RapidDecay::genDecay(bool acceptAny) {
 			// Now generate the decay vertex for long-lived particles
 			// First set the origin vertex to be the PV for the head of the chain
 			// in all other cases, the origin vertex will already be set in the loop below
-			if (!part->mother()) part->setOriginVertex(signalpv);
 			if (part->ctau()>0) {
 				double dist = part->getP().P()*gRandom->Exp(part->ctau())/part->mass();
 				double dvx  = part->getOriginVertex()->getVertex().first.X() + part->getP().Vect().Unit().X()*dist;
 				double dvy  = part->getOriginVertex()->getVertex().first.Y() + part->getP().Vect().Unit().Y()*dist;
 				double dvz  = part->getOriginVertex()->getVertex().first.Z() + part->getP().Vect().Unit().Z()*dist;
-				RapidVertex * vtx = new RapidVertex(dvx, dvy, dvz);
-				part->setDecayVertex(vtx);
-			} else part->setDecayVertex(part->getOriginVertex());
+				part->getDecayVertex()->setXYZ(dvx,dvy,dvz);
+			}
 
 			int j=0;
 			for(RapidParticle* jDaug=part->daughter(0); jDaug!=0; jDaug=jDaug->next()) {
 				jDaug->setP(*decay_.GetDecay(j++));
-				jDaug->setOriginVertex(part->getDecayVertex());
+				//jDaug->setOriginVertex(part->getDecayVertex());
 				double ip(0.);
 				ip = getParticleIP(signalpv->getVertex().first,jDaug->getOriginVertex()->getVertex().first,jDaug->getP());
 				jDaug->setIP(ip);
@@ -264,9 +262,9 @@ bool RapidDecay::genDecay(bool acceptAny) {
 				double cachedminip = cachedip;
 				double cachedminipsmeared = cachedipsmeared;
 				double cachedsigmaminip = cachedsigmaip;
-				std::vector<RapidVertex*>::iterator itrVtx;
-				for(itrVtx = pileuppvs.begin(); itrVtx != pileuppvs.end(); ++itrVtx) {
-					double thisip = getParticleIP((*itrVtx)->getVertex().first,jDaug->getOriginVertex()->getVertex().first,jDaug->getP());
+				std::vector<RapidVertex>::iterator itrVtx;
+				for(itrVtx = pileuppvs_.begin(); itrVtx != pileuppvs_.end(); ++itrVtx) {
+					double thisip = getParticleIP((*itrVtx).getVertex().first,jDaug->getOriginVertex()->getVertex().first,jDaug->getP());
 					jDaug->setMinIP(thisip);
 					jDaug->smearIP();
 					if (std::fabs(jDaug->getMinIPSmeared()) < std::fabs(cachedminipsmeared)) {

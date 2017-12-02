@@ -45,13 +45,15 @@ bool RapidExternalEvtGen::decay(std::vector<RapidParticle*>& parts) {
 	std::queue<EvtParticle*> evtParts;
 	evtParts.push(theParent);
 
+	EvtVector4R x4Evt;
 	EvtVector4R p4Evt;
 	TLorentzVector p4TLV;
 
-	int iPart=1; // The momentum of the first particle is already set
+	int iPart=1; // The momentum and origin vertex of the first particle are already set
 
 	while(!evtParts.empty()) {
 		EvtParticle* theParticle = evtParts.front();
+
 		int nChildren = theParticle->getNDaug();
 
 		// B0 and Bs may mix in EvtGen - RapidSim ignores this step and only records the second state
@@ -66,12 +68,14 @@ bool RapidExternalEvtGen::decay(std::vector<RapidParticle*>& parts) {
 
 			if (child != 0) {
 				p4Evt = child->getP4Lab();
+				x4Evt = theParticle->get4Pos();
 				p4TLV.SetPxPyPzE(p4Evt.get(1),p4Evt.get(2),p4Evt.get(3),p4Evt.get(0));
 				if(parts.size() < iPart+1u) {
 					std::cout << "WARNING in RapidExternalEvtGen::decay : EvtGen has produced too many particles." << std::endl;
 					return false;
 				}
 				parts[iPart]->setP(p4TLV);
+				parts[iPart]->getOriginVertex()->setXYZ(x4Evt.get(1),x4Evt.get(2),x4Evt.get(3));
 				++iPart;
 				evtParts.push(child);
 			}
