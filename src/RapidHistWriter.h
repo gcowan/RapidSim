@@ -22,8 +22,6 @@ class RapidHistWriter {
 		void fill();
 		void save();
 
-		void setNEvent(int nevent) { nevent_ = nevent; }
-
 	private:
 		void setup(bool saveTree);
 
@@ -55,7 +53,6 @@ class RapidHistWriter {
 		//tree to store parameters in
 		TFile* treeFile_;
 		TTree* tree_;
-		int nevent_;
 		std::vector<double> vars_;
 };
 

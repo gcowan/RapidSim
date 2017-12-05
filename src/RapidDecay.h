@@ -13,8 +13,6 @@
 #include "Math/Point3D.h"
 #include "Math/Vector3D.h"
 
-#include "RapidVertex.h"
-
 class RapidParticle;
 class RapidParam;
 class RapidExternalGenerator;
@@ -30,7 +28,7 @@ class RapidDecay {
 			{setup();}
 
 		~RapidDecay() {}
-
+		
 		void setMaxGen(int mg) { maxgen_ = mg; }
 		void setParentKinematics(TH1* ptHisto, TH1* etaHisto);
 		void setAcceptRejectHist(TH1* histo, RapidParam* param);
@@ -38,7 +36,7 @@ class RapidDecay {
 		void setExternal(RapidExternalGenerator* external);
 
 		bool checkDecay();
-		bool generate(bool genpar=true);
+		bool generate();
 
 	private:
 		void setup();
@@ -57,14 +55,12 @@ class RapidDecay {
 		bool genDecay(bool acceptAny=false);
 		bool genDecayAccRej();
 		void smearMomenta();
-		double getParticleIP(ROOT::Math::XYZPoint, ROOT::Math::XYZPoint, TLorentzVector);
+        void smearIPs();
+        double getParticleIP(ROOT::Math::XYZPoint, ROOT::Math::XYZPoint, TLorentzVector);
 
 		//the particles
 		std::vector<RapidParticle*> parts_;
-
-		//pileup vertices
-		std::vector<RapidVertex> pileuppvs_;
-
+		
 		//max number of attempts to generate an event
 		int maxgen_;
 

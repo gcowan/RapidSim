@@ -6,7 +6,6 @@
 #include "TRandom.h"
 
 #include "RapidIPSmearGauss.h"
-#include "RapidMomentumSmearEnergyGauss.h"
 #include "RapidMomentumSmearGauss.h"
 #include "RapidMomentumSmearHisto.h"
 #include "RapidParticleData.h"
@@ -66,49 +65,27 @@ void RapidParticle::smearMomentum() {
 		}
 	}
 }
-
-double RapidParticle::getFD(bool truth) {
-	if(nDaughters() == 0) { // If stable true flight distance is infinite, return -1 as default
-		return -1.;
-	} else {
-		ROOT::Math::XYZPoint decVtx = decayVertex_->getVertex(truth);
-		ROOT::Math::XYZPoint oriVtx = originVertex_->getVertex(truth);
-
-		return sqrt(pow(decVtx.X()-oriVtx.X(),2) + \
-				pow(decVtx.Y()-oriVtx.Y(),2) + \
-				pow(decVtx.Z()-oriVtx.Z(),2) );
-	}
-}
-
+    
 void RapidParticle::smearIP() {
-	if(nDaughters() != 0) {
-		// Do not smear the IP of decaying particles
-		// It is a derived quantity which can be computed from their
-		// smeared origin & decay vertices and momentum
-		ipSmeared_ = ip_;
-		sigmaip_ = 0.;
-		minipSmeared_ = minip_;
-		sigmaminip_ = 0.;
-	} else {
-		if(invisible_) {
-			ipSmeared_ = ip_;
-			sigmaip_ = 0.;
-			minipSmeared_ = minip_;
-			sigmaminip_ = 0.;
-		} else if (ipSmear_) {
-			std::pair<double,double> smearedips = ipSmear_->smearIP(ip_,p_.Pt());
-			ipSmeared_ = smearedips.first;
-			sigmaip_   = smearedips.second;
-			std::pair<double,double> smearedminips = ipSmear_->smearIP(minip_,p_.Pt());
-			minipSmeared_ = smearedminips.first;
-			sigmaminip_   = smearedminips.second;
-		} else {
-			ipSmeared_ = ip_;
-			sigmaip_ = 0.;
-			minipSmeared_ = minip_;
-			sigmaminip_ = 0.;
-		}
-	}
+    if(nDaughters() != 0) {
+        // Do not smear the IP of decaying particles
+        // It is a derived quantity which can be computed from their
+        // smeared origin & decay vertices and momentum
+        ipSmeared_ = ip_;
+        sigmaip_ = 0.;
+    } else {
+        if(invisible_) {
+            ipSmeared_ = ip_;
+            sigmaip_ = 0.;
+        } else if (ipSmear_) {
+            std::pair<double,double> smearedips = ipSmear_->smearIP(ip_,p_.Pt());
+            ipSmeared_ = smearedips.first;
+            sigmaip_   = smearedips.second;
+        } else {
+            ipSmeared_ = ip_;
+            sigmaip_ = 0.;
+        }
+    }
 }
 
 double RapidParticle::deltaMass() {
@@ -208,15 +185,4 @@ void RapidParticle::updateMomenta() {
 	if(mother_) {
 		mother_->updateMomenta();
 	}
-}
-
-void RapidParticle::setupVertices() {
-	if(mother_) {
-		originVertex_ = mother_->decayVertex_;
-	} else {
-		originVertex_ = new RapidVertex(0.,0.,0.);
-	}
-	if(ctau_>0) {
-		decayVertex_ = new RapidVertex(0.,0.,0);
-	} else decayVertex_ = originVertex_;
 }

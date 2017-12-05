@@ -14,7 +14,7 @@ class RapidMomentumSmearGauss : public RapidMomentumSmear {
 		TLorentzVector smearMomentum(TLorentzVector p);
 
 	private:
-		TGraphErrors* graph_;
+    		TGraphErrors* graph_;
 
 };
 

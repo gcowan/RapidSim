@@ -4,79 +4,62 @@
 
 #include "RapidParticle.h"
 #include "RapidParticleData.h"
-#include "RapidPID.h"
 
 double RapidParam::eval() {
 
 	if(type_ == RapidParam::THETA || type_ == RapidParam::COSTHETA) return evalTheta();
 	if(type_ == RapidParam::MCORR) return evalCorrectedMass();
-	if(type_ == RapidParam::ProbNNmu || type_ == RapidParam::ProbNNpi || type_ == RapidParam::ProbNNe ||
-	   type_ == RapidParam::ProbNNk || type_ == RapidParam::ProbNNp) return evalPID();
 
-	double fd      = particles_[0]->getFD(truth_);
-	double ip      = particles_[0]->getIP();
-	double minip   = particles_[0]->getMinIP();
-	double ipSigma = particles_[0]->getSigmaIP();
-	double minipSigma = particles_[0]->getSigmaMinIP();
 	mom_.SetPxPyPzE(0.,0.,0.,0.);
 	if(truth_) {
 		for(unsigned int i=0; i<particles_.size(); ++i) {
 			mom_ += particles_[i]->getP();
 		}
 	} else {
-		ip = particles_[0]->getIPSmeared();
-		minip = particles_[0]->getMinIPSmeared();
 		for(unsigned int i=0; i<particles_.size(); ++i) {
 			mom_ += particles_[i]->getPSmeared();
 		}
 	}
 
+	return eval(mom_);
+}
+
+double RapidParam::eval(const TLorentzVector& mom, std::pair<double,double> ip) {
 	switch(type_) {
 		case RapidParam::M:
-			return mom_.M();
+			return mom.M();
 		case RapidParam::M2:
-			return mom_.M2();
+			return mom.M2();
 		case RapidParam::MT:
-			return mom_.Mt();
+			return mom.Mt();
 		case RapidParam::E:
-			return mom_.E();
+			return mom.E();
 		case RapidParam::ET:
-			return mom_.Et();
+			return mom.Et();
 		case RapidParam::P:
-			return mom_.P();
+			return mom.P();
 		case RapidParam::PX:
-			return mom_.Px();
+			return mom.Px();
 		case RapidParam::PY:
-			return mom_.Py();
+			return mom.Py();
 		case RapidParam::PZ:
-			return mom_.Pz();
+			return mom.Pz();
 		case RapidParam::PT:
-			return mom_.Pt();
+			return mom.Pt();
 		case RapidParam::ETA:
-			return mom_.Eta();
+			return mom.Eta();
 		case RapidParam::PHI:
-			return mom_.Phi();
+			return mom.Phi();
 		case RapidParam::RAPIDITY:
-			return mom_.Rapidity();
+			return mom.Rapidity();
 		case RapidParam::GAMMA:
-			return mom_.Gamma();
+			return mom.Gamma();
 		case RapidParam::BETA:
-			return mom_.Beta();
-		case RapidParam::IP:
-			return ip;
-		case RapidParam::SIGMAIP:
-			return ipSigma;
-		case RapidParam::MINIP:
-			return minip;
-		case RapidParam::SIGMAMINIP:
-			return minipSigma;
-		case RapidParam::FD:
-			return fd;
-		case RapidParam::ProbNNmu:
-		case RapidParam::ProbNNpi:
-		case RapidParam::ProbNNk:
-		case RapidParam::ProbNNp:
-		case RapidParam::ProbNNe:
+			return mom.Beta();
+        case RapidParam::IP:
+            return ip.first;
+        case RapidParam::SIGMAIP:
+            return ip.second;
 		case RapidParam::THETA:
 		case RapidParam::COSTHETA:
 		case RapidParam::MCORR:
@@ -91,157 +74,6 @@ double RapidParam::eval() {
 
 	return 0.;
 
-}
-
-bool RapidParam::canBeSmeared() {
-	switch(type_) {
-		case RapidParam::M:
-			return true;
-		case RapidParam::M2:
-			return true;
-		case RapidParam::MT:
-			return true;
-		case RapidParam::E:
-			return true;
-		case RapidParam::ET:
-			return true;
-		case RapidParam::P:
-			return true;
-		case RapidParam::PX:
-			return true;
-		case RapidParam::PY:
-			return true;
-		case RapidParam::PZ:
-			return true;
-		case RapidParam::PT:
-			return true;
-		case RapidParam::ETA:
-			return true;
-		case RapidParam::PHI:
-			return true;
-		case RapidParam::RAPIDITY:
-			return true;
-		case RapidParam::GAMMA:
-			return true;
-		case RapidParam::BETA:
-			return true;
-		case RapidParam::IP:
-			return true;
-		case RapidParam::SIGMAIP:
-			return false;
-		case RapidParam::MINIP:
-			return true;
-		case RapidParam::SIGMAMINIP:
-			return false;
-		case RapidParam::FD:
-			return true;
-		case RapidParam::ProbNNmu:
-			return true;
-		case RapidParam::ProbNNpi:
-			return true;
-		case RapidParam::ProbNNk:
-			return true;
-		case RapidParam::ProbNNp:
-			return true;
-		case RapidParam::ProbNNe:
-			return true;
-		case RapidParam::THETA:
-			return true;
-		case RapidParam::COSTHETA:
-			return true;
-		case RapidParam::MCORR:
-			return true;
-		case RapidParam::UNKNOWN:
-			return true;
-	}
-
-	return 0.;
-
-}
-
-bool RapidParam::canBeTrue() {
-	switch(type_) {
-		case RapidParam::M:
-			return true;
-		case RapidParam::M2:
-			return true;
-		case RapidParam::MT:
-			return true;
-		case RapidParam::E:
-			return true;
-		case RapidParam::ET:
-			return true;
-		case RapidParam::P:
-			return true;
-		case RapidParam::PX:
-			return true;
-		case RapidParam::PY:
-			return true;
-		case RapidParam::PZ:
-			return true;
-		case RapidParam::PT:
-			return true;
-		case RapidParam::ETA:
-			return true;
-		case RapidParam::PHI:
-			return true;
-		case RapidParam::RAPIDITY:
-			return true;
-		case RapidParam::GAMMA:
-			return true;
-		case RapidParam::BETA:
-			return true;
-		case RapidParam::IP:
-			return true;
-		case RapidParam::SIGMAIP:
-			return true;
-		case RapidParam::MINIP:
-			return true;
-		case RapidParam::SIGMAMINIP:
-			return true;
-		case RapidParam::FD:
-			return true;
-		case RapidParam::ProbNNmu:
-			return false;
-		case RapidParam::ProbNNpi:
-			return false;
-		case RapidParam::ProbNNk:
-			return false;
-		case RapidParam::ProbNNp:
-			return false;
-		case RapidParam::ProbNNe:
-			return false;
-		case RapidParam::THETA:
-			return true;
-		case RapidParam::COSTHETA:
-			return true;
-		case RapidParam::MCORR:
-			return true;
-		case RapidParam::UNKNOWN:
-			return true;
-	}
-
-	return 0.;
-
-}
-
-double RapidParam::evalPID() {
-	double pid(0.);
-	if (particles_[0]->stable() && particles_[0]->mass() > 0.) {
-		RapidParticleData * particleData = RapidParticleData::getInstance();
-		unsigned int id(0);
-		if (particles_[0]->massHypothesisName() == "") id = TMath::Abs(particles_[0]->id());
-		else id = TMath::Abs(particleData->pdgCode(particles_[0]->massHypothesisName()));
-
-		if(!pidHist_) {
-			std::cout << "WARNING in RapidParam::evalPID : PID histograms not set for " << particles_[0]->id() << std::endl;
-			std::cout << "                                 returning 0" << std::endl;
-			return 0.;
-		}
-
-		pid = pidHist_->getPID(id,particles_[0]->getP().P()*1000.,particles_[0]->getP().Eta());
-	}
-	return pid;
 }
 
 double RapidParam::evalCorrectedMass() {
@@ -321,6 +153,7 @@ TString RapidParam::name() {
 			name_ += "_TRUE";
 		}
 	}
+
 	return name_;
 }
 
@@ -333,16 +166,10 @@ TString RapidParam::typeName() {
 		case RapidParam::MT:
 			return "MT";
 		case RapidParam::IP:
-			return "IP";
-		case RapidParam::SIGMAIP:
-			return "SIGMAIP";
-		case RapidParam::MINIP:
-			return "MINIP";
-		case RapidParam::SIGMAMINIP:
-			return "SIGMAMINIP";
-		case RapidParam::FD:
-			return "FD";
-		case RapidParam::E:
+            return "IP";
+        case RapidParam::SIGMAIP:
+            return "SIGMAIP";
+        case RapidParam::E:
 			return "E";
 		case RapidParam::ET:
 			return "ET";
@@ -372,16 +199,6 @@ TString RapidParam::typeName() {
 			return "costheta";
 		case RapidParam::MCORR:
 			return "Mcorr";
-		case RapidParam::ProbNNmu:
-			return "ProbNNmu";
-		case RapidParam::ProbNNpi:
-			return "ProbNNpi";
-		case RapidParam::ProbNNk:
-			return "ProbNNk";
-		case RapidParam::ProbNNp:
-			return "ProbNNp";
-		case RapidParam::ProbNNe:
-			return "ProbNNe";
 		default:
 			std::cout << "WARNING in RapidParam::typeName : unknown type " << type_ << "." << std::endl
 				  << "                                  returning empty string." << std::endl;
@@ -397,16 +214,10 @@ RapidParam::ParamType RapidParam::typeFromString(TString str) {
 	} else if(str=="MT") {
 		return RapidParam::MT;
 	} else if(str=="IP") {
-		return RapidParam::IP;
-	} else if(str=="SIGMAIP") {
-		return RapidParam::SIGMAIP;
-	} else if(str=="MINIP") {
-		return RapidParam::MINIP;
-	} else if(str=="SIGMAMINIP") {
-		return RapidParam::SIGMAMINIP;
-	} else if(str=="FD") {
-		return RapidParam::FD;
-	} else if(str=="E") {
+        return RapidParam::IP;
+    } else if(str=="SIGMAIP") {
+        return RapidParam::SIGMAIP;
+    } else if(str=="E") {
 		return RapidParam::E;
 	} else if(str=="ET") {
 		return RapidParam::ET;
@@ -436,16 +247,6 @@ RapidParam::ParamType RapidParam::typeFromString(TString str) {
 		return RapidParam::COSTHETA;
 	} else if(str=="Mcorr") {
 		return RapidParam::MCORR;
-	} else if(str=="ProbNNmu") {
-		return RapidParam::ProbNNmu;
-	} else if(str=="ProbNNpi") {
-		return RapidParam::ProbNNpi;
-	} else if(str=="ProbNNk") {
-		return RapidParam::ProbNNk;
-	} else if(str=="ProbNNp") {
-		return RapidParam::ProbNNp;
-	} else if(str=="ProbNNe") {
-		return RapidParam::ProbNNe;
 	} else {
 		std::cout << "WARNING in RapidParam::typeFromString : unknown type name " << str << "." << std::endl
 			  << "                                        returning mass parameter type." << std::endl;
@@ -505,11 +306,8 @@ void RapidParam::setDefaultMinMax(const std::vector<RapidParticle*>& parts, doub
 			min = min*min;
 			max = max*max;
 			break;
-		case RapidParam::IP:
-		case RapidParam::SIGMAIP:
-		case RapidParam::MINIP:
-		case RapidParam::SIGMAMINIP:
-		case RapidParam::FD:
+        case RapidParam::IP:
+        case RapidParam::SIGMAIP:
 		case RapidParam::E:
 		case RapidParam::ET:
 		case RapidParam::P:
@@ -548,26 +346,6 @@ void RapidParam::setDefaultMinMax(const std::vector<RapidParticle*>& parts, doub
 			min = -1.0;
 			max =  1.0;
 			break;
-		case RapidParam::ProbNNmu:
-			min = 0.0;
-			max = 1.0;
-			break;
-		case RapidParam::ProbNNpi:
-			min = 0.0;
-			max = 1.0;
-			break;
-		case RapidParam::ProbNNk:
-			min = 0.0;
-			max = 1.0;
-			break;
-		case RapidParam::ProbNNp:
-			min = 0.0;
-			max = 1.0;
-			break;
-		case RapidParam::ProbNNe:
-			min = 0.0;
-			max = 1.0;
-			break;
 		case RapidParam::UNKNOWN:
 		default:
 			return;
@@ -599,7 +377,7 @@ void RapidParam::setMassMinMax(const std::vector<RapidParticle*>& parts, double&
 		//first check whether any of the particles we've been given have a hierarchical relationship
 		if(rpd->checkHierarchy(parts)) {
 			std::cout << "WARNING in RapidParam::setMassMinMax : some of the particles used in parameter " << name() << " are repeated or have a hierarchical relationship." << std::endl
-				  << "                                       setting default mass range." << std::endl;
+			          << "                                       setting default mass range." << std::endl;
 			min=0.;
 			max=10.;
 			return;
@@ -611,7 +389,7 @@ void RapidParam::setMassMinMax(const std::vector<RapidParticle*>& parts, double&
 		//this shouldn't happen
 		if(!commonAncestor) {
 			std::cout << "WARNING in RapidParam::setMassMinMax : some of the particles used in parameter " << name() << " have no common ancestors." << std::endl
-				  << "                                       setting default mass range." << std::endl;
+			          << "                                       setting default mass range." << std::endl;
 			min=0.;
 			max=10.;
 			return;
