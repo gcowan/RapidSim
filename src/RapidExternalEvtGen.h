@@ -20,7 +20,7 @@ class RapidExternalEvtGen : public RapidExternalGenerator {
 			{}
 		virtual bool decay(std::vector<RapidParticle*>& parts);
 		virtual bool setup();
-
+		
 		bool setupGenerator();
 		void writeDecFile(TString fname, std::vector<RapidParticle*>& parts);
 

@@ -23,7 +23,7 @@ class RapidParticleData {
 
 		void loadData(TString file);
 
-		double getCT(int id);
+        double getCT(int id);
 		double getMass(int id);
 		double getWidth(int id);
 		double getSpin(int id);
@@ -70,10 +70,10 @@ class RapidParticleData {
 		TString sanitiseName(TString name);
 		TString makeUniqName(TString name);
 
-		RooRelBreitWigner* makeRelBW(RooRealVar& m, double mean, double gamma, double thespin, double m1, double m2, TString name);
-		RooGounarisSakurai* makeGS(RooRealVar& m, double mean, double gamma, double thespin, double m1, double m2, TString name);
+		RooRelBreitWigner* makeRelBW(RooRealVar& m, double mean, double gamma, double thespin, double m1, double m2, TString name); 
+		RooGounarisSakurai* makeGS(RooRealVar& m, double mean, double gamma, double thespin, double m1, double m2, TString name); 
 
-		std::map<int, double> idToCT_;
+        std::map<int, double> idToCT_;
 		std::map<int, double> idToMass_;
 		std::map<int, double> idToWidth_;
 		std::map<int, double> idToSpin_;
@@ -81,7 +81,6 @@ class RapidParticleData {
 		std::map<int, TString> idToName_;
 		std::map<int, ResLineShape> idToShape_;
 		std::map<TString, int> nameToId_;
-		std::map<TString, int> sanitisedNameToId_;
 
 		//register of particle names that have been used
 		std::set<TString> usedNames_;

@@ -14,7 +14,7 @@ class RapidIPSmearGauss : public RapidIPSmear {
 		std::pair<double,double> smearIP(double ip, double pt);
 
 	private:
-		double intercept_,slope_;
+        double intercept_,slope_;
 
 };
 

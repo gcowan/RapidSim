@@ -38,19 +38,13 @@ $ # Setup the RAPIDSIM_ROOT environment variable (or add to .bashrc)
 $ export RAPIDSIM_ROOT=/path/to/RapidSim/install/location
 $ # Optionally setup the RAPIDSIM_CONFIG environment variable
 $ export RAPIDSIM_CONFIG=/path/to/additional/configuration/files
-$ $RAPIDSIM_ROOT/build/src/RapidSim.exe <decay mode> <events to generate> <save tree?> <num times to re-decay each hadron>
+$ $RAPIDSIM_ROOT/build/src/RapidSim.exe <decay mode> <events to generate> <save tree?>
 ```
 
 To run an example try:
 
 ```shell
-$ $RAPIDSIM_ROOT/build/src/RapidSim.exe $RAPIDSIM_ROOT/validation/Bs2Jpsiphi 10000 1
-```
-
-or
-
-```shell
-$ $RAPIDSIM_ROOT/bin/RapidSim.exe $RAPIDSIM_ROOT/validation/Bs2Jpsiphi 10000 1
+$ $RAPIDSIM_ROOT/bin/RapidSim.exe $RAPIDSIM_ROOT/bin/validation/Bs2Jpsiphi 10000 1
 ```
 
 To run the full system validation:
@@ -78,12 +72,6 @@ Run RapidSim with 0 events to generate if you just want to produce the `.config`
 The default values listed below are those obtained when using the automatically generated `.config` file. 
 Note that when lines are removed from the `.config` file this behaviour may change.
 
-## Re-decay
-
-It is possible to specify a command-line option to re-decay a particular heavy-quark hadron.
-This means that for a particular hadron, the same parent kinematics are retained but the 
-kinematics of the decay products (and their various detector-level smearings) are recomputed.
-
 ## Configuration
 
 Global settings should be defined at the start of the file using the syntax:
@@ -98,7 +86,7 @@ Particle settings should be defined after the corresponding `@#` tag using the s
 
 * `seed`:
   * Sets the seed for the random number generator
-  * Default: 0
+  * Default: 4357
 
 * `acceptance`:
   * Sets the type of geometric acceptance to apply to the decay
@@ -201,15 +189,9 @@ Particle settings should be defined after the corresponding `@#` tag using the s
 
 * `useEvtGen` :
   * Perform decays using the external EvtGen generator
-  * Syntax is `useEvtGen : TRUE`
+  * Syntax is `useEvtGen : TRUE
   * Note any value for this parameter will turn EvtGen ON (even FALSE)
   * To turn EvtGen OFF do not define this parameter
-
-* `pid` :
-  * Sets the particle identification scheme to use
-  * Syntax is `pid : <scheme>`, where 
-    * `<scheme>` is the name of the file that defines the scheme (default `LHCbGenericPID`)
-  * More types may be defined in $RAPIDSIM_ROOT/config/pid or $RAPIDSIM_CONFIG/config/pid
 
 ### Particle settings
 
@@ -218,18 +200,14 @@ Particle settings should be defined after the corresponding `@#` tag using the s
   * Default: Automatically generated unique name of particle
 
 * `smear`:
-  * The type of momentum or IP smearing to apply to this particle
-    * May be used multiple times for the same particle to define different types of smearing
-  * Supported momentum types: `LHCbGeneric`, `LHCbElectron`, `AtlasMuon`, or `AtlasHadron`
-  * Supported IP types: `LHCbGenericIP`
+  * The type of momentum smearing to apply to this particle
+  * Supported: `LHCbGeneric`, `LHCbElectron`, `AtlasMuon`, or `AtlasHadron`
     * More types may be defined in $RAPIDSIM_ROOT/config/smear or $RAPIDSIM_CONFIG/config/smear
   * Default: `LHCbElectron` (for electrons/positrons), otherwise `LHCbGeneric`
 
 * `invisible`:
   * Whether the particle should be treated as invisible
   * Invisible particles are not included when determining non-truth parameters
-  * Invisible particles are also ignored when applying the `AllIn` or `AllDownstream` 
-    acceptance requirement for the default LHCb geometry
   * A corrected mass parameter will be added automatically if any particles are invisible
   * Default: `true` (for neutrinos), otherwise `false`
 
@@ -260,11 +238,6 @@ Particle settings should be defined after the corresponding `@#` tag using the s
 * `PY`: The Y momentum of the combination of the given particles
 * `PZ`: The Z momentum of the combination of the given particles
 * `PT`: The transverse momentum of the combination of the given particles
-* `IP` : Impact parameter to own primary vertex
-* `SIGMAIP` : Error on impact parameter to own primary vertex
-* `MINIP` : Minimum impact parameter to any primary vertex
-* `SIGMAMINIP` : Error on minimum impact parameter to a primary vertex
-* `FD` : Flight distance
 * `eta`: The pseudorapidity of the combination
 * `phi`: The azimuthal angle of the combination
 * `y`: The rapidity of the combination
@@ -277,11 +250,6 @@ Particle settings should be defined after the corresponding `@#` tag using the s
 * `costheta`: The cosine of theta
 * `Mcorr`: The corrected mass of the combination of the given particles
   correcting for any invisible particles
-* `ProbNNmu` : Particle ID feature for the muon hypothesis
-* `ProbNNe` : Particle ID feature for the electron hypothesis
-* `ProbNNpi` : Particle ID feature for the pion hypothesis
-* `ProbNNk` : Particle ID feature for the kaon hypothesis
-* `ProbNNp` : Particle ID feature for the proton hypothesis
 
 ## External Generators
 
@@ -291,7 +259,7 @@ EvtGen may be used to generate decays allowing for non-phasespace decay models.
 
 * EvtGen must be compiled with all external generators included (Pythia, PHOTOS, Tauola)
   * This can be achieved by running the EvtGen setup
-  [script]: http://evtgen.hepforge.org/git?p=evtgen.git;a=blob_plain;f=setupEvtGen.sh;hb=HEAD
+  [script]: http://evtgen.warwick.ac.uk/static/srcrep/setupEvtGen.sh
   * Note the manual step to set the required environment variables after installation
 * To compile RapidSim against EvtGen the environment variable EVTGEN_ROOT must be set
 * At present, all identical particles must decay into the same mode

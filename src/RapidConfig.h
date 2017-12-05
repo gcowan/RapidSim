@@ -6,10 +6,9 @@
 
 #include "TH1.h"
 #include "TH2.h"
-#include "TH3.h"
 #include "TString.h"
+#include "fastsim.h"
 #include "RapidAcceptance.h"
-#include "RapidParam.h"
 
 class RapidCut;
 class RapidDecay;
@@ -20,7 +19,6 @@ class RapidIPSmear;
 class RapidVtxSmear;
 class RapidParam;
 class RapidParticle;
-class RapidPID;
 
 class RapidConfig {
 	public:
@@ -57,12 +55,12 @@ class RapidConfig {
 
 		void setSmearing(unsigned int particle, TString category);
 		bool loadSmearing(TString category);
-		bool loadPID(TString category);
 
 		bool loadAcceptRejectHist(TString histFile, TString histName, RapidParam* paramX, RapidParam* paramY);
 		bool loadParentKinematics();
 
 		void setupDefaultParams();
+		void setupDefaultParams(TString paramStr, std::vector<RapidParam*>& params);
 
 		bool check1D(TH1* hist) { return (dynamic_cast<TH1F*>(hist) || dynamic_cast<TH1D*>(hist)); }
 		bool check2D(TH1* hist) { return (dynamic_cast<TH2F*>(hist) || dynamic_cast<TH2D*>(hist)); }
@@ -92,19 +90,15 @@ class RapidConfig {
 
 		//mometum smearing lookup for each smearing category
 		std::map<TString, RapidMomentumSmear*> momSmearCategories_;
-		//IP smearing lookup for each smearing category
-		std::map<TString, RapidIPSmear*> ipSmearCategories_;
-		//Vtx smearing lookup for each smearing category, placeholder for now
-		//std::map<TString, RapidVtxSmear*> vtxSmearCategories_;
+        //IP smearing lookup for each smearing category
+        std::map<TString, RapidIPSmear*> ipSmearCategories_;
+        //Vtx smearing lookup for each smearing category, placeholder for now
+        //std::map<TString, RapidVtxSmear*> vtxSmearCategories_;
 
 		//accept reject hist to sculpt kinematics
 		TH1* accRejHisto_;
 		RapidParam* accRejParameterX_;
 		RapidParam* accRejParameterY_;
-
-		// PID histogram file
-		bool pidLoaded_;
-		std::map<RapidParam::ParamType, RapidPID*> pidHists_;
 
 		//type of geometric acceptance to apply
 		RapidAcceptance::AcceptanceType acceptanceType_;
@@ -128,6 +122,8 @@ class RapidConfig {
 
 		//max attempts to generate
 		double maxgen_;
+
+        Detector* lhcb_;
 
 		RapidDecay* decay_;
 		RapidAcceptance* acceptance_;
