@@ -171,9 +171,11 @@ void RapidExternalEvtGen::writeDecFile(TString fname, std::vector<RapidParticle*
 		if(nChildren>0) {
 			int id = parts[iPart]->id();
 			fout << "Decay " << getEvtGenName(id) << "\n1.00\t";
-			for(unsigned int iChild=0; iChild<nChildren; ++iChild) {
-				fout << getEvtGenName(parts[iPart]->daughter(iChild)->id()) << "\t";
-			}
+            if ( !(parts[iPart]->evtGenDecayModel()).Contains("TAUOLA") ) {
+                for(unsigned int iChild=0; iChild<nChildren; ++iChild) {
+				    fout << getEvtGenName(parts[iPart]->daughter(iChild)->id()) << "\t";
+			    }
+            }
 			fout << parts[iPart]->evtGenDecayModel() << ";" << std::endl;
 			fout <<"Enddecay" << std::endl;
 
