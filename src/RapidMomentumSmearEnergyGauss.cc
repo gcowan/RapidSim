@@ -6,7 +6,7 @@
 
 TLorentzVector RapidMomentumSmearEnergyGauss::smearMomentum(TLorentzVector p) {
     double energy = p.E();
-    double first = stochastic_/TMath::Sqrt(energy*1000.);
+    double first = stochastic_/TMath::Sqrt(energy);
     first *= first;
     double second = constant_*constant_;
     double res = TMath::Sqrt(first + second)*energy;
