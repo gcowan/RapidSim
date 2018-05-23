@@ -133,6 +133,12 @@ RapidDecay* RapidConfig::getDecay() {
 		}
 		decay_->setParentKinematics(ptHisto_,etaHisto_);
 
+		if(!loadPVntracks()) {
+			return 0;
+		}
+		decay_->setPVntracks(pvHisto_);
+
+
 		decay_->setMaxGen(maxgen_);
 
 		//load any PDF to generate
@@ -997,6 +1003,51 @@ bool RapidConfig::loadAcceptRejectHist(TString histFile, TString histName, Rapid
 
 	return true;
 }
+
+bool RapidConfig::loadPVntracks() {
+	TString path;
+	TString fileName;
+	TFile* file(0);
+	bool found(false);
+
+	path = getenv("RAPIDSIM_CONFIG");
+
+	if(path!="") {
+		fileName = path;
+		fileName +="/rootfiles/smear/PVNTRACKS.root";
+		file = TFile::Open(fileName);
+
+		if(file) {
+			std::cout << "INFO in RapidConfig::loadPVntracks : " << fileName << " in RAPIDSIM_CONFIG." << std::endl
+				  << "                                            this version will be used." << std::endl;
+			found = true;
+		} else {
+			std::cout << "INFO in RapidConfig::loadPVntracks : " << fileName << " not found in RAPIDSIM_CONFIG." << std::endl
+				  << "                                            checking RAPIDSIM_ROOT." << std::endl;
+		}
+	}
+
+	if(!found) {
+		path = getenv("RAPIDSIM_ROOT");
+		fileName = path;
+		fileName +="/rootfiles/smear/PVNTRACKS.root";
+		file = TFile::Open(fileName);
+
+		if(!file) {
+			std::cout << "ERROR in RapidConfig::loadPVntracks : " << fileName << " not found." << std::endl;
+			return false;
+		}
+	}
+
+	pvHisto_ = dynamic_cast<TH1*>(file->Get("h"));
+	if(!pvHisto_) {
+		std::cout << "ERROR in RapidConfig::loadPVntracks : PV ntracks histogram is neither TH1F nor TH1D." << std::endl;
+		return false;
+	}
+
+	return true;
+}
+
 
 bool RapidConfig::loadParentKinematics() {
 	TString path;
