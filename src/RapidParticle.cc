@@ -137,6 +137,10 @@ bool RapidParticle::hasFlavour(int flavour) {
 	return false;
 }
 
+bool RapidParticle::hasStrange() {
+	return hasFlavour(3);
+}
+
 bool RapidParticle::hasCharm() {
 	return hasFlavour(4);
 }

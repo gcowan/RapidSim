@@ -14,6 +14,7 @@ double RapidParam::eval() {
 	   type_ == RapidParam::ProbNNk || type_ == RapidParam::ProbNNp) return evalPID();
 
 	double fd      = particles_[0]->getFD(truth_);
+    ROOT::Math::XYZPoint decVtx = particles_[0]->getDecayVertex()->getVertex(truth_);
 	double ip      = particles_[0]->getIP();
 	double minip   = particles_[0]->getMinIP();
 	double ipSigma = particles_[0]->getSigmaIP();
@@ -72,6 +73,12 @@ double RapidParam::eval() {
 			return minipSigma;
 		case RapidParam::FD:
 			return fd;
+        case RapidParam::ENDVTX_X:
+            return decVtx.X();
+        case RapidParam::ENDVTX_Y:
+            return decVtx.Y();
+        case RapidParam::ENDVTX_Z:
+            return decVtx.Z();
 		case RapidParam::ProbNNmu:
 		case RapidParam::ProbNNpi:
 		case RapidParam::ProbNNk:
@@ -134,6 +141,12 @@ bool RapidParam::canBeSmeared() {
 		case RapidParam::SIGMAMINIP:
 			return false;
 		case RapidParam::FD:
+			return true;
+        case RapidParam::ENDVTX_X:
+			return true;
+        case RapidParam::ENDVTX_Y:
+			return true;
+        case RapidParam::ENDVTX_Z:
 			return true;
 		case RapidParam::ProbNNmu:
 			return true;
@@ -200,6 +213,12 @@ bool RapidParam::canBeTrue() {
 		case RapidParam::SIGMAMINIP:
 			return true;
 		case RapidParam::FD:
+			return true;
+        case RapidParam::ENDVTX_X:
+			return true;
+        case RapidParam::ENDVTX_Y:
+			return true;
+        case RapidParam::ENDVTX_Z:
 			return true;
 		case RapidParam::ProbNNmu:
 			return false;
@@ -342,6 +361,12 @@ TString RapidParam::typeName() {
 			return "SIGMAMINIP";
 		case RapidParam::FD:
 			return "FD";
+        case RapidParam::ENDVTX_X :
+            return "ENDVTX_X";
+        case RapidParam::ENDVTX_Y :
+            return "ENDVTX_Y";
+        case RapidParam::ENDVTX_Z :
+            return "ENDVTX_Z";
 		case RapidParam::E:
 			return "E";
 		case RapidParam::ET:
@@ -406,6 +431,12 @@ RapidParam::ParamType RapidParam::typeFromString(TString str) {
 		return RapidParam::SIGMAMINIP;
 	} else if(str=="FD") {
 		return RapidParam::FD;
+    } else if(str=="ENDVTX_X"){
+        return RapidParam::ENDVTX_X;
+    } else if(str=="ENDVTX_Y"){
+        return RapidParam::ENDVTX_Y;
+    } else if(str=="ENDVTX_Z"){
+        return RapidParam::ENDVTX_Z;
 	} else if(str=="E") {
 		return RapidParam::E;
 	} else if(str=="ET") {
@@ -510,6 +541,9 @@ void RapidParam::setDefaultMinMax(const std::vector<RapidParticle*>& parts, doub
 		case RapidParam::MINIP:
 		case RapidParam::SIGMAMINIP:
 		case RapidParam::FD:
+		case RapidParam::ENDVTX_X:
+		case RapidParam::ENDVTX_Y:
+		case RapidParam::ENDVTX_Z:
 		case RapidParam::E:
 		case RapidParam::ET:
 		case RapidParam::P:

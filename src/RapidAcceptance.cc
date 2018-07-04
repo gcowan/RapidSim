@@ -96,6 +96,7 @@ bool RapidAcceptance::motherInAcceptance() {
 }
 
 bool RapidAcceptance::allInAcceptance() {
+    if(!partInAcceptance(top_)) return false;
 	std::vector<RapidParticle*>::iterator it = parts_.begin();
 	for( ; it!= parts_.end(); ++it) {
 		RapidParticle* part = *it;

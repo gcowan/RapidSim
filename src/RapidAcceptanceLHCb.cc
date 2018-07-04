@@ -22,9 +22,16 @@ void RapidAcceptanceLHCb::getDefaultEtaRange(double& min, double& max) {
 bool RapidAcceptanceLHCb::partInAcceptance(RapidParticle* part) {
 
 	if(part->invisible()) return true;
+    if(!(part->stable())) {
+      if(part->getFD(true) > 3000000) {
+        return false;
+      }
+    }
 
 	TLorentzVector vec = part->getP();
 
+    if (vec.P() < 2.) return false;
+    if (vec.Pt() < 0.1) return false;
 	if (TMath::Abs(vec.Px()/vec.Pz()) > 0.3) return false;
 	if (TMath::Abs(vec.Py()/vec.Pz()) > 0.25) return false;
 	if (sqrt(pow(vec.Px()/vec.Pz(),2) + pow(vec.Py()/vec.Pz(),2)) <0.01) return false;

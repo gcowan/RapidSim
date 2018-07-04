@@ -28,6 +28,9 @@ class RapidParam {
 			SIGMAIP,  //Error on IP to own PV
 			MINIP,    //IP to geometrically closest PV
 			SIGMAMINIP,  //Error on geometrically closest PV
+            ENDVTX_X, // X position of end vertex
+            ENDVTX_Y, // Y position of end vertex
+            ENDVTX_Z, // Z position of end vertex
 			FD,       //FD to own origin vertex
 			ETA,      //Pseudorapidity
 			PHI,      //Azimuthal angle

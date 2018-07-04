@@ -259,7 +259,11 @@ bool RapidConfig::loadDecay() {
 				motherFlavour_ = "c";
 				std::cout << "INFO in RapidConfig::loadDecay : Parent has charm." << std::endl;
 				std::cout << "                                 setting c-quark kinematics." << std::endl;
-			} else {
+			} else if(theMother->hasStrange()) {
+				motherFlavour_ = "s";
+				std::cout << "INFO in RapidConfig::loadDecay : Parent has strangeness." << std::endl;
+				std::cout << "                                 setting s-quark kinematics." << std::endl; 
+            } else {
 				std::cout << "WARNING in RapidConfig::loadDecay : Parent has neither beauty nor charm." << std::endl;
 				std::cout << "                                    defaulting to b-quark kinematics." << std::endl;
 				motherFlavour_ = "b";
@@ -928,7 +932,7 @@ bool RapidConfig::loadPID(TString category) {
 					continue;
 				}
 				if ( hist->GetMinimum() < 0 ) {
-					for (int i = 0; i < hist->GetNcells(); ++i) {
+					for (int i = 0; i < hist->GetNbinsX()*hist->GetNbinsY()*hist->GetNbinsZ(); ++i) {
 						if (hist->GetBinContent(i) < 0.) hist->SetBinContent(i, 0.);
 					}
 				}
