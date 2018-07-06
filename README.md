@@ -205,6 +205,13 @@ Particle settings should be defined after the corresponding `@#` tag using the s
   * Note any value for this parameter will turn EvtGen ON (even FALSE)
   * To turn EvtGen OFF do not define this parameter
 
+* `evtGenUsePHOTOS` :
+  * If EvtGen is used to generate decays then PHOTOS will be used for final state radiation
+  * Syntax is `evtGenUsePHOTOS : TRUE`
+  * Note any value for this parameter will turn PHOTOS ON (even FALSE)
+  * To turn PHOTOS OFF do not define this parameter
+  * Note also that if EvtGen is not in use then this parameter will have no effect
+
 * `pid` :
   * Sets the particle identification scheme to use
   * Syntax is `pid : <scheme>`, where 

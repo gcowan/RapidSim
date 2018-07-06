@@ -31,7 +31,7 @@ class RapidConfig {
 			  detectorGeometry_(RapidAcceptance::FOURPI),
 			  ppEnergy_(8.), motherFlavour_("b"),
 			  ptHisto_(0), etaHisto_(0), ptMin_(-999.), ptMax_(-999.), etaMin_(-999.), etaMax_(-999.),
-			  maxgen_(1000), decay_(0), acceptance_(0), writer_(0), external_(0)
+			  maxgen_(1000), decay_(0), acceptance_(0), writer_(0), external_(0), usePhotos_(false)
 		{}
 
 		~RapidConfig();
@@ -133,6 +133,9 @@ class RapidConfig {
 		RapidAcceptance* acceptance_;
 		RapidHistWriter* writer_;
 		RapidExternalGenerator* external_;
+
+		//flag to track whether an external EvtGen generator should use PHOTOS or not
+		bool usePhotos_;
 };
 
 #endif

@@ -43,7 +43,10 @@ bool RapidExternalEvtGen::decay(std::vector<RapidParticle*>& parts) {
 
 	// Store particles to read in the order RapidSim stores them
 	std::queue<EvtParticle*> evtParts;
+	// Also store the number of children expected for each of these particles so we can remove PHOTOS photons
+	std::queue<int> nExpectedChildren;
 	evtParts.push(theParent);
+	nExpectedChildren.push(parts[0]->nDaughters());
 
 	EvtVector4R x4Evt;
 	EvtVector4R p4Evt;
@@ -54,13 +57,12 @@ bool RapidExternalEvtGen::decay(std::vector<RapidParticle*>& parts) {
 	while(!evtParts.empty()) {
 		EvtParticle* theParticle = evtParts.front();
 
-		int nChildren = theParticle->getNDaug();
-
 		// B0 and Bs may mix in EvtGen - RapidSim ignores this step and only records the second state
-		while(nChildren==1) {
+		while(theParticle->getNDaug()==1) {
 			theParticle = theParticle->getDaug(0);
-			nChildren = theParticle->getNDaug();
 		}
+
+		int nChildren = nExpectedChildren.front();
 
 		// Loop over the daughter tracks
 		for (int iChild = 0; iChild < nChildren; ++iChild) {
@@ -76,12 +78,14 @@ bool RapidExternalEvtGen::decay(std::vector<RapidParticle*>& parts) {
 				}
 				parts[iPart]->setP(p4TLV);
 				parts[iPart]->getOriginVertex()->setXYZ(1e3*x4Evt.get(1),1e3*x4Evt.get(2),1e3*x4Evt.get(3));
-				++iPart;
 				evtParts.push(child);
+				nExpectedChildren.push(parts[iPart]->nDaughters());
+				++iPart;
 			}
 		}
 
 		evtParts.pop();
+		nExpectedChildren.pop();
 	}
 
 	return true;
@@ -152,7 +156,7 @@ bool RapidExternalEvtGen::setupGenerator() {
 #endif
 }
 
-void RapidExternalEvtGen::writeDecFile(TString fname, std::vector<RapidParticle*>& parts) {
+void RapidExternalEvtGen::writeDecFile(TString fname, std::vector<RapidParticle*>& parts, bool usePhotos) {
 #ifdef RAPID_EVTGEN
 	if(!evtGen_) setupGenerator();
 
@@ -162,8 +166,11 @@ void RapidExternalEvtGen::writeDecFile(TString fname, std::vector<RapidParticle*
 	std::ofstream fout;
 	fout.open(decFileName_, std::ofstream::out);
 
-	// PHOTOS photons will break the ordering of the particles when copying the momenta so we turn it off
-	fout << "noPhotos\n" << std::endl;
+	if(usePhotos) {
+		fout << "yesPhotos\n" << std::endl;
+	} else {
+		fout << "noPhotos\n" << std::endl;
+	}
 
 	// Loop over all particles and write out Decay rule for each
 	for(unsigned int iPart=0; iPart<parts.size(); ++iPart) {
@@ -171,11 +178,11 @@ void RapidExternalEvtGen::writeDecFile(TString fname, std::vector<RapidParticle*
 		if(nChildren>0) {
 			int id = parts[iPart]->id();
 			fout << "Decay " << getEvtGenName(id) << "\n1.00\t";
-            if ( !(parts[iPart]->evtGenDecayModel()).Contains("TAUOLA") ) {
-                for(unsigned int iChild=0; iChild<nChildren; ++iChild) {
-				    fout << getEvtGenName(parts[iPart]->daughter(iChild)->id()) << "\t";
-			    }
-            }
+			if ( !(parts[iPart]->evtGenDecayModel()).Contains("TAUOLA") ) {
+				for(unsigned int iChild=0; iChild<nChildren; ++iChild) {
+					fout << getEvtGenName(parts[iPart]->daughter(iChild)->id()) << "\t";
+				}
+			}
 			fout << parts[iPart]->evtGenDecayModel() << ";" << std::endl;
 			fout <<"Enddecay" << std::endl;
 

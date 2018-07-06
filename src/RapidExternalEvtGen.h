@@ -22,7 +22,7 @@ class RapidExternalEvtGen : public RapidExternalGenerator {
 		virtual bool setup();
 
 		bool setupGenerator();
-		void writeDecFile(TString fname, std::vector<RapidParticle*>& parts);
+		void writeDecFile(TString fname, std::vector<RapidParticle*>& parts, bool usePhotos);
 
 		static TString getEvtGenName(int id);
 		static TString getEvtGenConjName(int id);
