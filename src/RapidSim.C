@@ -94,7 +94,7 @@ int main(int argc, char * argv[])
 	}
 
 	const TString mode = argv[1];
-	const int number = atoi(argv[2]);
+	const int number = static_cast<int>(atof(argv[2]));
 	bool saveTree = false;
 	int nToReDecay = 0;
 
