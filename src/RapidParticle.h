@@ -12,7 +12,7 @@
 class RapidMomentumSmear;
 class RapidParticleData;
 class RapidIPSmear;
-class RapidVerterxSmear;
+class RapidVertexSmear;
 
 class RapidParticle {
 	public:

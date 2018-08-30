@@ -17,7 +17,7 @@ class RapidExternalGenerator;
 class RapidHistWriter;
 class RapidMomentumSmear;
 class RapidIPSmear;
-class RapidVtxSmear;
+class RapidVertexSmear;
 class RapidParam;
 class RapidParticle;
 class RapidPID;
@@ -59,6 +59,10 @@ class RapidConfig {
 		bool loadSmearing(TString category);
 		bool loadPID(TString category);
 
+		//vertex smearing
+		void setVertexSmearing(unsigned int particle, TString category);
+		bool loadVertexSmearing(TString category);
+		//
 		bool loadAcceptRejectHist(TString histFile, TString histName, RapidParam* paramX, RapidParam* paramY);
 		bool loadParentKinematics();
 
@@ -66,9 +70,10 @@ class RapidConfig {
 
 		bool check1D(TH1* hist) { return (dynamic_cast<TH1F*>(hist) || dynamic_cast<TH1D*>(hist)); }
 		bool check2D(TH1* hist) { return (dynamic_cast<TH2F*>(hist) || dynamic_cast<TH2D*>(hist)); }
+		bool check3D(TH1* hist) { return (dynamic_cast<TH3F*>(hist) || dynamic_cast<TH3D*>(hist)); }
 
 		TH1* reduceHistogram(TH1* histo, double min, double max);
-
+		
 		TString fileName_;
 
 		std::vector<RapidParticle*> parts_;
@@ -95,7 +100,7 @@ class RapidConfig {
 		//IP smearing lookup for each smearing category
 		std::map<TString, RapidIPSmear*> ipSmearCategories_;
 		//Vtx smearing lookup for each smearing category, placeholder for now
-		//std::map<TString, RapidVtxSmear*> vtxSmearCategories_;
+		std::map<TString, RapidVertexSmear*> vtxSmearCategories_;
 
 		//accept reject hist to sculpt kinematics
 		TH1* accRejHisto_;
