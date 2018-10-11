@@ -15,7 +15,7 @@ A more detailed description can be found here https://arxiv.org/abs/1612.07489
 ## Setup
 
 RapidSim relies on having a working ROOT installation and gcc4.9 or clang.
-Optionally, you may also compile against EvtGen as detailed in [EvtGen][#EvtGen]
+Optionally, you may also compile against EvtGen as detailed in [EvtGen](#evtgen)
 To build do the following:
 
 ```shell
@@ -145,21 +145,21 @@ Particle settings should be defined after the corresponding `@#` tag using the s
   * Defines the set of parameters to be added to the histograms/tree
     for each stable particle in the decay.
   * Syntax: `paramsStable : <params>`, where `<params>` is a space separated 
-    list of the types defined in [the Parameters section][#parameters].
+    list of the types defined in [the Parameters section](#parameters).
   * Example: `paramsStable : P PT`
 
 * `paramsDecaying`:
   * Defines the set of parameters to be added to the histograms/tree
     for each decaying particle in the decay.
   * Syntax is `paramsDecaying : <params>` where `<params>` is a space separated 
-    list of the types defined in [the Parameters section][#parameters].
+    list of the types defined in [the Parameters section](#parameters).
   * Example: `paramsDecaying : M P PT`
 
 * `paramsTwoBody`:
   * Defines the set of parameters to be added to the histograms/tree
     for each two-body combination of particles in a 3+-body decay.
   * Syntax is `paramsTwoBody : <params>` where `<params>` is a space separated 
-    list of the types defined in [the Parameters section][#parameters].
+    list of the types defined in [the Parameters section](#parameters).
   * Example: `paramsTwoBody : M M2`
 
 * `paramsThreeBody`:
@@ -167,13 +167,13 @@ Particle settings should be defined after the corresponding `@#` tag using the s
     for each three-body combination of particles in a 4+-body decay.
   * Syntax is `paramsThreeBody : <params>` where `<params>` is a space 
     separated list of the types defined in [the Parameters 
-    section][#parameters].
+    section](#parameters).
   * Example: `paramsThreeBody : M M2`
 
 * `param`:
   * Defines a new parameter to be added to the histograms/tree
   * Syntax is `param : <name> <type> <particles> [TRUE]`, where:
-    * `<type>` must be one of the types defined in [the Parameters section][#parameters],
+    * `<type>` must be one of the types defined in [the Parameters section](#parameters),
     * `<particles>` is a space separated list of particle indices
     * The optional `TRUE` argument means the parameter will be calculated using 
       the true unsmeared momenta of the particles
@@ -297,8 +297,8 @@ Particle settings should be defined after the corresponding `@#` tag using the s
 EvtGen may be used to generate decays allowing for non-phasespace decay models.
 
 * EvtGen must be compiled with all external generators included (Pythia, PHOTOS, Tauola)
-  * This can be achieved by running the EvtGen setup
-  [script]: http://evtgen.hepforge.org/git?p=evtgen.git;a=blob_plain;f=setupEvtGen.sh;hb=HEAD
+  * This can be achieved by running the EvtGen
+  [setup script](http://evtgen.hepforge.org/git?p=evtgen.git;a=blob_plain;f=setupEvtGen.sh;hb=HEAD)
   * Note the manual step to set the required environment variables after installation
 * To compile RapidSim against EvtGen the environment variable EVTGEN_ROOT must be set
 * At present, all identical particles must decay into the same mode
