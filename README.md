@@ -21,9 +21,9 @@ To build do the following:
 ```shell
 $ # Set environment for gcc, it defines LD_LIBRARY_PATH and FC, CC, CXX. RapidSim also works with clang.
 $ # On lxplus do this:
-$ source /afs/cern.ch/sw/lcg/contrib/gcc/4.9.3/x86_64-slc6-gcc49-opt/setup.sh
+$ source /cvmfs/lhcb.cern.ch/lib/lcg/releases/LCG_87/gcc/4.9.3/x86_64-slc6/setup.sh
 $ # Set ROOT environment 
-$ source /afs/cern.ch/sw/lcg/releases/LCG_87/ROOT/6.08.02/x86_64-slc6-gcc49-opt/ROOT-env.sh
+$ source /cvmfs/lhcb.cern.ch/lib/lcg/releases/LCG_87/ROOT/6.08.02/x86_64-slc6-gcc49-opt/bin/thisroot.sh
 $ mkdir build
 $ cd build 
 $ cmake ../RapidSim -DCMAKE_INSTALL_PREFIX=/path/to/RapidSim/install/location
