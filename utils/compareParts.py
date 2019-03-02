@@ -126,7 +126,7 @@ print("\n---------DIFF SUMMARY---------")
 print("M G C S")
 print(diffM, diffG, diffC, diffS)
 
-print "\n---------ONLY in EvtGen---------\n"
+print("\n---------ONLY in EvtGen---------\n")
 for part in sorted(egOnly):
     if part < 0 and -part in egOnly:
         continue
