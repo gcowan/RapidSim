@@ -4,8 +4,11 @@ project(RapidSim)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-#This module respects HFS, e.g. defines lib or lib64 when it is needed. 
-include("GNUInstallDirs") 
+set(RAPIDSIM_ROOT "${CMAKE_INSTALL_PREFIX}" CACHE STRING
+    "Directory to install RapidSim's data to")
+
+#This module respects HFS, e.g. defines lib or lib64 when it is needed.
+include("GNUInstallDirs")
 
 
 SET( ${PROJECT_NAME}_MAJOR_VERSION 1 )
@@ -27,22 +30,22 @@ SET ( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR} )
 
 set(CMAKE_CXX_FLAGS    "${CMAKE_CXX_FLAGS} -msse -msse2 -msse3 -m3dnow -fPIC -fmerge-all-constants -D__ROOFIT_NOBANNER -Wall -Wextra -Werror -Wsign-compare -Wmissing-noreturn -Wno-non-virtual-dtor")
 
-set(CMAKE_CXX_FLAGS_DEBUG          "-g3 -Wall") 
-set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG") 
-set(CMAKE_CXX_FLAGS_RELEASE        "-O2 -DNDEBUG") 
+set(CMAKE_CXX_FLAGS_DEBUG          "-g3 -Wall")
+set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
+set(CMAKE_CXX_FLAGS_RELEASE        "-O2 -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g3 -O2")
 
 
 # setting linker flags
 
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") 
-  SET(CMAKE_EXE_LINKER_FLAGS "-Wl,-dead_strip_dylibs")   
-  SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,-dead_strip_dylibs")   
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  SET(CMAKE_EXE_LINKER_FLAGS "-Wl,-dead_strip_dylibs")
+  SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,-dead_strip_dylibs")
   SET(STATIC_LIBRARY_FLAGS "-Wl,-dead_strip_dylibs")
 ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--as-needed")
   SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,--as-needed")
-  SET(STATIC_LIBRARY_FLAGS "-Wl,--as-needed")	
+  SET(STATIC_LIBRARY_FLAGS "-Wl,--as-needed")
 ENDIF()
 
 
@@ -58,23 +61,23 @@ if (ROOT_CONFIG)
     set(ROOT_FOUND TRUE)
   endif()
 
-else()      
-  message(STATUS "ROOTConfig.cmake not found, trying to use FindROOT.cmake...")      
-  find_package(ROOT)   
+else()
+  message(STATUS "ROOTConfig.cmake not found, trying to use FindROOT.cmake...")
+  find_package(ROOT)
   INCLUDE_DIRECTORIES( ${ROOT_INCLUDE_DIR} )
   LINK_DIRECTORIES( ${ROOT_LIBRARY_DIR} )
-  set(CMAKE_CXX_FLAGS    "${CMAKE_CXX_FLAGS} ${ROOT_CXX_FLAGS}" ) 
+  set(CMAKE_CXX_FLAGS    "${CMAKE_CXX_FLAGS} ${ROOT_CXX_FLAGS}" )
 endif()
 
-message(STATUS "ROOT includes: ${ROOT_INCLUDE_DIR}")   
-message(STATUS "ROOT libraries: ${ROOT_LIBRARIES}")   
+message(STATUS "ROOT includes: ${ROOT_INCLUDE_DIR}")
+message(STATUS "ROOT libraries: ${ROOT_LIBRARIES}")
 message(STATUS "ROOT library directory: ${ROOT_LIBRARY_DIR}")
 message(STATUS "ROOT_FOUND: ${ROOT_FOUND}")
 
-if(ROOT_FOUND)     
-  include_directories(${ROOT_INCLUDE_DIRS})     
-else()     
-  message(ERROR "ROOT needed for RapidSim not found")     
+if(ROOT_FOUND)
+  include_directories(${ROOT_INCLUDE_DIRS})
+else()
+  message(ERROR "ROOT needed for RapidSim not found")
 endif()
 
 if(DEFINED ENV{EVTGEN_ROOT})
@@ -88,13 +91,13 @@ if(DEFINED ENV{EVTGEN_ROOT})
     if(NOT EVTGENEXT)
       message(INFO " Will not link against EvtGen : libEvtGenExternal not found")
     else()
-      include_directories(${EVTGEN_ROOT})     
+      include_directories(${EVTGEN_ROOT})
       set(CMAKE_CXX_FLAGS    "${CMAKE_CXX_FLAGS} -DRAPID_EVTGEN -I$ENV{EVTGEN_ROOT} -unresolved-symbols=ignore-in-shared-libs")
       set(EVTGEN_FOUND TRUE)
     endif()
   endif()
 else()
-  message(INFO " Will not link against EvtGen : EVTGEN_ROOT not defined")      
+  message(INFO " Will not link against EvtGen : EVTGEN_ROOT not defined")
 endif()
 
 add_subdirectory(src)
@@ -102,13 +105,13 @@ add_subdirectory(src)
 set(bindir ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
 
 if (NOT CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  configure_file(${CMAKE_SOURCE_DIR}/validation/runValidation.sh.in ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/runValidation.sh   @ONLY)
+  configure_file(${CMAKE_SOURCE_DIR}/validation/runValidation.sh.in ${RAPIDSIM_ROOT}/${CMAKE_INSTALL_BINDIR}/runValidation.sh   @ONLY)
 endif()
 
-install(DIRECTORY validation DESTINATION ${CMAKE_INSTALL_PREFIX} )
-install(DIRECTORY rootfiles DESTINATION ${CMAKE_INSTALL_PREFIX} )
-install(DIRECTORY utils DESTINATION ${CMAKE_INSTALL_PREFIX} )
-install(DIRECTORY config DESTINATION ${CMAKE_INSTALL_PREFIX} )
+install(DIRECTORY validation DESTINATION ${RAPIDSIM_ROOT} )
+install(DIRECTORY rootfiles DESTINATION ${RAPIDSIM_ROOT} )
+install(DIRECTORY utils DESTINATION ${RAPIDSIM_ROOT} )
+install(DIRECTORY config DESTINATION ${RAPIDSIM_ROOT} )
 
 
 
