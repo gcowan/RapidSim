@@ -46,7 +46,7 @@ ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 ENDIF()
 
 
-set (ROOT_FIND_COMPONENTS Core RIO Tree)
+set (ROOT_FIND_COMPONENTS Core RIO RooFit RooFitCore RooStats Hist Tree Matrix Physics MathCore)
   find_file(ROOT_CONFIG ROOTConfig.cmake HINTS $ENV{ROOTSYS} ${ROOTSYS} ${ROOT_DIR} NO_DEFAULT_PATH PATH_SUFFIXES cmake)
 if (ROOT_CONFIG)
   message(STATUS "ROOTConfig.cmake found and will be used: ${ROOT_CONFIG}")
