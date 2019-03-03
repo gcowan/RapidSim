@@ -25,3 +25,6 @@ RUN export ROOTSYS=/usr/local/ && mkdir -p build && cd build && cmake ../ && mak
 
 # build RapidSim with EvtGen
 #RUN export ROOTSYS=/usr/local/ && export LD_LIBRARY_PATH=/code/EvtGen/external/HepMC/lib:/code/EvtGen/external/pythia8186/lib:/code/EvtGen/external/PHOTOS/lib:/code/EvtGen/external/TAUOLA/lib:/code/EvtGen/evtgen/lib:$LD_LIBRARY_PATH && export PYTHIA8DATA=/code/EvtGen/external/pythia8186/xmldoc && export EVTGEN_ROOT=/code/EvtGen/evtgen/ && printenv && mkdir -p build-evtgen && cd build-evtgen && cmake ../ && make
+
+RUN chmod +x run.sh
+CMD ["./run.sh"]
