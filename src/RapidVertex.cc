@@ -10,9 +10,14 @@ ROOT::Math::XYZPoint RapidVertex::getVertex(bool truth) {
 	else return vertexSmeared_;
 }
 
-void RapidVertex::setXYZ(double x, double y, double z) {
+void RapidVertex::setXYZ(double x, double y, double z, RapidVertexSmear* smear) {
 	vertexTrue_ = ROOT::Math::XYZPoint(x,y,z);
-	smearVertex();
+	if(!smear){
+	  smearVertex();
+	}
+	else{
+	  smearVertex(smear);
+	}
 }
 
 void RapidVertex::smearVertex() {
@@ -28,3 +33,6 @@ void RapidVertex::smearVertex() {
 			vertexTrue_.Z() + gRandom->Gaus(0,zS)*1000.);
 }
 
+void RapidVertex::smearVertex(RapidVertexSmear* smear){
+  vertexSmeared_ = smear->smearVertex(vertexTrue_,0);
+}

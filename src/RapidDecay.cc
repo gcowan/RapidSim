@@ -243,7 +243,7 @@ bool RapidDecay::genDecay(bool acceptAny) {
 				double dvx  = part->getOriginVertex()->getVertex(true).X() + part->getP().Vect().Unit().X()*dist;
 				double dvy  = part->getOriginVertex()->getVertex(true).Y() + part->getP().Vect().Unit().Y()*dist;
 				double dvz  = part->getOriginVertex()->getVertex(true).Z() + part->getP().Vect().Unit().Z()*dist;
-				part->getDecayVertex()->setXYZ(dvx,dvy,dvz);
+				part->getDecayVertex()->setXYZ(dvx,dvy,dvz,part->getDecayVertexSmear());
 			}
 
 			int j=0;

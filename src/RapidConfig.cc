@@ -23,6 +23,7 @@
 #include "RapidParticle.h"
 #include "RapidParticleData.h"
 #include "RapidPID.h"
+#include "RapidVertexSmearHisto.h"
 
 RapidConfig::~RapidConfig() {
 	std::map<TString, RapidMomentumSmear*>::iterator itr = momSmearCategories_.begin();
@@ -39,6 +40,11 @@ RapidConfig::~RapidConfig() {
 	while (itr3 != pidHists_.end()) {
 		delete itr3->second;
 		pidHists_.erase(itr3++);
+	}
+	std::map<TString, RapidVertexSmear*>::iterator itr4 = vtxSmearCategories_.begin();
+	while(itr4!=vtxSmearCategories_.end()) {
+	        delete itr4->second;
+		vtxSmearCategories_.erase(itr4++);
 	}
 	while(!parts_.empty()) {
 		delete parts_[parts_.size()-1];
@@ -429,6 +435,8 @@ bool RapidConfig::configParticle(unsigned int part, TString command, TString val
 		parts_[part]->setEvtGenDecayModel(value);
 		std::cout << "INFO in RapidConfig::configParticle : set EvtGen decay model for particle " << parts_[part]->name() << std::endl
 			  << "                                    : " << value << std::endl;
+	} else if(command=="endVertexSmear"){
+	       setVertexSmearing(part, value);
 	}
 
 	return true;
@@ -1295,4 +1303,203 @@ TH1* RapidConfig::reduceHistogram(TH1* histo, double min, double max) {
 	delete[] boundsOut;
 
 	return histoOut;
+}
+
+
+bool RapidConfig::loadVertexSmearing(TString category){
+	//this "category" is actually the name of a file in /rootfiles/smear/category
+	//the category is itself a textfile including the format
+	// rootfname 
+	TString path;
+	std::ifstream fin;
+	bool found(false);
+	found = true;
+	path = getenv("RAPIDSIM_CONFIG");
+
+	if(path!=""){
+		fin.open(path+"/config/smear/"+category,std::ifstream::in);
+		if( fin.good() ){
+			std::cout << "INFO in RapidConfig::loadVertexSmearing : found smearing category " << category << "in RAPIDSIM_CONFIG." << std::endl
+				  << "                                          this version will be used." <<std::endl;
+		} else {
+			std::cout << "INFO in RapidConfig::loadVertexSmearing : smearing category " << category << " not found in RAPIDSIM_CONFIG." << std::endl
+				  << "                                          checking RAPIDSIM_ROOT. "<< std::endl;
+			fin.close();
+		}
+	}else {
+		std::cout <<" INFO in RapidConfig::loadVertexSmearing : $RAPIDSIM_CONFIG not set. trying RAPIDSIM_ROOT." << std::endl;
+		found = false;
+	}
+	if(!found){
+
+		path = getenv("RAPIDSIM_ROOT");
+
+		fin.open(path+"/config/smear/"+category,std::ifstream::in);
+		if( ! fin.good() ){
+			std::cout << "WARNING in RapidConfig::loadVertexSmearing : failed to load smearing from $RAPIDSIM_ROOT for category " << category << std::endl;
+		}
+		else{
+			std::cout<< "INFO in RapidConfig::loadVertexSmearing : found file! continuing " <<std::endl;
+		}
+	}
+  
+  
+	TString filename("");
+	filename.ReadToken(fin);
+
+	TFile* file = NULL;
+	if( filename !="NULL" ) {
+		file  =  TFile::Open(path+"/rootfiles/smear/"+filename);
+		if(!file) {
+			std::cout << "WARNING in RapidConfig::loadVertexSmearing : failed to load root file " << filename << std::endl;
+			fin.close();
+			return false;
+		}
+	}
+	// format from reading: VTXND thres1 hist1
+	TString type("");
+	type.ReadToken(fin);
+	if(type=="VTX1D") { //todo. add direction as third fin quantity
+		TString histname("");
+		std::vector<TH1*> hists;
+		std::vector<double> thresholds;
+		double threshold(0.);
+		while( true ){
+			fin >> threshold;
+			histname.ReadToken(fin);
+
+			//add check if user doesn't put a return before the end of the configuration.
+			if(""==histname){
+				std::cout<<" INFO in RapidConfig::loadVertexSmearing : out of histograms !"<<std::endl;
+				break;
+			}
+			if(fin.good()) {
+				TH1* hist = dynamic_cast<TH1*>(file->Get(histname));
+				if(!hist || !check1D(hist)) {
+					std::cout << "WARNING in RapidConfig::loadVertexSmearing : failed to load histgram " << histname << std::endl
+						  << "                                             threshold will be ignored." << std::endl;
+				} else {
+					hists.push_back(hist);
+					thresholds.push_back(threshold);
+					break;
+				}	
+			}      
+		}
+		if(hists.size() == 0) {
+			std::cout << "WARNING in RapidConfig::loadVertexSmearing : failed to load any histograms for category " << category << std::endl;
+			file->Close();
+			fin.close();
+			return false;
+		}
+		vtxSmearCategories_[category] = new RapidVertexSmearHisto(thresholds,hists);
+	} else if(type=="VTX2D") {
+		TString histname("");
+		std::vector<TH2*> hists;
+		std::vector<double> thresholds;
+		double threshold(0.);
+		while( true ){
+			fin >> threshold;
+			histname.ReadToken(fin);
+
+			//add check if user doesn't put a return before the end of the configuration.
+			if(""==histname){
+				std::cout<<" INFO in RapidConfig::loadVertexSmearing : out of histograms !"<<std::endl;
+				break;
+			}
+			if(fin.good()) {
+				TH2* hist = dynamic_cast<TH2*>(file->Get(histname));
+				if(!hist || !check2D(hist)) {
+					std::cout << "WARNING in RapidConfig::loadVertexSmearing : failed to load histgram " << histname << std::endl
+						  << "                                             threshold will be ignored." << std::endl;
+				} else {
+					hists.push_back(hist);
+					thresholds.push_back(threshold);
+					break;
+				}	
+			}      
+		}
+		if(hists.size() == 0) {
+			std::cout << "WARNING in RapidConfig::loadVertexSmearing : failed to load any histograms for category " << category << std::endl;
+			file->Close();
+			fin.close();
+			return false;
+		}
+		vtxSmearCategories_[category] = new RapidVertexSmearHisto(thresholds,hists);
+	} else if(type=="VTX3D") {
+		TString histname("");
+		std::vector<TH3*> hists;
+		std::vector<double> thresholds;
+		double threshold(0.);
+		while( true ){
+			fin >> threshold;
+			histname.ReadToken(fin);
+
+			//add check if user doesn't put a return before the end of the configuration.
+			if(""==histname){
+				std::cout<<" INFO in RapidConfig::loadVertexSmearing : out of histograms !"<<std::endl;
+				break;
+			}
+			if(fin.good()) {
+				TH3* hist = dynamic_cast<TH3*>(file->Get(histname));
+				if(!hist || !check3D(hist)) {
+					std::cout << "WARNING in RapidConfig::loadVertexSmearing : failed to load histgram " << histname << std::endl
+						  << "                                             threshold will be ignored." << std::endl;
+				} else {
+					hists.push_back(hist);
+					thresholds.push_back(threshold);
+					break;
+				}	
+			}      
+		}
+		if(hists.size() == 0) {
+			std::cout << "WARNING in RapidConfig::loadVertexSmearing : failed to load any histograms for category " << category << std::endl;
+			file->Close();
+			fin.close();
+			return false;
+		}
+		vtxSmearCategories_[category] = new RapidVertexSmearHisto(thresholds,hists);
+	} 
+	fin.close();
+	return true;
+}
+
+void RapidConfig::setVertexSmearing(unsigned int particle, TString category){
+	//expect that category is a space separated list of type thresh hist thresh hist...
+	TString buffer ;
+	int from = 0;
+	std::vector<TString> things;
+	while(category.Tokenize(buffer,from, " ")){
+		things.push_back(buffer);
+	}
+  
+	for(auto thing : things){
+		std::cout<<"got thing "<<thing<<std::endl;
+	}
+	std::cout << "in setVertexSmearing : particle =  "<<particle<<", category  = "<<category<<std::endl;
+	if(particle>parts_.size()){
+		std::cout << "WARNING in RapidConfig::setVertexSmearing : particle " << particle << " does not exist - smearing functions not set." <<std::endl;
+		return;
+	}
+	if( parts_[particle]->nDaughters() ==0 ){
+		std::cout << "WARNING in RapidConfig::setVertexSmearing : particle " << particle << " is not composite - cannot set end vertex of non-composite particle" << std::endl;
+		return;
+	}
+
+	std::cout<<" INFO in RapidConfig::setVertexSmearing : setting vertex smearing function for particle " << particle << "(category : " << category << ")"<<std::endl;
+	bool loadedsmear = true;
+	if(!vtxSmearCategories_.count(category)) {
+		if(!loadVertexSmearing(category)){
+			std::cout << "WARNING in RapidConfig::setVertexSmearing : failed to load end vertex smearing for category " << category << "." <<std::endl
+				  << "                                            End vertex smearing functions not set for particle " << particle << "." << std::endl;
+			loadedsmear = false;
+		}
+		else if(!vtxSmearCategories_.count(category)) {
+			loadedsmear = false;
+		}
+		if(loadedsmear) {
+			parts_[particle]->setVertexSmear(vtxSmearCategories_[category]);
+		}
+	}
+
+	return;
 }

@@ -255,6 +255,21 @@ Particle settings should be defined after the corresponding `@#` tag using the s
     parameters to be passed to the model
   * Default: PHSP
 
+* `endVertexSmear` :
+  * Sets the smearing of the end vertex, depending on a configuration in
+    `$RAPIDSIM_ROOT/config/smear` or `$RAPIDSIM_CONFIG/config/smear`
+  * Current implementation is for smearing by histograms, implemented in `RapidVertexSmearHisto`
+  * Syntax is `endVertexSmear : MySmear`
+    where `MySmear` is a configuration file defined as above. The file will look like
+    ```
+    rootfile.root
+    VTX3D
+    0. histname
+    ```
+    where `rootfile.root` is the rootfile in `$RAPIDSIM_CONFIG/rootfiles/smear` or `RAPIDSIM_ROOT/rootfiles/smear`
+    `VTX3D` is the smearing type, here a `TH3*` histogram
+    `0.` is the first threshold
+    `histname` is the histogram name in `rootfile.root` for this threshold.
 ## Parameters
 
 * `M`: The invariant mass of the combination of the given particles

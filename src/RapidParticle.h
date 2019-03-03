@@ -12,7 +12,7 @@
 class RapidMomentumSmear;
 class RapidParticleData;
 class RapidIPSmear;
-//class RapidVtxSmear;
+class RapidVertexSmear;
 
 class RapidParticle {
 	public:
@@ -23,7 +23,8 @@ class RapidParticle {
 			  evtGenModel_("PHSP"),
 			  currentHypothesis_(0),
 			  originVertex_(0),
-			  decayVertex_(0)
+                          decayVertex_(0),
+                          decayVertexSmear_(0)
 			{setPtEtaPhi(0,0,0); setupVertices();}
 
 		~RapidParticle() {}
@@ -100,7 +101,9 @@ class RapidParticle {
 
 		TString evtGenDecayModel() { return evtGenModel_; }
 		void setEvtGenDecayModel(TString value) { evtGenModel_ = value; }
-
+		// added methods for verex smearing
+		void setVertexSmear(RapidVertexSmear* smear){decayVertexSmear_ = smear;}
+		RapidVertexSmear* getDecayVertexSmear(){return decayVertexSmear_;}
 	private:
 		bool hasFlavour(int flavour);
 
@@ -154,5 +157,6 @@ class RapidParticle {
 
 		RapidVertex * originVertex_;
 		RapidVertex * decayVertex_;
+		RapidVertexSmear* decayVertexSmear_;
 };
 #endif

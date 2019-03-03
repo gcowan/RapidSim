@@ -6,6 +6,8 @@
 #include "Math/Point3D.h"
 #include "Math/Vector3D.h"
 
+#include "RapidVertexSmear.h"
+
 class RapidVertex {
 	public:
 		RapidVertex(double x, double y, double z)
@@ -13,10 +15,11 @@ class RapidVertex {
 
 		ROOT::Math::XYZPoint getVertex(bool truth);
 
-		void setXYZ(double x, double y, double z);
+		void setXYZ(double x, double y, double z, RapidVertexSmear* smear = nullptr);
 
 	private:
 		void smearVertex();
+		void smearVertex(RapidVertexSmear* smear);
 		unsigned int nPVTracks_;
 
 		ROOT::Math::XYZPoint vertexTrue_;
