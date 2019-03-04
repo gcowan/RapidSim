@@ -37,7 +37,6 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g3 -O2")
 
 
 # setting linker flags
-
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   SET(CMAKE_EXE_LINKER_FLAGS "-Wl,-dead_strip_dylibs")
   SET(CMAKE_SHARED_LINKER_FLAGS "-Wl,-dead_strip_dylibs")
@@ -48,41 +47,16 @@ ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   SET(STATIC_LIBRARY_FLAGS "-Wl,--as-needed")
 ENDIF()
 
-
-set (ROOT_FIND_COMPONENTS Core RIO RooFit RooFitCore RooStats Hist Tree Matrix Physics MathCore)
-  find_file(ROOT_CONFIG ROOTConfig.cmake HINTS $ENV{ROOTSYS} ${ROOTSYS} ${ROOT_DIR} NO_DEFAULT_PATH PATH_SUFFIXES cmake)
-if (ROOT_CONFIG)
-  message(STATUS "ROOTConfig.cmake found and will be used: ${ROOT_CONFIG}")
-  include(${ROOT_CONFIG})
-  message(STATUS "ROOT use file: ${ROOT_USE_FILE}")
-  include(${ROOT_USE_FILE})
-
-  if(ROOT_LIBRARIES AND ROOT_INCLUDE_DIRS)
-    set(ROOT_FOUND TRUE)
-  endif()
-
-else()
-  message(STATUS "ROOTConfig.cmake not found, trying to use FindROOT.cmake...")
-  find_package(ROOT)
-  INCLUDE_DIRECTORIES( ${ROOT_INCLUDE_DIR} )
-  LINK_DIRECTORIES( ${ROOT_LIBRARY_DIR} )
-  set(CMAKE_CXX_FLAGS    "${CMAKE_CXX_FLAGS} ${ROOT_CXX_FLAGS}" )
-endif()
-
-message(STATUS "ROOT includes: ${ROOT_INCLUDE_DIR}")
+find_package(ROOT CONFIG REQUIRED COMPONENTS Core RIO RooFit RooFitCore RooStats Hist Tree Matrix Physics MathCore)
+include(${ROOT_USE_FILE})
+message(STATUS "ROOT includes: ${ROOT_INCLUDE_DIRS}")
 message(STATUS "ROOT libraries: ${ROOT_LIBRARIES}")
 message(STATUS "ROOT library directory: ${ROOT_LIBRARY_DIR}")
-message(STATUS "ROOT_FOUND: ${ROOT_FOUND}")
-
-if(ROOT_FOUND)
-  include_directories(${ROOT_INCLUDE_DIRS})
-else()
-  message(ERROR "ROOT needed for RapidSim not found")
-endif()
+include_directories(${ROOT_INCLUDE_DIRS})
 
 if(DEFINED ENV{EVTGEN_ROOT})
-	message(STATUS "EVTGEN_ROOT is set: ${EVTGEN_ROOT}")
-	message(STATUS "Will attempt to link against EvtGen")
+  message(STATUS "EVTGEN_ROOT is set: ${EVTGEN_ROOT}")
+  message(STATUS "Will attempt to link against EvtGen")
   find_library(EVTGEN EvtGen PATHS "$ENV{EVTGEN_ROOT}/lib")
   find_library(EVTGENEXT EvtGenExternal PATHS "$ENV{EVTGEN_ROOT}/lib")
   if(NOT EVTGEN)
@@ -112,6 +86,3 @@ install(DIRECTORY validation DESTINATION ${RAPIDSIM_ROOT} )
 install(DIRECTORY rootfiles DESTINATION ${RAPIDSIM_ROOT} )
 install(DIRECTORY utils DESTINATION ${RAPIDSIM_ROOT} )
 install(DIRECTORY config DESTINATION ${RAPIDSIM_ROOT} )
-
-
-
