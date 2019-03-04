@@ -9,17 +9,17 @@
 class RapidVertex {
 	public:
 		RapidVertex(double x, double y, double z)
-			: ntracks_(4), vertexTrue_(x, y, z) {}
-        // 5 will now be the default for the ntracks of secondary vertices
+			: ntracks_(5), vertexTrue_(x, y, z) {smearVertex();}
 
 		ROOT::Math::XYZPoint getVertex(bool truth);
 
 		void setXYZ(double x, double y, double z);
-		void setNtracks(unsigned int ntracks) { ntracks_ = ntracks; }
-		void smearVertex();
+		void setNtracks(unsigned int ntracks) { ntracks_ = ntracks; smearVertex();}
 
 	private:
-        unsigned int ntracks_;
+		void smearVertex();
+
+		unsigned int ntracks_;
 		ROOT::Math::XYZPoint vertexTrue_;
 		ROOT::Math::XYZPoint vertexSmeared_;
 };

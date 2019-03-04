@@ -229,9 +229,11 @@ TH2* RapidDecay::generateAccRejDenominator2D() {
 void RapidDecay::genParent() {
 	double pt(0), eta(0), phi(gRandom->Uniform(0,2*TMath::Pi()));
 	unsigned int nPVtracks(5);
-    if(ptHisto_)   pt = ptHisto_->GetRandom();
+	if(ptHisto_)   pt = ptHisto_->GetRandom();
 	if(etaHisto_) eta = etaHisto_->GetRandom();
 	parts_[0]->setPtEtaPhi(pt,eta,phi);
+	if(pvHisto_) nPVtracks = pvHisto_->GetRandom();
+	parts_[0]->getOriginVertex()->setNtracks(nPVtracks);
 
 	//Now the pileup vertices
 	RapidBeamData* beam = RapidBeamData::getInstance();
@@ -242,9 +244,8 @@ void RapidDecay::genParent() {
 	pileuppvs_.clear();
 	for(unsigned int i=0; i<numpileup_; ++i) {
 		RapidVertex vtx(gRandom->Gaus(0,sigmapvxy_),gRandom->Gaus(0,sigmapvxy_),gRandom->Gaus(0,sigmapvz_));
-	    if(pvHisto_) nPVtracks = pvHisto_->GetRandom();
-        vtx.setNtracks(nPVtracks);
-        vtx.smearVertex();
+		if(pvHisto_) nPVtracks = pvHisto_->GetRandom();
+		vtx.setNtracks(nPVtracks);
 		pileuppvs_.push_back(vtx);
 	}
 }

@@ -120,9 +120,9 @@ class RapidConfig {
 		//parent kinematic distributions
 		TH1* ptHisto_;
 		TH1* etaHisto_;
-		
-        // PVNTRACKS
-        TH1* pvHisto_;
+
+		// PVNTRACKS
+		TH1* pvHisto_;
 
 		//ranges to take from histograms
 		double ptMin_;

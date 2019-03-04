@@ -24,7 +24,7 @@ class RapidDecay {
 		RapidDecay(const std::vector<RapidParticle*>& parts)
 			: parts_(parts), maxgen_(1000),
 			  ptHisto_(0), etaHisto_(0),
-              pvHisto_(0),
+			  pvHisto_(0),
 			  accRejHisto_(0), accRejParameterX_(0), accRejParameterY_(0),
 			  suppressKinematicWarning_(false), suppressAttemptsWarning_(false),
 			  external_(0)
@@ -74,8 +74,8 @@ class RapidDecay {
 		//parent kinematics
 		TH1* ptHisto_;
 		TH1* etaHisto_;
-		
-        //PVNTRACKS
+
+		//PVNTRACKS
 		TH1* pvHisto_;
 
 		//accept reject hist to sculpt kinematics
