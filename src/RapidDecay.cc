@@ -82,6 +82,7 @@ bool RapidDecay::generate(bool genpar) {
 	}
 
 	smearMomenta();
+	calcIPs();
 
 	return true;
 }
@@ -90,6 +91,48 @@ void RapidDecay::smearMomenta() {
 	//run backwards so that we reach the daughters first
 	for(int i=parts_.size()-1; i>=0; --i) {//don't change to unsigned - needs to hit -1 to break loop
 		parts_[i]->smearMomentum();
+	}
+
+}
+
+void RapidDecay::calcIPs() {
+	//The origin vertex of the signal is always 0,0,0
+	RapidVertex * signalpv = parts_[0]->getOriginVertex();
+	std::vector<RapidParticle*>::iterator itrPart;
+
+	for(itrPart = parts_.begin(); itrPart!=parts_.end(); ++itrPart) {
+		RapidParticle* part = (*itrPart);
+		double ip(0.);
+		ip = getParticleIP(signalpv->getVertex(true),part->getOriginVertex()->getVertex(true),part->getP());
+		part->setIP(ip);
+		part->smearIP();
+		//Now the pileup, we cache the results of the IP smearing first...
+		double cachedip = part->getIP();
+		double cachedipsmeared = part->getIPSmeared();
+		double cachedsigmaip = part->getSigmaIP();
+		//The cache for the pileup IP, very dirty but see comment below why...
+		double cachedminip = cachedip;
+		double cachedminipsmeared = cachedipsmeared;
+		double cachedsigmaminip = cachedsigmaip;
+		std::vector<RapidVertex>::iterator itrVtx;
+		for(itrVtx = pileuppvs_.begin(); itrVtx != pileuppvs_.end(); ++itrVtx) {
+			double thisip = getParticleIP((*itrVtx).getVertex(true),part->getOriginVertex()->getVertex(true),part->getP());
+			part->setMinIP(thisip);
+			part->smearIP();
+			if (std::fabs(part->getMinIPSmeared()) < std::fabs(cachedminipsmeared)) {
+				cachedminip = part->getMinIP();
+				cachedminipsmeared = part->getMinIPSmeared();
+				cachedsigmaminip = part->getSigmaMinIP();
+			}
+		}
+		// Use the cached information to set things now... this is not the best coding ever but mandated
+		// by the fact that the particle owns the smearing tool...
+		part->setIP(cachedip);
+		part->setIPSmeared(cachedipsmeared);
+		part->setIPSigma(cachedsigmaip);
+		part->setMinIP(cachedminip);
+		part->setMinIPSmeared(cachedminipsmeared);
+		part->setMinIPSigma(cachedsigmaminip);
 	}
 
 }
@@ -198,8 +241,6 @@ void RapidDecay::genParent() {
 }
 
 bool RapidDecay::genDecay(bool acceptAny) {
-	//The origin vertex of the signal is always 0,0,0
-	RapidVertex * signalpv = parts_[0]->getOriginVertex();
 	for(unsigned int i=0; i<parts_.size(); ++i) {
 		RapidParticle* part = parts_[i];
 		if(part->nDaughters()>0) {
@@ -249,37 +290,6 @@ bool RapidDecay::genDecay(bool acceptAny) {
 			int j=0;
 			for(RapidParticle* jDaug=part->daughter(0); jDaug!=0; jDaug=jDaug->next()) {
 				jDaug->setP(*decay_.GetDecay(j++));
-				double ip(0.);
-				ip = getParticleIP(signalpv->getVertex(true),jDaug->getOriginVertex()->getVertex(true),jDaug->getP());
-				jDaug->setIP(ip);
-				jDaug->smearIP();
-				//Now the pileup, we cache the results of the IP smearing first...
-				double cachedip = jDaug->getIP();
-				double cachedipsmeared = jDaug->getIPSmeared();
-				double cachedsigmaip = jDaug->getSigmaIP();
-				//The cache for the pileup IP, very dirty but see comment below why...
-				double cachedminip = cachedip;
-				double cachedminipsmeared = cachedipsmeared;
-				double cachedsigmaminip = cachedsigmaip;
-				std::vector<RapidVertex>::iterator itrVtx;
-				for(itrVtx = pileuppvs_.begin(); itrVtx != pileuppvs_.end(); ++itrVtx) {
-					double thisip = getParticleIP((*itrVtx).getVertex(true),jDaug->getOriginVertex()->getVertex(true),jDaug->getP());
-					jDaug->setMinIP(thisip);
-					jDaug->smearIP();
-					if (std::fabs(jDaug->getMinIPSmeared()) < std::fabs(cachedminipsmeared)) {
-						cachedminip = jDaug->getMinIP();
-						cachedminipsmeared = jDaug->getMinIPSmeared();
-						cachedsigmaminip = jDaug->getSigmaMinIP();
-					}
-				}
-				// Use the cached information to set things now... this is not the best coding ever but mandated
-				// by the fact that the particle owns the smearing tool...
-				jDaug->setIP(cachedip);
-				jDaug->setIPSmeared(cachedipsmeared);
-				jDaug->setIPSigma(cachedsigmaip);
-				jDaug->setMinIP(cachedminip);
-				jDaug->setMinIPSmeared(cachedminipsmeared);
-				jDaug->setMinIPSigma(cachedsigmaminip);
 			}
 		}
 	}
