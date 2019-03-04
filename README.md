@@ -267,6 +267,12 @@ Particle settings should be defined after the corresponding `@#` tag using the s
 * `PY`: The Y momentum of the combination of the given particles
 * `PZ`: The Z momentum of the combination of the given particles
 * `PT`: The transverse momentum of the combination of the given particles
+* `vtxX`: The X coordinate of the decay vertex of the given particles
+* `vtxY`: The Y coordinate of the decay vertex of the given particles
+* `vtxZ`: The Z coordinate of the decay vertex of the given particles
+* `origX`: The X coordinate of the origin vertex of the given particles
+* `origY`: The Y coordinate of the origin vertex of the given particles
+* `origZ`: The Z coordinate of the origin vertex of the given particles
 * `IP` : Impact parameter to own primary vertex
 * `SIGMAIP` : Error on impact parameter to own primary vertex
 * `MINIP` : Minimum impact parameter to any primary vertex
