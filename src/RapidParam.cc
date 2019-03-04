@@ -312,23 +312,28 @@ double RapidParam::evalTheta() {
 	}
 
 	TLorentzVector pA, pB, pBoost;
+	bool doBoost(false);
 
 	if(truth_) {
 		pA = particles_[0]->getP();
 		pB = particles_[1]->getP();
 		for(unsigned int i=2; i<particles_.size(); ++i) {
 			pBoost += particles_[i]->getP();
+			doBoost=true;
 		}
 	} else {
 		pA = particles_[0]->getPSmeared();
 		pB = particles_[1]->getPSmeared();
 		for(unsigned int i=2; i<particles_.size(); ++i) {
 			pBoost += particles_[i]->getPSmeared();
+			doBoost=true;
 		}
 	}
 
-	pA.Boost(-pBoost.BoostVector());
-	pB.Boost(-pBoost.BoostVector());
+	if(doBoost) {
+		pA.Boost(-pBoost.BoostVector());
+		pB.Boost(-pBoost.BoostVector());
+	}
 
 	if(type_ == RapidParam::THETA) {
 		return pA.Angle(pB.Vect());
