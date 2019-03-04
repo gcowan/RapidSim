@@ -193,7 +193,7 @@ void RapidExternalEvtGen::writeDecFile(TString fname, std::vector<RapidParticle*
 	fout <<"End\n" << std::endl;
 	fout.close();
 #else
-	std::cout << "WARNING in RapidExternalEvtGen::writeDecFile : EvtGen extension not compiled. Cannot name write DEC file " 
+	std::cout << "WARNING in RapidExternalEvtGen::writeDecFile : EvtGen extension not compiled. Cannot write DEC file "
 		  << fname << " for " << parts.size() << "particles with usePhotos=" << usePhotos << "." << std::endl;
 #endif
 }
