@@ -9,7 +9,7 @@
 class RapidVertex {
 	public:
 		RapidVertex(double x, double y, double z)
-			: ntracks_(5), vertexTrue_(x, y, z) {smearVertex();}
+			: ntracks_(4), vertexTrue_(x, y, z) {smearVertex();}
 
 		ROOT::Math::XYZPoint getVertex(bool truth);
 
