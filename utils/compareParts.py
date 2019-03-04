@@ -1,4 +1,5 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+from __future__ import print_function
 
 import math
 
@@ -25,27 +26,27 @@ def compare(title, rs, eg):
 
     #check for zero
     if rs==0. and eg!=0.:
-        print title, "RS is zero", rs, eg
+        print(title, "RS is zero", rs, eg)
         return True
 
     if rs!=0. and eg==0.:
-        print title, "EG is zero", rs, eg
+        print(title, "EG is zero", rs, eg)
         return False
 
     #check for significant difference
     if abs(diff) >= 0.999*10.**-min(scaleRS,scaleEG):
-        print title, "DIFFERENT", rs, eg
+        print(title, "DIFFERENT", rs, eg)
         return True
 
     #report which is more precise
     if scaleRS > scaleEG:
-        print title, "RS more precise", rs, eg
+        print(title, "RS more precise", rs, eg)
         return False
     elif scaleRS < scaleEG:
-        print title, "EG more precise", rs, eg
+        print(title, "EG more precise", rs, eg)
         return True
     else:
-        print title, "SAME precision", rs, eg
+        print(title, "SAME precision", rs, eg)
         return True
 
 from collections import namedtuple
@@ -89,10 +90,10 @@ rsOnly = rsKeys.difference(egKeys)
 egOnly = egKeys.difference(rsKeys)
 both   = rsKeys.intersection(egKeys)
 
-print "\n---------SUMMARY---------\n"
-print "RS only:", len(rsOnly), "EG only:", len(egOnly), "both:", len(both), "\n"
+print("\n---------SUMMARY---------\n")
+print("RS only:", len(rsOnly), "EG only:", len(egOnly), "both:", len(both), "\n")
 
-print "\n---------DIFFERENCES---------\n"
+print("\n---------DIFFERENCES---------\n")
 
 diffM=0
 diffG=0
@@ -106,7 +107,7 @@ for part in sorted(both):
        partsRS[part].width != partsEG[part].width or \
        partsRS[part].charge != partsEG[part].charge or \
        partsRS[part].spin != partsEG[part].spin:
-        print part, partsRS[part].name
+        print(part, partsRS[part].name)
         if partsRS[part].mass != partsEG[part].mass:
             if compare("mass:   ", partsRS[part].mass, partsEG[part].mass):
                 diffM+=1
@@ -114,19 +115,19 @@ for part in sorted(both):
             if compare("width:  ", partsRS[part].width, partsEG[part].width):
                 diffG+=1
         if partsRS[part].charge != partsEG[part].charge:
-            print "charge: ", partsEG[part].charge, partsRS[part].charge
+            print("charge: ", partsEG[part].charge, partsRS[part].charge)
             diffC+=1
         if partsRS[part].spin != partsEG[part].spin:
-            print "spin:   ", partsEG[part].spin, partsRS[part].spin
+            print("spin:   ", partsEG[part].spin, partsRS[part].spin)
             diffS+=1
-        print "\n"
+        print("\n")
 
-print "\n---------DIFF SUMMARY---------"
-print "M G C S"
-print diffM, diffG, diffC, diffS
+print("\n---------DIFF SUMMARY---------")
+print("M G C S")
+print(diffM, diffG, diffC, diffS)
 
-print "\n---------ONLY in EvtGen---------\n"
+print("\n---------ONLY in EvtGen---------\n")
 for part in sorted(egOnly):
     if part < 0 and -part in egOnly:
         continue
-    print part, partsEG[part].name
+    print(part, partsEG[part].name)
