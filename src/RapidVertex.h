@@ -9,16 +9,17 @@
 class RapidVertex {
 	public:
 		RapidVertex(double x, double y, double z)
-			: nPVTracks_(5), vertexTrue_(x, y, z) {smearVertex();}
+			: ntracks_(5), vertexTrue_(x, y, z) {smearVertex();}
 
 		ROOT::Math::XYZPoint getVertex(bool truth);
 
 		void setXYZ(double x, double y, double z);
+		void setNtracks(unsigned int ntracks) { ntracks_ = ntracks; smearVertex();}
 
 	private:
 		void smearVertex();
-		unsigned int nPVTracks_;
 
+		unsigned int ntracks_;
 		ROOT::Math::XYZPoint vertexTrue_;
 		ROOT::Math::XYZPoint vertexSmeared_;
 };
