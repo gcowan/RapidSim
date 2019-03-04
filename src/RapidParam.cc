@@ -12,6 +12,7 @@ double RapidParam::eval() {
 	if(type_ == RapidParam::MCORR) return evalCorrectedMass();
 	if(type_ == RapidParam::ProbNNmu || type_ == RapidParam::ProbNNpi || type_ == RapidParam::ProbNNe ||
 	   type_ == RapidParam::ProbNNk || type_ == RapidParam::ProbNNp) return evalPID();
+	if(type_ >= RapidParam::VtxX && type_ <= RapidParam::OrigZ) return evalPos();
 
 	double fd      = particles_[0]->getFD(truth_);
 	double ip      = particles_[0]->getIP();
@@ -77,6 +78,12 @@ double RapidParam::eval() {
 		case RapidParam::ProbNNk:
 		case RapidParam::ProbNNp:
 		case RapidParam::ProbNNe:
+		case RapidParam::VtxX:
+		case RapidParam::VtxY:
+		case RapidParam::VtxZ:
+		case RapidParam::OrigX:
+		case RapidParam::OrigY:
+		case RapidParam::OrigZ:
 		case RapidParam::THETA:
 		case RapidParam::COSTHETA:
 		case RapidParam::MCORR:
@@ -151,6 +158,18 @@ bool RapidParam::canBeSmeared() {
 			return true;
 		case RapidParam::MCORR:
 			return true;
+		case RapidParam::VtxX:
+			return true;
+		case RapidParam::VtxY:
+			return true;
+		case RapidParam::VtxZ:
+			return true;
+		case RapidParam::OrigX:
+			return true;
+		case RapidParam::OrigY:
+			return true;
+		case RapidParam::OrigZ:
+			return true;
 		case RapidParam::UNKNOWN:
 			return true;
 	}
@@ -217,6 +236,18 @@ bool RapidParam::canBeTrue() {
 			return true;
 		case RapidParam::MCORR:
 			return true;
+		case RapidParam::VtxX:
+			return true;
+		case RapidParam::VtxY:
+			return true;
+		case RapidParam::VtxZ:
+			return true;
+		case RapidParam::OrigX:
+			return true;
+		case RapidParam::OrigY:
+			return true;
+		case RapidParam::OrigZ:
+			return true;
 		case RapidParam::UNKNOWN:
 			return true;
 	}
@@ -281,29 +312,62 @@ double RapidParam::evalTheta() {
 	}
 
 	TLorentzVector pA, pB, pBoost;
+	bool doBoost(false);
 
 	if(truth_) {
 		pA = particles_[0]->getP();
 		pB = particles_[1]->getP();
 		for(unsigned int i=2; i<particles_.size(); ++i) {
 			pBoost += particles_[i]->getP();
+			doBoost=true;
 		}
 	} else {
 		pA = particles_[0]->getPSmeared();
 		pB = particles_[1]->getPSmeared();
 		for(unsigned int i=2; i<particles_.size(); ++i) {
 			pBoost += particles_[i]->getPSmeared();
+			doBoost=true;
 		}
 	}
 
-	pA.Boost(-pBoost.BoostVector());
-	pB.Boost(-pBoost.BoostVector());
+	if(doBoost) {
+		pA.Boost(-pBoost.BoostVector());
+		pB.Boost(-pBoost.BoostVector());
+	}
 
 	if(type_ == RapidParam::THETA) {
 		return pA.Angle(pB.Vect());
 	} else {
 		return pA.Vect().Dot(pB.Vect())/(pA.P()*pB.P());
 	}
+}
+
+double RapidParam::evalPos() {
+	RapidVertex* vtx(0);
+	if(type_==RapidParam::OrigX ||
+	   type_==RapidParam::OrigY ||
+	   type_==RapidParam::OrigZ ) {
+		vtx = particles_[0]->getOriginVertex();
+	} else if(type_==RapidParam::VtxX ||
+		  type_==RapidParam::VtxY ||
+		  type_==RapidParam::VtxZ ) {
+		vtx = particles_[0]->getDecayVertex();
+		if(particles_[0]->stable()) {
+			std::cout << "WARNING in RapidParam::evalPos : requesting " << type_ << " of a particle that has not decayed." << std::endl
+				  << "Will use origin vertex instead." << std::endl;
+		}
+	}
+	if(!vtx) {
+		std::cout << "WARNING in RapidParam::evalPos : vertex for parameter " << type_ << " not found for particle " << particles_[0]->name() << "." << std::endl;
+		return -999.;
+	}
+	ROOT::Math::XYZPoint point = vtx->getVertex(truth_);
+	if(type_==RapidParam::OrigX || type_==RapidParam::VtxX) return point.X();
+	if(type_==RapidParam::OrigY || type_==RapidParam::VtxY) return point.Y();
+	if(type_==RapidParam::OrigZ || type_==RapidParam::VtxZ) return point.Z();
+
+	std::cout << "WARNING in RapidParam::evalPos : unknown position parameter type " << type_ << "." << std::endl;
+	return -999.;
 }
 
 TString RapidParam::name() {
@@ -382,6 +446,18 @@ TString RapidParam::typeName() {
 			return "ProbNNp";
 		case RapidParam::ProbNNe:
 			return "ProbNNe";
+		case RapidParam::VtxX:
+			return "vtxX";
+		case RapidParam::VtxY:
+			return "vtxY";
+		case RapidParam::VtxZ:
+			return "vtxZ";
+		case RapidParam::OrigX:
+			return "origX";
+		case RapidParam::OrigY:
+			return "origY";
+		case RapidParam::OrigZ:
+			return "origZ";
 		default:
 			std::cout << "WARNING in RapidParam::typeName : unknown type " << type_ << "." << std::endl
 				  << "                                  returning empty string." << std::endl;
@@ -446,6 +522,18 @@ RapidParam::ParamType RapidParam::typeFromString(TString str) {
 		return RapidParam::ProbNNp;
 	} else if(str=="ProbNNe") {
 		return RapidParam::ProbNNe;
+	} else if(str=="vtxX") {
+		return RapidParam::VtxX;
+	} else if(str=="vtxY") {
+		return RapidParam::VtxY;
+	} else if(str=="vtxZ") {
+		return RapidParam::VtxZ;
+	} else if(str=="origX") {
+		return RapidParam::OrigX;
+	} else if(str=="origY") {
+		return RapidParam::OrigY;
+	} else if(str=="origZ") {
+		return RapidParam::OrigZ;
 	} else {
 		std::cout << "WARNING in RapidParam::typeFromString : unknown type name " << str << "." << std::endl
 			  << "                                        returning mass parameter type." << std::endl;
@@ -567,6 +655,18 @@ void RapidParam::setDefaultMinMax(const std::vector<RapidParticle*>& parts, doub
 		case RapidParam::ProbNNe:
 			min = 0.0;
 			max = 1.0;
+			break;
+		case RapidParam::VtxX:
+		case RapidParam::VtxY:
+		case RapidParam::OrigX:
+		case RapidParam::OrigY:
+			min = -100.0;
+			max = 100.0;
+			break;
+		case RapidParam::VtxZ:
+		case RapidParam::OrigZ:
+			min = -1000.0;
+			max = 1000.0;
 			break;
 		case RapidParam::UNKNOWN:
 		default:

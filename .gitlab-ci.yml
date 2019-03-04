@@ -2,41 +2,26 @@ stages:
     - build
     - test
 
-build:
-    script:
-        - export ROOTSYS=/usr/local/
-        - mkdir build
-        - cd build
-        - cmake ../
-        - make
+# building the container
+build: 
     stage: build
-    artifacts:
-        paths:
-            - build/src/RapidSim.exe
-
-build-evtgen:
-    script:
-        - export ROOTSYS=/usr/local/
-        - export LD_LIBRARY_PATH=/root/evtgen/EvtGen/external/HepMC/lib:/root/evtgen/EvtGen/external/pythia8186/lib:/root/evtgen/EvtGen/external/PHOTOS/lib:/root/evtgen/EvtGen/external/TAUOLA/lib:/root/evtgen/EvtGen/evtgen/lib:$LD_LIBRARY_PATH
-        - export PYTHIA8DATA=/root/evtgen/EvtGen/external/pythia8186/xmldoc
-        - export EVTGEN_ROOT=~/evtgen/EvtGen/evtgen/
-        - mkdir build-evtgen
-        - cd build-evtgen
-        - cmake ../
-        - make
-    stage: build
-    artifacts:
-        paths:
-                - build-evtgen/src/RapidSim.exe
+    tags:
+        - docker-image-build
+    script: "echo" # unused but this line is required by GitLab CI
 
 run-B2Kee:
     script:
-        - export RAPIDSIM_ROOT=$PWD
-        - cd build
+        - export RAPIDSIM_ROOT=/code
+        - cd /code/build
         - src/RapidSim.exe ../validation/B2Kee 100000
         - mkdir plots
         - root -b -q -l "../validation/compareHistograms.C(\"B2Kee\")"
     stage: test
+    variables:
+         GIT_STRATEGY: none # the latest code should already be in the container
+    tags:
+        - docker # make sure the node has docker 
+    image: "gitlab-registry.cern.ch/$CI_PROJECT_PATH"
     artifacts:
         paths:
             - build/B2Kee_hists.root
@@ -44,22 +29,32 @@ run-B2Kee:
 
 run-B2Kee-tree:
     script:
-        - export RAPIDSIM_ROOT=$PWD
-        - cd build
+        - export RAPIDSIM_ROOT=/code
+        - cd /code/build
         - src/RapidSim.exe ../validation/B2Kee 1000 1
     stage: test
+    variables:
+         GIT_STRATEGY: none # the latest code should already be in the container
+    tags:
+        - docker # make sure the node has docker 
+    image: "gitlab-registry.cern.ch/$CI_PROJECT_PATH"
     artifacts:
         paths:
             - build/B2Kee_tree.root
 
 run-Bs2Jpsiphi:
     script:
-        - export RAPIDSIM_ROOT=$PWD
-        - cd build
+        - export RAPIDSIM_ROOT=/code
+        - cd /code/build
         - src/RapidSim.exe ../validation/Bs2Jpsiphi 100000
         - mkdir plots
         - root -b -q -l "../validation/compareHistograms.C(\"Bs2Jpsiphi\")"
     stage: test
+    variables:
+         GIT_STRATEGY: none # the latest code should already be in the container
+    tags:
+        - docker # make sure the node has docker 
+    image: "gitlab-registry.cern.ch/$CI_PROJECT_PATH"
     artifacts:
         paths:
             - build/Bs2Jpsiphi_hists.root
@@ -67,12 +62,17 @@ run-Bs2Jpsiphi:
 
 run-Bd2D0rho0:
     script:
-        - export RAPIDSIM_ROOT=$PWD
-        - cd build
+        - export RAPIDSIM_ROOT=/code
+        - cd /code/build
         - src/RapidSim.exe ../validation/Bd2D0rho0 100000
         - mkdir plots
         - root -b -q -l "../validation/compareHistograms.C(\"Bd2D0rho0\")"
     stage: test
+    variables:
+         GIT_STRATEGY: none # the latest code should already be in the container
+    tags:
+        - docker # make sure the node has docker 
+    image: "gitlab-registry.cern.ch/$CI_PROJECT_PATH"
     artifacts:
         paths:
             - build/Bd2D0rho0_hists.root
@@ -80,12 +80,17 @@ run-Bd2D0rho0:
 
 run-Bs2D0Kpi:
     script:
-        - export RAPIDSIM_ROOT=$PWD
-        - cd build
+        - export RAPIDSIM_ROOT=/code
+        - cd /code/build
         - src/RapidSim.exe ../validation/Bs2D0Kpi 10000
         - mkdir plots
         - root -b -q -l "../validation/compareHistograms.C(\"Bs2D0Kpi\")"
     stage: test
+    variables:
+         GIT_STRATEGY: none # the latest code should already be in the container
+    tags:
+        - docker # make sure the node has docker 
+    image: "gitlab-registry.cern.ch/$CI_PROJECT_PATH"
     artifacts:
         paths:
             - build/Bs2D0Kpi_hists.root
@@ -93,12 +98,17 @@ run-Bs2D0Kpi:
 
 run-D02Kpi:
     script:
-        - export RAPIDSIM_ROOT=$PWD
-        - cd build
+        - export RAPIDSIM_ROOT=/code
+        - cd /code/build
         - src/RapidSim.exe ../validation/D02Kpi 100000
         - mkdir plots
         - root -b -q -l "../validation/compareHistograms.C(\"D02Kpi\")"
     stage: test
+    variables:
+         GIT_STRATEGY: none # the latest code should already be in the container
+    tags:
+        - docker # make sure the node has docker 
+    image: "gitlab-registry.cern.ch/$CI_PROJECT_PATH"
     artifacts:
         paths:
             - build/D02Kpi_hists.root
@@ -106,13 +116,18 @@ run-D02Kpi:
 
 run-D02Kpi-redecay:
     script:
-        - export RAPIDSIM_ROOT=$PWD
-        - cd build
+        - export RAPIDSIM_ROOT=/code
+        - cd /code/build
         - src/RapidSim.exe ../validation/D02Kpi 10000 0 9
         - mv D02Kpi_hists.root D02Kpi-redecay_hists.root
         - mkdir plots
         - root -b -q -l "../validation/compareHistograms.C(\"D02Kpi-redecay\")"
     stage: test
+    variables:
+         GIT_STRATEGY: none # the latest code should already be in the container
+    tags:
+        - docker # make sure the node has docker 
+    image: "gitlab-registry.cern.ch/$CI_PROJECT_PATH"
     artifacts:
         paths:
             - build/D02Kpi-redecay_hists.root
@@ -120,12 +135,17 @@ run-D02Kpi-redecay:
 
 run-B2DplusD0:
     script:
-        - export RAPIDSIM_ROOT=$PWD
-        - cd build
+        - export RAPIDSIM_ROOT=/code
+        - cd /code/build
         - src/RapidSim.exe ../validation/B2DplusD0 10000
         - mkdir plots
         - root -b -q -l "../validation/compareHistograms.C(\"B2DplusD0\")"
     stage: test
+    variables:
+         GIT_STRATEGY: none # the latest code should already be in the container
+    tags:
+        - docker # make sure the node has docker 
+    image: "gitlab-registry.cern.ch/$CI_PROJECT_PATH"
     artifacts:
         paths:
             - build/B2DplusD0_hists.root
@@ -133,30 +153,40 @@ run-B2DplusD0:
 
 run-Lb2chicpK:
     script:
-        - export RAPIDSIM_ROOT=$PWD
-        - cd build
+        - export RAPIDSIM_ROOT=/code
+        - cd /code/build
         - src/RapidSim.exe ../validation/Lb2chicpK 10000
         - mkdir plots
         - root -b -q -l "../validation/compareHistograms.C(\"Lb2chicpK\")"
     stage: test
+    variables:
+         GIT_STRATEGY: none # the latest code should already be in the container
+    tags:
+        - docker # make sure the node has docker 
+    image: "gitlab-registry.cern.ch/$CI_PROJECT_PATH"
     artifacts:
         paths:
             - build/Lb2chicpK_hists.root
             - build/plots/Lb2chicpK_pval.pdf
 
-run-Ds2KKpi:
-    script:
-        - export RAPIDSIM_ROOT=$PWD
-        - export LD_LIBRARY_PATH=/root/evtgen/EvtGen/external/HepMC/lib:/root/evtgen/EvtGen/external/pythia8186/lib:/root/evtgen/EvtGen/external/PHOTOS/lib:/root/evtgen/EvtGen/external/TAUOLA/lib:/root/evtgen/EvtGen/evtgen/lib:$LD_LIBRARY_PATH
-        - export PYTHIA8DATA=/root/evtgen/EvtGen/external/pythia8186/xmldoc
-        - export EVTGEN_ROOT=~/evtgen/EvtGen/evtgen/
-        - cd build-evtgen
-        - src/RapidSim.exe ../validation/Ds2KKpi 10000
-        - mkdir plots
-        - root -b -q -l "../validation/compareHistograms.C(\"Ds2KKpi\")"
-    stage: test
-    artifacts:
-        paths:
-            - build-evtgen/Ds2KKpi_hists.root
-            - build-evtgen/plots/Ds2KKpi_pval.pdf
-
+#run-Ds2KKpi:
+#    script:
+#        - export RAPIDSIM_ROOT=/code
+#        - export LD_LIBRARY_PATH=/root/evtgen/EvtGen/external/HepMC/lib:/root/evtgen/EvtGen/external/pythia8186/lib:/root/evtgen/EvtGen/external/PHOTOS/lib:/root/evtgen/EvtGen/external/TAUOLA/lib:/root/evtgen/EvtGen/evtgen/lib:$LD_LIBRARY_PATH
+#        - export PYTHIA8DATA=/root/evtgen/EvtGen/external/pythia8186/xmldoc
+#        - export EVTGEN_ROOT=~/evtgen/EvtGen/evtgen/
+#        - cd /code/build-evtgen
+#        - src/RapidSim.exe ../validation/Ds2KKpi 10000
+#        - mkdir plots
+#        - root -b -q -l "../validation/compareHistograms.C(\"Ds2KKpi\")"
+#    stage: test
+#    variables:
+#         GIT_STRATEGY: none # the latest code should already be in the container
+#    tags:
+#        - docker # make sure the node has docker 
+#    image: "gitlab-registry.cern.ch/$CI_PROJECT_PATH"
+#    artifacts:
+#        paths:
+#            - build-evtgen/Ds2KKpi_hists.root
+#            - build-evtgen/plots/Ds2KKpi_pval.pdf
+#

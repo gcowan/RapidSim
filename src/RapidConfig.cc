@@ -107,7 +107,7 @@ bool RapidConfig::load(TString fileName) {
 		std::cout << "INFO in RapidConfig::load : initialising external generator." << std::endl;
 		//if the external generator is EvtGen we need to write the DEC file
 		if(dynamic_cast<RapidExternalEvtGen*>(external_)) {
-			dynamic_cast<RapidExternalEvtGen*>(external_)->writeDecFile(fileName_,parts_);
+			dynamic_cast<RapidExternalEvtGen*>(external_)->writeDecFile(fileName_,parts_,usePhotos_);
 		}
 		external_->setup();
 	}
@@ -549,6 +549,9 @@ bool RapidConfig::configGlobal(TString command, TString value) {
 	} else if(command=="useEvtGen") {
 		external_ = new RapidExternalEvtGen();
 		std::cout << "INFO in RapidConfig::configGlobal : will use external EvtGen generator to decay particles." << std::endl;
+	} else if(command=="evtGenUsePHOTOS") {
+		usePhotos_ = true;
+		std::cout << "INFO in RapidConfig::configGlobal : external EvtGen generator will use PHOTOS." << std::endl;
 	} else if (command=="pid") {
 		std::cout << "INFO in RapidConfig::configGlobal : setting pid type to " << value << "." << std::endl;
 		int from(0);

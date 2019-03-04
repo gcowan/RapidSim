@@ -42,6 +42,12 @@ class RapidParam {
 			ProbNNpi, // pion particle id
 			ProbNNk,  // kaon particle id
 			ProbNNp,  // proton particle id
+			VtxX,     // x coordinate of decay vertex
+			VtxY,     // y coordinate of decay vertex
+			VtxZ,     // z coordinate of decay vertex
+			OrigX,    // x coordinate of origin vertex
+			OrigY,    // y coordinate of origin vertex
+			OrigZ,    // z coordinate of origin vertex
 			UNKNOWN   //unused
 
 		};
@@ -95,6 +101,7 @@ class RapidParam {
 		double evalCorrectedMass();
 		double evalTheta();
 		double evalPID();
+		double evalPos();
 
 		void setDefaultMinMax() {setDefaultMinMax(particles_,minVal_,maxVal_);}//TODO remove/make virtual and give a warning in the base class
 

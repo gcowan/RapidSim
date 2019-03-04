@@ -15,15 +15,15 @@ A more detailed description can be found here https://arxiv.org/abs/1612.07489
 ## Setup
 
 RapidSim relies on having a working ROOT installation and gcc4.9 or clang.
-Optionally, you may also compile against EvtGen as detailed in [EvtGen][#EvtGen]
+Optionally, you may also compile against EvtGen as detailed in [EvtGen](#evtgen)
 To build do the following:
 
 ```shell
 $ # Set environment for gcc, it defines LD_LIBRARY_PATH and FC, CC, CXX. RapidSim also works with clang.
 $ # On lxplus do this:
-$ source /afs/cern.ch/sw/lcg/contrib/gcc/4.9.3/x86_64-slc6-gcc49-opt/setup.sh
+$ source /cvmfs/lhcb.cern.ch/lib/lcg/releases/LCG_87/gcc/4.9.3/x86_64-slc6/setup.sh
 $ # Set ROOT environment 
-$ source /afs/cern.ch/sw/lcg/releases/LCG_87/ROOT/6.08.02/x86_64-slc6-gcc49-opt/ROOT-env.sh
+$ source /cvmfs/lhcb.cern.ch/lib/lcg/releases/LCG_87/ROOT/6.08.02/x86_64-slc6-gcc49-opt/bin/thisroot.sh
 $ mkdir build
 $ cd build 
 $ cmake ../RapidSim -DCMAKE_INSTALL_PREFIX=/path/to/RapidSim/install/location
@@ -145,21 +145,21 @@ Particle settings should be defined after the corresponding `@#` tag using the s
   * Defines the set of parameters to be added to the histograms/tree
     for each stable particle in the decay.
   * Syntax: `paramsStable : <params>`, where `<params>` is a space separated 
-    list of the types defined in [the Parameters section][#parameters].
+    list of the types defined in [the Parameters section](#parameters).
   * Example: `paramsStable : P PT`
 
 * `paramsDecaying`:
   * Defines the set of parameters to be added to the histograms/tree
     for each decaying particle in the decay.
   * Syntax is `paramsDecaying : <params>` where `<params>` is a space separated 
-    list of the types defined in [the Parameters section][#parameters].
+    list of the types defined in [the Parameters section](#parameters).
   * Example: `paramsDecaying : M P PT`
 
 * `paramsTwoBody`:
   * Defines the set of parameters to be added to the histograms/tree
     for each two-body combination of particles in a 3+-body decay.
   * Syntax is `paramsTwoBody : <params>` where `<params>` is a space separated 
-    list of the types defined in [the Parameters section][#parameters].
+    list of the types defined in [the Parameters section](#parameters).
   * Example: `paramsTwoBody : M M2`
 
 * `paramsThreeBody`:
@@ -167,13 +167,13 @@ Particle settings should be defined after the corresponding `@#` tag using the s
     for each three-body combination of particles in a 4+-body decay.
   * Syntax is `paramsThreeBody : <params>` where `<params>` is a space 
     separated list of the types defined in [the Parameters 
-    section][#parameters].
+    section](#parameters).
   * Example: `paramsThreeBody : M M2`
 
 * `param`:
   * Defines a new parameter to be added to the histograms/tree
   * Syntax is `param : <name> <type> <particles> [TRUE]`, where:
-    * `<type>` must be one of the types defined in [the Parameters section][#parameters],
+    * `<type>` must be one of the types defined in [the Parameters section](#parameters),
     * `<particles>` is a space separated list of particle indices
     * The optional `TRUE` argument means the parameter will be calculated using 
       the true unsmeared momenta of the particles
@@ -204,6 +204,13 @@ Particle settings should be defined after the corresponding `@#` tag using the s
   * Syntax is `useEvtGen : TRUE`
   * Note any value for this parameter will turn EvtGen ON (even FALSE)
   * To turn EvtGen OFF do not define this parameter
+
+* `evtGenUsePHOTOS` :
+  * If EvtGen is used to generate decays then PHOTOS will be used for final state radiation
+  * Syntax is `evtGenUsePHOTOS : TRUE`
+  * Note any value for this parameter will turn PHOTOS ON (even FALSE)
+  * To turn PHOTOS OFF do not define this parameter
+  * Note also that if EvtGen is not in use then this parameter will have no effect
 
 * `pid` :
   * Sets the particle identification scheme to use
@@ -260,6 +267,12 @@ Particle settings should be defined after the corresponding `@#` tag using the s
 * `PY`: The Y momentum of the combination of the given particles
 * `PZ`: The Z momentum of the combination of the given particles
 * `PT`: The transverse momentum of the combination of the given particles
+* `vtxX`: The X coordinate of the decay vertex of the given particles
+* `vtxY`: The Y coordinate of the decay vertex of the given particles
+* `vtxZ`: The Z coordinate of the decay vertex of the given particles
+* `origX`: The X coordinate of the origin vertex of the given particles
+* `origY`: The Y coordinate of the origin vertex of the given particles
+* `origZ`: The Z coordinate of the origin vertex of the given particles
 * `IP` : Impact parameter to own primary vertex
 * `SIGMAIP` : Error on impact parameter to own primary vertex
 * `MINIP` : Minimum impact parameter to any primary vertex
@@ -290,8 +303,8 @@ Particle settings should be defined after the corresponding `@#` tag using the s
 EvtGen may be used to generate decays allowing for non-phasespace decay models.
 
 * EvtGen must be compiled with all external generators included (Pythia, PHOTOS, Tauola)
-  * This can be achieved by running the EvtGen setup
-  [script]: http://evtgen.hepforge.org/git?p=evtgen.git;a=blob_plain;f=setupEvtGen.sh;hb=HEAD
+  * This can be achieved by running the EvtGen
+  [setup script](http://evtgen.hepforge.org/git?p=evtgen.git;a=blob_plain;f=setupEvtGen.sh;hb=HEAD)
   * Note the manual step to set the required environment variables after installation
 * To compile RapidSim against EvtGen the environment variable EVTGEN_ROOT must be set
 * At present, all identical particles must decay into the same mode
