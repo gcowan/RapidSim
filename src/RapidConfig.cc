@@ -295,6 +295,8 @@ bool RapidConfig::loadDecay() {
 bool RapidConfig::loadConfig() {
 	std::cout << "INFO in RapidConfig::loadConfig : attempting to load configuration from file: " << fileName_+".config" << std::endl;
 
+	gRandom->SetSeed(0.);
+
 	std::ifstream fin;
 	fin.open(fileName_+".config", std::ifstream::in);
 	if( ! fin.good()) {
@@ -441,7 +443,6 @@ bool RapidConfig::configParticle(unsigned int part, TString command, TString val
 }
 
 bool RapidConfig::configGlobal(TString command, TString value) {
-	gRandom->SetSeed(0.);
 	if(command=="seed") {
 		int seed = value.Atoi();
 		gRandom->SetSeed(seed);
