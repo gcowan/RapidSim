@@ -4,6 +4,7 @@
 #include <fstream>
 #include <queue>
 
+#include "TRandom.h"
 #include "TSystem.h"
 
 #ifdef RAPID_EVTGEN
@@ -15,7 +16,6 @@
 #include "EvtGenBase/EvtParticleFactory.hh"
 #include "EvtGenBase/EvtPatches.hh"
 #include "EvtGenBase/EvtPDL.hh"
-#include "EvtGenBase/EvtSimpleRandomEngine.hh"
 #include "EvtGenBase/EvtMTRandomEngine.hh"
 
 #include "EvtGenExternal/EvtExternalGenList.hh"
@@ -119,7 +119,8 @@ bool RapidExternalEvtGen::setupGenerator() {
 	std::list<EvtDecayBase*> extraModels;
 
 	// Define the random number generator
-	randomEngine = new EvtSimpleRandomEngine();
+	uint seed = gRandom->GetSeed();
+	randomEngine = new EvtMTRandomEngine(seed);
 
 	bool useEvtGenRandom(false);
 	EvtExternalGenList genList(true, "", "gamma", useEvtGenRandom);
