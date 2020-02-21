@@ -547,6 +547,10 @@ bool RapidConfig::configGlobal(TString command, TString value) {
 
 		if(!loadAcceptRejectHist(histFile, histName, paramX, paramY)) return false;
 	} else if(command=="useEvtGen") {
+		if(!getenv("EVTGEN_ROOT")) {
+			std::cout << "ERROR in RapidConfig::configGlobal : EVTGEN_ROOT environment variable must be set to use external EvtGen generator." << std::endl;
+			return false;
+		}
 		external_ = new RapidExternalEvtGen();
 		std::cout << "INFO in RapidConfig::configGlobal : will use external EvtGen generator to decay particles." << std::endl;
 	} else if(command=="evtGenUsePHOTOS") {
