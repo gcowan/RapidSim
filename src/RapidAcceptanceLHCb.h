@@ -11,9 +11,9 @@ class RapidAcceptanceLHCb : public RapidAcceptance {
 	public:
 		RapidAcceptanceLHCb(AcceptanceType type, const std::vector<RapidParticle*>& parts, const std::vector<RapidCut*>& cuts)
 			: RapidAcceptance(type, parts, cuts),
-			  zC_(5.4), ptkick_(1.2), zTracker_(9.5),
-			  xSizeTracker_(9.5*0.3), ySizeTracker_(9.5*0.25),
-			  xMinTracker_(9.5*0.01), yMinTracker_(9.5*0.01)
+			  zC_(5.265), ptkick_(1.2), zTracker_(8.6),
+			  xSizeTracker_(8.6*0.35), ySizeTracker_(8.6*0.27),
+			  xMinTracker_(7.5*0.012), yMinTracker_(7.5*0.012)
 		{}
 
 		virtual void getDefaultPtRange(double& min, double& max);
