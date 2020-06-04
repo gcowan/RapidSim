@@ -42,9 +42,12 @@ bool RapidAcceptanceLHCb::partInDownstream(RapidParticle* part) {
 	double charge = part->charge();
 	TLorentzVector newvec = magnetKick(vec,charge);
 
+	// position at origin
+	ROOT::Math::XYZPoint orig = part->getOriginVertex()->getVertex(false);
+
 	// position at magnet centre
-	double xMag = zC_*vec.Px()/vec.Pz();
-	double yMag = zC_*vec.Py()/vec.Pz();
+	double xMag = 1e-3*orig.X() + (zC_ - 1e-3*orig.Z())*vec.Px()/vec.Pz();
+	double yMag = 1e-3*orig.Y() + (zC_ - 1e-3*orig.Z())*vec.Py()/vec.Pz();
 
 	double xTracker = xMag + (newvec.Px()*(zTracker_ - zC_)/newvec.Pz());
 	double yTracker = yMag + (newvec.Py()*(zTracker_ - zC_)/newvec.Pz());
