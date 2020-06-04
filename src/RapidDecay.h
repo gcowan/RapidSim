@@ -24,6 +24,7 @@ class RapidDecay {
 		RapidDecay(const std::vector<RapidParticle*>& parts)
 			: parts_(parts), maxgen_(1000),
 			  ptHisto_(0), etaHisto_(0),
+			  ptetaHisto_(0),
 			  pvHisto_(0),
 			  accRejHisto_(0), accRejParameterX_(0), accRejParameterY_(0),
 			  suppressKinematicWarning_(false), suppressAttemptsWarning_(false),
@@ -34,6 +35,7 @@ class RapidDecay {
 
 		void setMaxGen(int mg) { maxgen_ = mg; }
 		void setParentKinematics(TH1* ptHisto, TH1* etaHisto);
+		void setParentKinematics(TH2* ptetaHisto);
 		void setPVntracks(TH1* pvHisto);
 		void setAcceptRejectHist(TH1* histo, RapidParam* param);
 		void setAcceptRejectHist(TH1* histo, RapidParam* paramX, RapidParam* paramY);
@@ -74,6 +76,7 @@ class RapidDecay {
 		//parent kinematics
 		TH1* ptHisto_;
 		TH1* etaHisto_;
+		TH2* ptetaHisto_;
 
 		//PVNTRACKS
 		TH1* pvHisto_;

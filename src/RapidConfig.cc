@@ -131,7 +131,11 @@ RapidDecay* RapidConfig::getDecay() {
 		if(!loadParentKinematics()) {
 			return 0;
 		}
-		decay_->setParentKinematics(ptHisto_,etaHisto_);
+		if(ptetaHisto_) {
+			decay_->setParentKinematics(ptetaHisto_);
+		} else {
+			decay_->setParentKinematics(ptHisto_,etaHisto_);
+		}
 
 		if(!loadPVntracks()) {
 			return 0;
@@ -1101,15 +1105,27 @@ bool RapidConfig::loadParentKinematics() {
 
 	TH1* ptHisto = dynamic_cast<TH1*>(file->Get("pT"));
 	TH1* etaHisto = dynamic_cast<TH1*>(file->Get("eta"));
+	TH2* ptetaHisto = dynamic_cast<TH2*>(file->Get("pTeta"));
 
-	if(!ptHisto || !check1D(ptHisto)) {
-		std::cout << "ERROR in RapidConfig::loadParentKinematics : pT histogram is neither TH1F nor TH1D." << std::endl;
-		return false;
-	}
+	//prefer 2D kinematics histogram if we have one
+	if(ptetaHisto) {
+		std::cout << "INFO in RapidConfig::loadParentKinematics : 2D kinematics histogram found." << std::endl;
+		if(!check2D(ptetaHisto)) {
+			std::cout << "ERROR in RapidConfig::loadParentKinematics : 2D kinematics histogram is neither TH2F nor TH2D." << std::endl;
+			return false;
+		}
+	} else {
+		std::cout << "INFO in RapidConfig::loadParentKinematics : 2D kinematics histogram not found." << std::endl
+			  << "                                            attempting to use 1D pT and eta histograms." << std::endl;
+		if(!ptHisto || !check1D(ptHisto)) {
+			std::cout << "ERROR in RapidConfig::loadParentKinematics : pT histogram is neither TH1F nor TH1D." << std::endl;
+			return false;
+		}
 
-	if(!etaHisto || !check1D(etaHisto)) {
-		std::cout << "ERROR in RapidConfig::loadParentKinematics : eta histogram is neither TH1F nor TH1D." << std::endl;
-		return false;
+		if(!etaHisto || !check1D(etaHisto)) {
+			std::cout << "ERROR in RapidConfig::loadParentKinematics : eta histogram is neither TH1F nor TH1D." << std::endl;
+			return false;
+		}
 	}
 
 	if( ptMin_==-999. || ptMax_==-999. ) {
@@ -1125,8 +1141,12 @@ bool RapidConfig::loadParentKinematics() {
 		getAcceptance()->getDefaultEtaRange(etaMin_,etaMax_);
 	}
 
-	ptHisto_ = reduceHistogram(ptHisto,ptMin_,ptMax_);
-	etaHisto_ = reduceHistogram(etaHisto,etaMin_,etaMax_);
+	if(ptetaHisto) {
+		ptetaHisto_ = reduceHistogram(ptetaHisto,ptMin_,ptMax_,etaMin_,etaMax_);
+	} else {
+		ptHisto_ = reduceHistogram(ptHisto,ptMin_,ptMax_);
+		etaHisto_ = reduceHistogram(etaHisto,etaMin_,etaMax_);
+	}
 
 	return true;
 }
@@ -1349,6 +1369,132 @@ TH1* RapidConfig::reduceHistogram(TH1* histo, double min, double max) {
 
 	delete[] bounds;
 	delete[] boundsOut;
+
+	return histoOut;
+}
+
+TH2* RapidConfig::reduceHistogram(TH2* histo, double minX, double maxX, double minY, double maxY) {
+	TAxis* axisX = histo->GetXaxis();
+	TAxis* axisY = histo->GetYaxis();
+
+	//first check if histogram is defined over the required range
+	if( minX < axisX->GetXmin() ) {
+		std::cout << "WARNING in RapidConfig::reduceHistogram : Minimum x set to " << minX << " but histogram " << histo->GetName() << " has minimum " << axisX->GetXmin() << std::endl;
+		std::cout << "                                        : Minimum changed to " << axisX->GetXmin() << std::endl;
+		minX = axisX->GetXmin();
+	}
+	if( maxX > axisX->GetXmax() ) {
+		std::cout << "WARNING in RapidConfig::reduceHistogram : Maximum x set to " << maxX << " but histogram " << histo->GetName() << " has maximum " << axisX->GetXmax() << std::endl;
+		std::cout << "                                        : Maximum changed to " << axisX->GetXmax() << std::endl;
+		maxX = axisX->GetXmax();
+	}
+	if( minY < axisY->GetXmin() ) {
+		std::cout << "WARNING in RapidConfig::reduceHistogram : Minimum y set to " << minY << " but histogram " << histo->GetName() << " has minimum " << axisY->GetXmin() << std::endl;
+		std::cout << "                                        : Minimum changed to " << axisY->GetXmin() << std::endl;
+		minY = axisY->GetXmin();
+	}
+	if( maxY > axisY->GetXmax() ) {
+		std::cout << "WARNING in RapidConfig::reduceHistogram : Maximum y set to " << maxY << " but histogram " << histo->GetName() << " has maximum " << axisY->GetXmax() << std::endl;
+		std::cout << "                                        : Maximum changed to " << axisY->GetXmax() << std::endl;
+		maxY = axisY->GetXmax();
+	}
+
+	//if we want the full histogram then just return it
+	if(minX == axisX->GetXmin() && maxX == axisX->GetXmax() &&
+	   minY == axisY->GetXmin() && maxY == axisY->GetXmax() ) {
+		return histo;
+	}
+
+	//load the bin boundaries from the input histogram
+	int nbinsX = axisX->GetNbins();
+	double* boundsX = new double[nbinsX+1];
+	axisX->GetLowEdge(boundsX);
+	boundsX[nbinsX] = axisX->GetXmax();
+
+	int nbinsY = axisY->GetNbins();
+	double* boundsY = new double[nbinsY+1];
+	axisY->GetLowEdge(boundsY);
+	boundsY[nbinsY] = axisY->GetXmax();
+
+	int firstBinX=0;
+	int lastBinX=nbinsX;
+	bool partFirstBinX=false;
+	bool partLastBinX=false;
+
+	int firstBinY=0;
+	int lastBinY=nbinsY;
+	bool partFirstBinY=false;
+	bool partLastBinY=false;
+
+	//find the first bin to copy and check if it's partially removed
+	for(int i=0; i<=nbinsX; ++i) {
+		if(boundsX[i]>=minX) {
+			firstBinX=i;
+			if(boundsX[i]!=minX) partFirstBinX=true;
+			break;
+		}
+	}
+	for(int i=0; i<=nbinsY; ++i) {
+		if(boundsY[i]>=minY) {
+			firstBinY=i;
+			if(boundsY[i]!=minY) partFirstBinY=true;
+			break;
+		}
+	}
+	//find the final bin to copy and check if it's partially removed
+	for(int i=nbinsX; i>=0; --i) {
+		if(boundsX[i]<=maxX) {
+			lastBinX=i;
+			if(boundsX[i]!=maxX) partLastBinX=true;
+			break;
+		}
+	}
+	for(int i=nbinsY; i>=0; --i) {
+		if(boundsY[i]<=maxY) {
+			lastBinY=i;
+			if(boundsY[i]!=maxY) partLastBinY=true;
+			break;
+		}
+	}
+
+	//set up the bin boundaries for the output histogram
+	int nbinsOutX = lastBinX - firstBinX + partFirstBinX + partLastBinX;
+	double* boundsOutX = new double[nbinsOutX+1];
+	int nbinsOutY = lastBinY - firstBinY + partFirstBinY + partLastBinY;
+	double* boundsOutY = new double[nbinsOutY+1];
+
+	boundsOutX[0] = minX;
+	boundsOutX[nbinsOutX] = maxX;
+	boundsOutY[0] = minY;
+	boundsOutY[nbinsOutY] = maxY;
+
+	for(int i=1; i<nbinsOutX; ++i) {
+		boundsOutX[i] = boundsX[firstBinX+i-partFirstBinX];
+	}
+	for(int i=1; i<nbinsOutY; ++i) {
+		boundsOutY[i] = boundsY[firstBinY+i-partFirstBinY];
+	}
+
+	//create histogram - clone everything except the bins
+	TH2* histoOut = dynamic_cast<TH2*>(histo->Clone());
+	histoOut->SetBins(nbinsOutX,boundsOutX,nbinsOutY,boundsOutY);
+
+	//set bin contents - for partial bins, scale by the ratio of bin widths
+	for(int i=1; i<=nbinsOutX; ++i) {
+		for(int j=1; j<=nbinsOutY; ++j) {
+			int binInX = firstBinX+i-partFirstBinX;
+			int binInY = firstBinY+j-partFirstBinY;
+			double value = histo->GetBinContent(binInX,binInY);
+			double scaleX = histoOut->GetXaxis()->GetBinWidth(i) / axisX->GetBinWidth(binInX);
+			double scaleY = histoOut->GetYaxis()->GetBinWidth(j) / axisY->GetBinWidth(binInY);
+			histoOut->SetBinContent(i,j,value*scaleX*scaleY);
+		}
+	}
+
+	delete[] boundsX;
+	delete[] boundsOutX;
+	delete[] boundsY;
+	delete[] boundsOutY;
 
 	return histoOut;
 }

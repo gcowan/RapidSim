@@ -21,6 +21,11 @@ void RapidDecay::setParentKinematics(TH1* ptHisto, TH1* etaHisto) {
 	etaHisto_=etaHisto;
 }
 
+void RapidDecay::setParentKinematics(TH2* ptetaHisto) {
+	std::cout << "INFO in RapidDecay::setParentKinematics : setting kinematics of the parent." << std::endl;
+	ptetaHisto_=ptetaHisto;
+}
+
 void RapidDecay::setPVntracks(TH1* pvHisto) {
 	std::cout << "INFO in RapidDecay::setPVntracks : setting PVNTRACKS." << std::endl;
 	pvHisto_=pvHisto;
@@ -229,8 +234,13 @@ TH2* RapidDecay::generateAccRejDenominator2D() {
 void RapidDecay::genParent() {
 	double pt(0), eta(0), phi(gRandom->Uniform(0,2*TMath::Pi()));
 	unsigned int nPVtracks(5);
-	if(ptHisto_)   pt = ptHisto_->GetRandom();
-	if(etaHisto_) eta = etaHisto_->GetRandom();
+	//preferentially use 2D parent kinematics histogram
+	if(ptetaHisto_) {
+		ptetaHisto_->GetRandom2(pt, eta);
+	} else {
+		if(ptHisto_)   pt = ptHisto_->GetRandom();
+		if(etaHisto_) eta = etaHisto_->GetRandom();
+	}
 	parts_[0]->setPtEtaPhi(pt,eta,phi);
 	if(pvHisto_) nPVtracks = pvHisto_->GetRandom();
 	parts_[0]->getOriginVertex()->setNtracks(nPVtracks);
