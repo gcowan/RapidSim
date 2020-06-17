@@ -84,6 +84,7 @@ bool RapidExternalEvtGen::decay(std::vector<RapidParticle*>& parts) {
 			}
 		}
 
+		delete theParticle;
 		evtParts.pop();
 		nExpectedChildren.pop();
 	}
