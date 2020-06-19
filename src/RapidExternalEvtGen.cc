@@ -62,10 +62,10 @@ bool RapidExternalEvtGen::decay(std::vector<RapidParticle*>& parts) {
 			theParticle = theParticle->getDaug(0);
 		}
 
-		int nChildren = nExpectedChildren.front();
+		uint nChildren = nExpectedChildren.front();
 
 		// Loop over the daughter tracks
-		for (int iChild = 0; iChild < nChildren; ++iChild) {
+		for (uint iChild = 0; iChild < nChildren; ++iChild) {
 			EvtParticle* child = theParticle->getDaug(iChild);
 
 			if (child != 0) {
@@ -84,6 +84,10 @@ bool RapidExternalEvtGen::decay(std::vector<RapidParticle*>& parts) {
 			}
 		}
 
+		// Clean up any PHOTOS photons
+		for (uint iChild = nChildren; iChild < theParticle->getNDaug(); ++iChild) {
+			delete theParticle->getDaug(iChild);
+		}
 		delete theParticle;
 		evtParts.pop();
 		nExpectedChildren.pop();
