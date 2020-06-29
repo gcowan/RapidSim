@@ -7,6 +7,7 @@
 
 #include "TFile.h"
 #include "TRandom.h"
+#include "TSystem.h"
 
 #include "RapidAcceptance.h"
 #include "RapidAcceptanceLHCb.h"
@@ -178,6 +179,7 @@ RapidHistWriter* RapidConfig::getWriter(bool saveTree) {
 	if(!writer_) {
 		//strip away path for name of histogram/tuple files - save in PWD
 		TString histFileName(fileName_( fileName_.Last('/')+1, fileName_.Length()));
+		if(!outputDir_.empty()) histFileName.Prepend((outputDir_+"/").data());
 		writer_ = new RapidHistWriter(parts_, params_, paramsStable_, paramsDecaying_, paramsTwoBody_, paramsThreeBody_, histFileName, saveTree);
 	}
 
@@ -567,7 +569,18 @@ bool RapidConfig::configGlobal(TString command, TString value) {
 		pidLoaded_ = loadPID(histFile);
 		if(!pidLoaded_) return false;
 	}
-
+	else if (command=="outputDirectory") {
+		outputDir_ = gSystem->ExpandPathName(value.Data());
+		std::cout << "INFO in RapidConfig::configGlobal : setting output directory to " << outputDir_ << "." << std::endl;
+		auto vptr = static_cast<const char*>(gSystem->OpenDirectory(outputDir_.data()));
+		if(vptr == nullptr){
+			std::cout << "INFO in RapidConfig::configGlobal : Creating new directory: " << outputDir_ << "." << std::endl;
+			auto status = gSystem->mkdir(outputDir_.data(),true);
+			if(status == -1)
+				throw std::runtime_error("RapidConfig::configGlobal : Directory "+outputDir_+" can not be created. Please check path");
+		}
+		delete vptr;
+	}
 	return true;
 }
 

@@ -71,6 +71,7 @@ class RapidConfig {
 		TH1* reduceHistogram(TH1* histo, double min, double max);
 
 		TString fileName_;
+    std::string outputDir_;
 
 		std::vector<RapidParticle*> parts_;
 
