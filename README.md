@@ -16,7 +16,7 @@ A more detailed description can be found here https://arxiv.org/abs/1612.07489
 
 RapidSim relies on having a working ROOT installation and gcc4.9 or clang.
 Optionally, you may also compile against EvtGen as detailed in [EvtGen](#evtgen)
-To build do the following:
+To build do the following, where "<install location>" should be the full path, up to and including the "RapidSim" folder, created by the git clone command:
 
 ```shell
 $ # Set environment for gcc, it defines LD_LIBRARY_PATH and FC, CC, CXX. RapidSim also works with clang.
@@ -26,7 +26,7 @@ $ # Set ROOT environment
 $ source /cvmfs/lhcb.cern.ch/lib/lcg/releases/LCG_87/ROOT/6.08.02/x86_64-slc6-gcc49-opt/bin/thisroot.sh
 $ mkdir build
 $ cd build 
-$ cmake ../RapidSim -DCMAKE_INSTALL_PREFIX=/path/to/RapidSim/install/location
+$ cmake ../ -DCMAKE_INSTALL_PREFIX=<install location>
 $ make -j4
 $ make -j4 install # This step is optional if you want to install in a specific location
 ```
@@ -35,7 +35,7 @@ The usage is:
 
 ```shell
 $ # Setup the RAPIDSIM_ROOT environment variable (or add to .bashrc)
-$ export RAPIDSIM_ROOT=/path/to/RapidSim/install/location
+$ export RAPIDSIM_ROOT=<install location>
 $ # Optionally setup the RAPIDSIM_CONFIG environment variable
 $ export RAPIDSIM_CONFIG=/path/to/additional/configuration/files
 $ $RAPIDSIM_ROOT/build/src/RapidSim.exe <decay mode> <events to generate> <save tree?> <num times to re-decay each hadron>
