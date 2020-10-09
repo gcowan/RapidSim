@@ -18,8 +18,8 @@ TLorentzVector RapidMomentumSmearGauss::smearMomentum(TLorentzVector p) {
 
 	// smear the slopes
 	double slope_smear = TMath::Sqrt(TMath::Power(6.2e-5,2) + TMath::Power(2.1e-3/kp,2)); //TODO
-	kptx += slope_smear*gRandom->Gaus(1,0);
-	kpty += slope_smear*gRandom->Gaus(1,0);
+	kptx += slope_smear*gRandom->Gaus(0,1);
+	kpty += slope_smear*gRandom->Gaus(0,1);
 	norm = sqrt(1 + kptx*kptx + kpty*kpty);
 	if(p.Pz()<0) norm = -norm;
 
