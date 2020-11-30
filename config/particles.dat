@@ -36,7 +36,7 @@ ID		part		anti		mass		width		charge		spin		shape		ctau
 3122		Lambda0		Lambda0b	1.115683	0.		 0		0.5		---		78.9
 13122           Lambda(1405)    Lambda(1405)b   1.405           0.051            0              0.5             RBW             -1.
 31220		Lambda(1520)	Lambda(1520)b	1.5195		0.0156		 0		1.5		RBW		-1.
-23122           Lambda(1600)    Lambda(1600)b   1.600           0.200            0              1.5             RBW             -1.
+23122           Lambda(1600)    Lambda(1600)b   1.600           0.200            0              0.5             RBW             -1.
 33122           Lambda(1670)    Lambda(1670)b   1.674           0.030            0              0.5             RBW             -1. 
 13124           Lambda(1690)    Lambda(1690)b   1.690           0.070            0              1.5             RBW             -1.
 43122           Lambda(1800)    Lambda(1800)b   1.800           0.200            0              0.5             RBW             -1. 
