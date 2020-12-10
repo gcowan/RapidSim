@@ -1,8 +1,8 @@
 /*****************************************************************************
- * Project: BaBar detector at the SLAC PEP-II B-factory
- * Package: RooRarFit
- *    File: $Id: RooSubThreshold.cc,v 1.7 2012/05/25 08:53:43 fwilson Exp $
- * Authors:
+ * Project:
+ * Package:
+ *    File: $Id: RooSubThreshold.cc,v 1.7 2020/12/10 08:53:43
+ * Authors: Y.Amhis
  *
  *****************************************************************************/
 
@@ -21,7 +21,7 @@
 // END_HTML
 //
 
-//#include "rarVersion.hh"
+
 
 #include "Riostream.h"
 
@@ -38,15 +38,17 @@
 RooSubThreshold::RooSubThreshold(const char *name, const char *title,
 		RooAbsReal& _x, RooAbsReal& _mean,
 		RooAbsReal& _width, RooAbsReal& _radius,
-		RooAbsReal& _mass_a, RooAbsReal& _mass_b,
+		RooAbsReal& _mass_a, RooAbsReal& _mass_b, RooAbsReal& _mass_c, RooAbsReal& _mass_parent,
 		RooAbsReal& _spin) :
 	RooAbsPdf(name,title),
 	x("x","Dependent",this,_x),
 	mean("mean","Mean",this,_mean),
 	width("width","Width",this,_width),
-	radius("radius","Radius",this,_radius),  // meson radius e.g. 3.1 GeV^-1
-	mass_a("mass_a","Mass of first daughter",this,_mass_a), // e.g. pion from K*
-	mass_b("mass_b","Mass of second daugher",this,_mass_b), // e.g. kaon from K*
+	radius("radius","Radius",this,_radius),  // meson radius e.g. 3.1 GeV^-1 //to be updated for baryons
+	mass_a("mass_a","Mass of first daughter",this,_mass_a), // e.g. proton from Lambda*
+	mass_b("mass_b","Mass of second daugher",this,_mass_b), // e.g. kaon from Lambda*
+	mass_c("mass_c","Mass of third daughter", this, _mass_c),
+	mass_parent("mass_parent","Mass of parent particle", this, _mass_parent), //e.g. Lb
 	spin("spin","Spin",this,_spin)
 {
 }
@@ -61,6 +63,8 @@ RooSubThreshold::RooSubThreshold(const RooSubThreshold& other,
 	radius("radius",this,other.radius),
 	mass_a("mass_a",this,other.mass_a),
 	mass_b("mass_b",this,other.mass_b),
+	mass_c("mass_c",this,other.mass_c),
+	mass_parent("mass_parent",this,other.mass_parent),
 	spin("spin",this,other.spin)
 {
 }
@@ -69,29 +73,34 @@ RooSubThreshold::RooSubThreshold(const RooSubThreshold& other,
 Double_t RooSubThreshold::evaluate() const
 {
 
-	/*
-	   Double_t temp = mean*getWidth();
-	   std::complex<double> T(x*x,0.0);
-	   std::complex<double> denom(mean*mean-x*x,-1*temp);
-	   T = T /denom;     // Transition probability
-	   return(std::norm(T));
-	 */
-
 	double top = getWidth();
-	double dm2 = std::pow(x,2) - std::pow(mean,2);
-	double bottom = std::pow(dm2,2) + pow(mean*getWidth(),2);
+	//double dm2 = std::pow(x,2) - std::pow(mean,2);
+	double dm2 = std::pow(x,2) - std::pow(mean_eff,2);
+	//double bottom = std::pow(dm2,2) + pow(mean*getWidth(),2);
+	double bottom = std::pow(dm2,2) + pow(mean_eff*getWidth(),2);
 	return top/bottom;
 }
-
+//------------------------------------------------------------------
+Double_t RooSubThreshold::compute_meff() const
+{
+double minMass = mass_a+mass_b;
+double maxMass = mass_parent - mass_c ; // need to substract the mass of the 3rd particle
+double tanhTerm = std::tanh( mean - ((minMass+maxMass)/2)/(maxMass-minMass));
+double mean_eff = minMass + 1./2*(maxMass-minMass)*(1.+tanhTerm)	;
+return mean_eff;
+}
 //------------------------------------------------------------------
 Double_t RooSubThreshold::getWidth() const
 {
 	Double_t q  = getQ(x);
-	Double_t q0 = getQ(mean);
+	//Double_t q0 = getQ(mean);
+	Double_t q0 = getQ(mean_eff);
 	Double_t result(0.0);
 
-	if (q>0 && q0>0 && x>0 && mean>0) {
-		result = width * getQterm(q,q0) * (mean/x)
+	//if (q>0 && q0>0 && x>0 && mean>0) {
+	if (q>0 && q0>0 && x>0 && mean_eff>0) {
+		//result = width * getQterm(q,q0) * (mean/x)
+		result = width * getQterm(q,q0) * (mean_eff/x)
 			* (getFF(q) / getFF(q0));
 	}
 	return (result);

@@ -168,6 +168,8 @@ void RapidParticleData::setupMass(RapidParticle* part) {
 
 	double mA = part->daughter(0)->mass();
 	double mB = part->daughter(1)->mass();
+	double mC = part->daughter(2)->mass();
+	double mPar = part->mass();
 
 	if(idA>idB) {
 		int tmpId = idB;
@@ -201,7 +203,7 @@ void RapidParticleData::setupMass(RapidParticle* part) {
 			pdf = makeGS(m, mass, width, spin, mA, mB, name);
 			break;
 		case RapidParticleData::SubTh:
-			  pdf = makeSubTh(m, mass, width, spin, mA, mB, name);
+			  pdf = makeSubTh(m, mass, width, spin, mA, mB, mC, mPar, name);
 				break;
 		default:
 			std::cout << "WARNING in RapidParticleData::setupMass : unknown lineshape for " << name << "." << std::endl
@@ -209,7 +211,7 @@ void RapidParticleData::setupMass(RapidParticle* part) {
 		/* FALLTHRU */
 		case RapidParticleData::RelBW:
 			pdf = makeRelBW(m, mass, width, spin, mA, mB, name);
-		
+
 	}
 	RooDataSet* massdata = pdf->generate(RooArgSet(m),100000);
 	massdata->getRange(m,mmin,mmax);
@@ -302,7 +304,7 @@ RooRelBreitWigner* RapidParticleData::makeRelBW(RooRealVar& m, double mean, doub
 
 
 
-RooSubThreshold* RapidParticleData::makeSubTh(RooRealVar& m, double mean, double gamma, double thespin, double m1, double m2, TString name) {
+RooSubThreshold* RapidParticleData::makeSubTh(RooRealVar& m, double mean, double gamma, double thespin, double m1, double m2, double m3, double mPar,TString name) {
 
 	double barrierFactor=3.;//TODO
 
@@ -312,8 +314,9 @@ RooSubThreshold* RapidParticleData::makeSubTh(RooRealVar& m, double mean, double
 	RooRealVar* radius = new RooRealVar(name+"radius",name+"radius",barrierFactor); // not used
 	RooRealVar* ma     = new RooRealVar(name+"ma",    name+"ma",     m1);
 	RooRealVar* mb     = new RooRealVar(name+"mb",    name+"mb",     m2);
-
-	return new RooSubThreshold(name,name, m,*m0,*g0,*radius,*ma,*mb,*spin);
+	RooRealVar* mc     = new RooRealVar(name+"mc",    name+"mc",     m3);
+	RooRealVar* mParent= new RooRealVar(name+"mParent",    name+"mParent",     mPar);
+	return new RooSubThreshold(name,name, m,*m0,*g0,*radius,*ma, *mb, *mc, *mParent, *spin);
 }
 
 
