@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "RooRelBreitWigner.h"
+#include "RooSubThreshold.h"
 #include "RooGounarisSakurai.h"
 
 #include "RapidParticle.h"
@@ -199,12 +200,16 @@ void RapidParticleData::setupMass(RapidParticle* part) {
 		case RapidParticleData::GS:
 			pdf = makeGS(m, mass, width, spin, mA, mB, name);
 			break;
+		case RapidParticleData::SubTh:
+			  pdf = makeSubTh(m, mass, width, spin, mA, mB, name);
+				break;
 		default:
 			std::cout << "WARNING in RapidParticleData::setupMass : unknown lineshape for " << name << "." << std::endl
 				  << "                                        : using a relativistic Breit-Wigner." << std::endl;
 		/* FALLTHRU */
 		case RapidParticleData::RelBW:
 			pdf = makeRelBW(m, mass, width, spin, mA, mB, name);
+		
 	}
 	RooDataSet* massdata = pdf->generate(RooArgSet(m),100000);
 	massdata->getRange(m,mmin,mmax);
@@ -226,6 +231,7 @@ void RapidParticleData::addEntry(int id, TString name, double mass, double width
 	nameToId_[name] = id;
 	sanitisedNameToId_[sanitiseName(name)] = id;
 	if(lineshape=="RBW") idToShape_[id] = RapidParticleData::RelBW;
+	else if(lineshape =="SubTh")idToShape_[id] = RapidParticleData::SubTh;
 	else if(lineshape=="GS") idToShape_[id] = RapidParticleData::GS;
 }
 
@@ -293,6 +299,23 @@ RooRelBreitWigner* RapidParticleData::makeRelBW(RooRealVar& m, double mean, doub
 
 	return new RooRelBreitWigner(name,name, m,*m0,*g0,*radius,*ma,*mb,*spin);
 }
+
+
+
+RooSubThreshold* RapidParticleData::makeSubTh(RooRealVar& m, double mean, double gamma, double thespin, double m1, double m2, TString name) {
+
+	double barrierFactor=3.;//TODO
+
+	RooRealVar* m0     = new RooRealVar(name+"m0",    name+"m0",     mean);
+	RooRealVar* g0     = new RooRealVar(name+"g0",    name+"g0",    gamma);
+	RooRealVar* spin   = new RooRealVar(name+"spin",  name+"spin",  thespin);
+	RooRealVar* radius = new RooRealVar(name+"radius",name+"radius",barrierFactor); // not used
+	RooRealVar* ma     = new RooRealVar(name+"ma",    name+"ma",     m1);
+	RooRealVar* mb     = new RooRealVar(name+"mb",    name+"mb",     m2);
+
+	return new RooSubThreshold(name,name, m,*m0,*g0,*radius,*ma,*mb,*spin);
+}
+
 
 RooGounarisSakurai* RapidParticleData::makeGS(RooRealVar& m, double mean, double gamma, double thespin, double m1, double m2, TString name) {
 
