@@ -34,7 +34,7 @@ ID		part		anti		mass		width		charge		spin		shape		ctau
 333		phi		---		1.019461	0.004266	 0		1.0		RBW		-1.
 380		f'_2(1525)      ---             1.5174          0.0860           0              2.0             RBW             -1.
 3122		Lambda0		Lambda0b	1.115683	0.		 0		0.5		---		78.9
-13122		Lambda(1405)    Lambda(1405)b   1.405           0.051            0              0.5             SubTh             -1.
+13122		Lambda(1405)    Lambda(1405)b   1.405           0.051            0              0.5             RBW            -1.
 31220		Lambda(1520)	Lambda(1520)b	1.5195		0.0156		 0		1.5		SubTh		-1.
 23122		Lambda(1600)    Lambda(1600)b   1.600           0.200            0              0.5             RBW             -1.
 33122		Lambda(1670)    Lambda(1670)b   1.674           0.030            0              0.5             RBW             -1.
