@@ -75,9 +75,7 @@ Double_t RooSubThreshold::evaluate() const
 
 	double top = getWidth();
 	double dm2 = std::pow(x,2) - std::pow(mean,2);
-	//double dm2 = std::pow(x,2) - std::pow(mean_eff,2);
 	double bottom = std::pow(dm2,2) + pow(mean*getWidth(),2);
-	//double bottom = std::pow(dm2,2) + pow(mean_eff*getWidth(),2);
 	return top/bottom;
 }
 //------------------------------------------------------------------
@@ -93,14 +91,12 @@ return mean_eff;
 Double_t RooSubThreshold::getWidth() const
 {
 	Double_t q  = getQ(x);
-	
-	Double_t q0 = getQ(mean_eff);
+
+	Double_t q0 = getQ(mean_eff); //pass here m_eff for the subthrehold
 	Double_t result(0.0);
 
 	if (q>0 && q0>0 && x>0 && mean>0) {
-	//if (q>0 && q0>0 && x>0 && mean_eff>0) {
 		result = width * getQterm(q,q0) * (mean/x)
-	//	result = width * getQterm(q,q0) * (mean_eff/x)
 			* (getFF(q) / getFF(q0));
 	}
 	return (result);
