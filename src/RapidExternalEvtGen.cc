@@ -206,7 +206,7 @@ void RapidExternalEvtGen::writeDecFile(TString fname, std::vector<RapidParticle*
 
 TString RapidExternalEvtGen::getEvtGenName(int id) {
 #ifdef RAPID_EVTGEN
-	EvtId evtId = EvtPDL::evtIdFromLundKC(id);
+	EvtId evtId = EvtPDL::evtIdFromStdHep(id);
 	TString name = EvtPDL::name(evtId);
 	return name;
 #else
@@ -217,7 +217,7 @@ TString RapidExternalEvtGen::getEvtGenName(int id) {
 
 TString RapidExternalEvtGen::getEvtGenConjName(int id) {
 #ifdef RAPID_EVTGEN
-	EvtId evtId = EvtPDL::evtIdFromLundKC(id);
+	EvtId evtId = EvtPDL::evtIdFromStdHep(id);
 	EvtId evtConjId = EvtPDL::chargeConj(evtId);
 	TString name = EvtPDL::name(evtConjId);
 	return name;
