@@ -19,6 +19,7 @@
 #include "RapidMomentumSmearGauss.h"
 #include "RapidMomentumSmearEnergyGauss.h"
 #include "RapidMomentumSmearGaussPtEtaDep.h"
+#include "RapidMomentumSmearGauss2D.h"
 #include "RapidMomentumSmearHisto.h"
 #include "RapidParam.h"
 #include "RapidParticle.h"
@@ -759,9 +760,21 @@ bool RapidConfig::loadSmearing(TString category) {
 			fin.close();
 			return false;
 		}
-
 		momSmearCategories_[category] = new RapidMomentumSmearGauss(graph);
+	}else if( type == "GAUSSPARAMETRIC"){
+		TProfile2D * pResolution  = dynamic_cast<TProfile2D*>(file->Get("pres_over_p"));
+		TProfile2D * txResolution = dynamic_cast<TProfile2D*>(file->Get("tx_res_mrad"));
+		TProfile2D * tyResolution = dynamic_cast<TProfile2D*>(file->Get("ty_res_mrad"));
+		if(!pResolution || !txResolution || !tyResolution) {
+			if(!pResolution) std::cout << "WARNING in RapidConfig::loadSmearing : failed to load graph " << "pres_over_p" << std::endl;
+			if(!txResolution) std::cout << "WARNING in RapidConfig::loadSmearing : failed to load graph " << "tx_res_mrad" << std::endl;
+			if(!txResolution) std::cout << "WARNING in RapidConfig::loadSmearing : failed to load graph " << "ty_res_mrad" << std::endl;
 
+			file->Close();
+			fin.close();
+			return false;
+		}
+		momSmearCategories_[category] = new RapidMomentumSmearGauss2D( pResolution , txResolution , tyResolution);	
 	}else if(type=="GAUSSIP") {
 		double intercept(0.);
 		double slope(0.);
