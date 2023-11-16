@@ -34,7 +34,7 @@ void RapidHistWriter::fill() {
 	//first fill for the default hypothesis
 	offset = fillSingleHypothesis(offset);
 
-	RapidParticle *part1(0), *part2(0);
+	RapidParticle *part1(0), *part2(0), *part3(0);
 
 	//now loop over all single mis-IDs
 	std::vector<RapidParticle*>::const_iterator it1 = altHypothesisParts_.begin();
@@ -66,6 +66,33 @@ void RapidHistWriter::fill() {
 		}
 	}
 
+	//now loop over all triple mis-IDs
+	it1 = altHypothesisParts_.begin();
+	for( ; it1!=altHypothesisParts_.end(); ++it1) {
+	        part1 = *it1;
+		std::vector<RapidParticle*>::const_iterator it2 = it1+1;
+		for( ; it2!=altHypothesisParts_.end(); ++it2) {
+		        part2 = *it2;
+			std::vector<RapidParticle*>::const_iterator it3 = it2+1;
+			for( ; it3!=altHypothesisParts_.end(); ++it3) {
+			        part3 = *it3;
+				for(unsigned int i=1; i<part1->nMassHypotheses(); ++i) {
+				        part1->setMassHypothesis(i);
+					for(unsigned int j=1; j<part2->nMassHypotheses(); ++j) {
+					        part2->setMassHypothesis(j);
+						for(unsigned int k=1; k<part3->nMassHypotheses(); ++k) {
+						        part3->setMassHypothesis(k);
+							offset = fillSingleHypothesis(offset);
+						}
+						part3->setMassHypothesis(0);
+					}
+					part2->setMassHypothesis(0);
+				}
+				part1->setMassHypothesis(0);
+			}
+		}
+	}
+
 	if(tree_) tree_->Fill();
 }
 
@@ -87,7 +114,7 @@ void RapidHistWriter::setupHistos() {
 	//first setup histograms for default mass hypothesis
 	setupSingleHypothesis();
 
-	RapidParticle *part1(0), *part2(0);
+	RapidParticle *part1(0), *part2(0), *part3(0);
 
 	//now loop over all single mis-IDs
 	std::vector<RapidParticle*>::const_iterator it1 = altHypothesisParts_.begin();
@@ -119,6 +146,39 @@ void RapidHistWriter::setupHistos() {
 				part2->setMassHypothesis(0);
 			}
 			part1->setMassHypothesis(0);
+		}
+	}
+
+	//now loop over all triple mis-IDs
+	it1 = altHypothesisParts_.begin();
+	for( ; it1!=altHypothesisParts_.end(); ++it1) {
+	        part1 = *it1;
+		std::vector<RapidParticle*>::const_iterator it2 = it1+1;
+		for( ; it2!=altHypothesisParts_.end(); ++it2) {
+		        part2 = *it2;
+			std::vector<RapidParticle*>::const_iterator it3 = it2+1;
+			for( ; it3!=altHypothesisParts_.end(); ++it3) {
+			        part3 = *it3;
+				for(unsigned int i=1; i<part1->nMassHypotheses(); ++i) {
+				        part1->setMassHypothesis(i);
+					for(unsigned int j=1; j<part2->nMassHypotheses(); ++j) {
+					        part2->setMassHypothesis(j);
+						for(unsigned int k=1; k<part3->nMassHypotheses(); ++k) {
+						        part3->setMassHypothesis(k);
+							TString suffix("_");
+							suffix+=part1->name() + "2" + part1->massHypothesisName();
+							suffix+="_";
+							suffix+=part2->name() + "2" + part2->massHypothesisName();
+							suffix+="_";
+							suffix+=part3->name() + "2" + part3->massHypothesisName();
+							setupSingleHypothesis(suffix);
+						}
+						part3->setMassHypothesis(0);
+					}
+					part2->setMassHypothesis(0);
+				}
+				part1->setMassHypothesis(0);
+			}
 		}
 	}
 
