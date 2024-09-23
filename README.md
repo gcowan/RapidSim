@@ -14,16 +14,14 @@ A more detailed description can be found here https://arxiv.org/abs/1612.07489
 
 ## Setup
 
-RapidSim relies on having a working ROOT installation and gcc4.9 or clang.
+RapidSim relies on having a working ROOT installation and gcc or clang.
 Optionally, you may also compile against EvtGen as detailed in [EvtGen](#evtgen)
 To build do the following, where "<install location>" should be the full path, up to and including the "RapidSim" folder, created by the git clone command:
 
 ```shell
-$ # Set environment for gcc, it defines LD_LIBRARY_PATH and FC, CC, CXX. RapidSim also works with clang.
+$ # Set environment for gcc, it defines LD_LIBRARY_PATH and FC, CC, CXX as well as sources ROOT. RapidSim also works with clang.
 $ # On lxplus do this:
-$ source /cvmfs/lhcb.cern.ch/lib/lcg/releases/LCG_87/gcc/4.9.3/x86_64-slc6/setup.sh
-$ # Set ROOT environment 
-$ source /cvmfs/lhcb.cern.ch/lib/lcg/releases/LCG_87/ROOT/6.08.02/x86_64-slc6-gcc49-opt/bin/thisroot.sh
+$ source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_104 x86_64-el9-gcc11-opt
 $ mkdir build
 $ cd build 
 $ cmake ../ -DCMAKE_INSTALL_PREFIX=<install location>
