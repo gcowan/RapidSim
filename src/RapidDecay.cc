@@ -21,6 +21,11 @@ void RapidDecay::setParentKinematics(TH1* ptHisto, TH1* etaHisto) {
 	etaHisto_=etaHisto;
 }
 
+void RapidDecay::setParentKinematics2d(TH2* momentaHisto2D) {
+	std::cout << "INFO in RapidDecay::setParentKinematics2D : setting kinematics of the parent." << std::endl;
+	momentaHisto2D_=momentaHisto2D;
+}
+
 void RapidDecay::setPVntracks(TH1* pvHisto) {
 	std::cout << "INFO in RapidDecay::setPVntracks : setting PVNTRACKS." << std::endl;
 	pvHisto_=pvHisto;
@@ -227,10 +232,19 @@ TH2* RapidDecay::generateAccRejDenominator2D() {
 }
 
 void RapidDecay::genParent() {
-	double pt(0), eta(0), phi(gRandom->Uniform(0,2*TMath::Pi()));
+
+	// // Code for standard RapidSim 2 x 1D generation
+	// double pt(0), eta(0), phi(gRandom->Uniform(0,2*TMath::Pi()));
+	// unsigned int nPVtracks(5);
+	// if(ptHisto_)   pt = ptHisto_->GetRandom();
+	// if(etaHisto_) eta = etaHisto_->GetRandom();
+
+	// Code for my bodge 2D histogram sampling based on TRUE B+ kinematics from a Kee GenLevelNoDecProdCut tuple.
+	double pt, eta, phi(gRandom->Uniform(0,2*TMath::Pi()));
 	unsigned int nPVtracks(5);
-	if(ptHisto_)   pt = ptHisto_->GetRandom();
-	if(etaHisto_) eta = etaHisto_->GetRandom();
+	momentaHisto2D_->GetRandom2(pt, eta);
+	pt = pow(10, pt);
+
 	parts_[0]->setPtEtaPhi(pt,eta,phi);
 	if(pvHisto_) nPVtracks = pvHisto_->GetRandom();
 	parts_[0]->getOriginVertex()->setNtracks(nPVtracks);

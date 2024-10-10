@@ -132,7 +132,8 @@ RapidDecay* RapidConfig::getDecay() {
 		if(!loadParentKinematics()) {
 			return 0;
 		}
-		decay_->setParentKinematics(ptHisto_,etaHisto_);
+		// decay_->setParentKinematics(ptHisto_,etaHisto_);
+		decay_->setParentKinematics2d(momentaHisto2D_);
 
 		if(!loadPVntracks()) {
 			return 0;
@@ -164,6 +165,7 @@ RapidAcceptance* RapidConfig::getAcceptance() {
 		switch(detectorGeometry_) {
 			case RapidAcceptance::LHCB:
 				acceptance_ = new RapidAcceptanceLHCb(acceptanceType_, parts_, cuts_);
+				acceptance_->setEtaAcceptRejectHisto();
 				break;
 			case RapidAcceptance::FOURPI:
 			default:
@@ -747,8 +749,13 @@ bool RapidConfig::loadSmearing(TString category) {
 		}
 	}
 
+
+
 	TString type("");
 	type.ReadToken(fin);
+
+	std::cout << "LOADING SMEARING " << filename << " " << type << std::endl;
+
 	if(type=="GAUSS") {
 		TString histname("");
 		histname.ReadToken(fin);
@@ -800,31 +807,98 @@ bool RapidConfig::loadSmearing(TString category) {
 
 		momSmearCategories_[category] = new RapidMomentumSmearGaussPtEtaDep(hist);
 
-	} else if(type=="HISTS") {
-		double threshold(0.);
+	} 
+	// else if(type=="HISTS") {
+	// 	double threshold(0.);
+	// 	TString histname("");
+
+	// 	std::vector<TH1*> hists;
+	// 	std::vector<double> thresholds;
+
+	// 	while( true ) {
+	// 		fin >> threshold;
+	// 		histname.ReadToken(fin);
+	// 		if(fin.good()) {
+	// 			TH1* hist = dynamic_cast<TH1*>(file->Get(histname));
+
+	// 			if(!hist || !check1D(hist)) {
+	// 				std::cout << "WARNING in RapidConfig::loadSmearing : failed to load histogram " << histname << std::endl
+	// 					  << "                                       threshold will be ignored." << std::endl;
+	// 			}
+
+	// 			std::cout << "hist: " << hist << " threshold: " << threshold << " histname: "<< histname<< std::endl;
+	// 			hists.push_back(hist);
+	// 			thresholds.push_back(threshold);
+
+	// 		} else {
+	// 			break;
+	// 		}
+	// 	}
+
+	// 	if(hists.size() == 0) {
+	// 		std::cout << "WARNING in RapidConfig::loadSmearing : failed to load any histograms for smearing category " << category << std::endl;
+	// 		file->Close();
+	// 		fin.close();
+	// 		return false;
+	// 	}
+
+	// 	momSmearCategories_[category] = new RapidMomentumSmearHisto(thresholds, hists);
+
+	// } 
+	else if(type=="HISTS") {
+		// double threshold(0.);
 		TString histname("");
 
 		std::vector<TH1*> hists;
 		std::vector<double> thresholds;
 
-		while( true ) {
-			fin >> threshold;
-			histname.ReadToken(fin);
-			if(fin.good()) {
-				TH1* hist = dynamic_cast<TH1*>(file->Get(histname));
+		TH1* hist;
 
-				if(!hist || !check1D(hist)) {
-					std::cout << "WARNING in RapidConfig::loadSmearing : failed to load histogram " << histname << std::endl
-						  << "                                       threshold will be ignored." << std::endl;
-				}
+		// // P
+		// hist = dynamic_cast<TH1*>(file->Get("histE__0.0"));
+		// hists.push_back(hist);
+		// thresholds.push_back(0.0);
+		// hist = dynamic_cast<TH1*>(file->Get("histE__2.18"));
+		// hists.push_back(hist);
+		// thresholds.push_back(2.18);
+		// hist = dynamic_cast<TH1*>(file->Get("histE__4.95"));
+		// hists.push_back(hist);
+		// thresholds.push_back(4.95);
+		// hist = dynamic_cast<TH1*>(file->Get("histE__11.25"));
+		// hists.push_back(hist);
+		// thresholds.push_back(11.25);
+		// hist = dynamic_cast<TH1*>(file->Get("histE__25.57"));
+		// hists.push_back(hist);
+		// thresholds.push_back(25.57);
+		// hist = dynamic_cast<TH1*>(file->Get("histE__58.15"));
+		// hists.push_back(hist);
+		// thresholds.push_back(58.15);
+		// hist = dynamic_cast<TH1*>(file->Get("histE__132.22"));
+		// hists.push_back(hist);
+		// thresholds.push_back(132.22);
 
-				hists.push_back(hist);
-				thresholds.push_back(threshold);
-
-			} else {
-				break;
-			}
-		}
+		// PT
+		hist = dynamic_cast<TH1*>(file->Get("histE__0.0"));
+		hists.push_back(hist);
+		thresholds.push_back(0.0);
+		hist = dynamic_cast<TH1*>(file->Get("histE__0.15"));
+		hists.push_back(hist);
+		thresholds.push_back(0.15);
+		hist = dynamic_cast<TH1*>(file->Get("histE__0.33"));
+		hists.push_back(hist);
+		thresholds.push_back(0.33);
+		hist = dynamic_cast<TH1*>(file->Get("histE__0.74"));
+		hists.push_back(hist);
+		thresholds.push_back(0.74);
+		hist = dynamic_cast<TH1*>(file->Get("histE__1.66"));
+		hists.push_back(hist);
+		thresholds.push_back(1.66);
+		hist = dynamic_cast<TH1*>(file->Get("histE__3.71"));
+		hists.push_back(hist);
+		thresholds.push_back(3.71);
+		hist = dynamic_cast<TH1*>(file->Get("histE__8.30"));
+		hists.push_back(hist);
+		thresholds.push_back(8.30);
 
 		if(hists.size() == 0) {
 			std::cout << "WARNING in RapidConfig::loadSmearing : failed to load any histograms for smearing category " << category << std::endl;
@@ -835,7 +909,8 @@ bool RapidConfig::loadSmearing(TString category) {
 
 		momSmearCategories_[category] = new RapidMomentumSmearHisto(thresholds, hists);
 
-	} else {
+	} 
+	else {
 		std::cout << "WARNING in RapidConfig::loadSmearing : unknown smearing type. Category " << category << " not added." << std::endl;
 		file->Close();
 		fin.close();
@@ -1140,6 +1215,12 @@ bool RapidConfig::loadParentKinematics() {
 
 	ptHisto_ = reduceHistogram(ptHisto,ptMin_,ptMax_);
 	etaHisto_ = reduceHistogram(etaHisto,etaMin_,etaMax_);
+
+	fileName = getenv("RAPIDSIM_ROOT");
+	fileName += "/rootfiles/fonll/Bplus_momentum_sampler.root";
+	file = TFile::Open(fileName);
+	TH2* momentaHisto2D = dynamic_cast<TH2*>(file->Get("h"));
+	momentaHisto2D_  = momentaHisto2D;
 
 	return true;
 }

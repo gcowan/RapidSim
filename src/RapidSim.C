@@ -1,6 +1,8 @@
 #include <cstdlib>
 #include <iostream>
 #include <ctime>
+#include <iomanip> // For std::fixed and std::setprecision
+#include <chrono>  // For std::chrono
 
 #include "TString.h"
 
@@ -52,6 +54,10 @@ int rapidSim(const TString mode, const int nEvtToGen, bool saveTree=false, int n
 
 	t1=clock();
 
+
+	// Start the timer
+	auto start = std::chrono::high_resolution_clock::now();
+
 	int ngenerated = 0; int nselected = 0;
 	for (Int_t n=0; n<nEvtToGen; ++n) {
 		writer->setNEvent(n);
@@ -72,6 +78,30 @@ int rapidSim(const TString mode, const int nEvtToGen, bool saveTree=false, int n
 
 			writer->fill();
 		}
+
+		// // Print every 1000 events
+		// if (n % 1000 == 0) {
+		// 	double percentComplete = (static_cast<double>(n) / nEvtToGen) * 100;
+        // 	std::cout << "Event: " << n << " / " << nEvtToGen << " (" << std::fixed << std::setprecision(2) << percentComplete << "% complete)" << std::endl;
+		// }
+
+		// Print every 1000 events with percentage completion and time estimation
+		if (n % 1000 == 0) {
+			auto now = std::chrono::high_resolution_clock::now();
+			std::chrono::duration<double> elapsed = now - start;
+
+			double percentComplete = (static_cast<double>(n) / nEvtToGen) * 100;
+			double timePerEvent = elapsed.count() / (n + 1); // time per event
+			double estimatedTotalTime = timePerEvent * nEvtToGen; // total estimated time
+			double estimatedRemainingTime = estimatedTotalTime - elapsed.count(); // remaining time
+
+			std::cout << "Event: " << n << " / " << nEvtToGen 
+					<< " (" << std::fixed << std::setprecision(2) << percentComplete << "% complete)"
+					<< ", Time elapsed: " << std::fixed << std::setprecision(2) << elapsed.count() << "s"
+					<< ", Estimated remaining time: " << std::fixed << std::setprecision(2) << estimatedRemainingTime << "s"
+					<< std::endl;
+		}
+
 	}
 
 	writer->save();

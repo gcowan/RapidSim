@@ -7,6 +7,8 @@
 
 #include "RapidAcceptance.h"
 
+#include <TH1.h>
+
 class RapidAcceptanceLHCb : public RapidAcceptance {
 	public:
 		RapidAcceptanceLHCb(AcceptanceType type, const std::vector<RapidParticle*>& parts, const std::vector<RapidCut*>& cuts)
@@ -18,6 +20,8 @@ class RapidAcceptanceLHCb : public RapidAcceptance {
 
 		virtual void getDefaultPtRange(double& min, double& max);
 		virtual void getDefaultEtaRange(double& min, double& max);
+
+		virtual bool setEtaAcceptRejectHisto();
 
 	private:
 		virtual bool partInAcceptance(RapidParticle* part);
@@ -40,6 +44,10 @@ class RapidAcceptanceLHCb : public RapidAcceptance {
 		//inner edge of the tracker
 		const double xMinTracker_;
 		const double yMinTracker_;
+
+		int m;
+
+		TH1* _EtaAcceptRejectHisto;
 };
 
 #endif

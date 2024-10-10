@@ -14,16 +14,22 @@ RapidMomentumSmearHisto::~RapidMomentumSmearHisto() {
 
 TLorentzVector RapidMomentumSmearHisto::smearMomentum(TLorentzVector p) {
 
-	double kp, kptx, kpty, norm, smear;
+
+	double kp, kpT, kptx, kpty, norm, smear;
 	kp = p.P();
+	kpT = p.Pt();
 	kptx = p.Px()/p.Pz();
 	kpty = p.Py()/p.Pz();
 	unsigned int iHist=0;
 	while( true ) {
 		if( iHist==thresholds_.size()-1 ) break;
-		if( kp < thresholds_[iHist+1] ) break;
+		// if( kp < thresholds_[iHist+1] ) break;
+		if( kpT < thresholds_[iHist+1] ) break;
 		++iHist;
 	}
+
+	// std::cout << "SMEARING" << " " << iHist << " " << kp<< std::endl;
+
 	smear = histos_[iHist]->GetRandom()*kp;
 	//smear = 1.0*ran.Gaus(0,1)*dGraph->Eval(1000*kp)*kp;
 	kp += smear;

@@ -6,6 +6,9 @@
 
 #include "RapidParticle.h"
 
+#include <TFile.h>
+#include "TRandom3.h"
+
 void RapidAcceptanceLHCb::getDefaultPtRange(double& min, double& max) {
 	std::cout << "INFO in RapidAcceptanceLHCb::getDefaultPtRange : Getting pT range for LHCb geometry." << std::endl;
 	std::cout << "                                                 Range is 0 - 100 GeV." << std::endl;
@@ -19,15 +22,41 @@ void RapidAcceptanceLHCb::getDefaultEtaRange(double& min, double& max) {
 	max=6.;
 }
 
+bool RapidAcceptanceLHCb::setEtaAcceptRejectHisto() {
+	std::string fileName = getenv("RAPIDSIM_ROOT");
+	fileName += "/rootfiles/eta_accept_reject/accept_reject_eta_e_plus.root";
+	TFile* file = TFile::Open(fileName.c_str());
+	_EtaAcceptRejectHisto = dynamic_cast<TH1*>(file->Get("accept_reject_eta"));
+	return true;
+}
+
 bool RapidAcceptanceLHCb::partInAcceptance(RapidParticle* part) {
 
 	if(part->invisible()) return true;
 
 	TLorentzVector vec = part->getP();
 
-	if (TMath::Abs(vec.Px()/vec.Pz()) > 0.3) return false;
-	if (TMath::Abs(vec.Py()/vec.Pz()) > 0.25) return false;
-	if (sqrt(pow(vec.Px()/vec.Pz(),2) + pow(vec.Py()/vec.Pz(),2)) <0.01) return false;
+	// ALEX version
+	double mom, eta;
+	mom = TMath::Sqrt( TMath::Power(vec.Px(),2) + TMath::Power(vec.Py(),2) + TMath::Power(vec.Pz(),2) );
+	eta = 0.5 * TMath::Log( (mom + vec.Pz()) / (mom - vec.Pz()) );
+	if (eta>5.3) return false;
+	if (eta<1.595) return false;
+	// int PID = part->id();
+	// if(_EtaAcceptRejectHisto){
+	// 	int bin = _EtaAcceptRejectHisto->FindBin(eta);
+	// 	double binContent = _EtaAcceptRejectHisto->GetBinContent(bin);
+	// 	TRandom3 randGen(0); 
+	// 	double randNumber = randGen.Uniform(0.0, 1.0);
+	// 	if (randNumber > binContent) {
+	// 		return false;  // Reject the event
+	// 	}
+	// }
+
+	// Default version
+	// if (TMath::Abs(vec.Px()/vec.Pz()) > 0.3) return false;
+	// if (TMath::Abs(vec.Py()/vec.Pz()) > 0.25) return false;
+	// if (sqrt(pow(vec.Px()/vec.Pz(),2) + pow(vec.Py()/vec.Pz(),2)) <0.01) return false;
 
 	return true;
 }

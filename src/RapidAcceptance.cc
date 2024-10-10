@@ -50,6 +50,12 @@ bool RapidAcceptance::isSelected() {
 	return true;
 }
 
+bool RapidAcceptance::setEtaAcceptRejectHisto() {
+    // Provide the default behavior or a placeholder implementation
+    std::cerr << "Error: setEtaAcceptRejectHisto() is not implemented in RapidAcceptance" << std::endl;
+	return false;
+}
+
 void RapidAcceptance::getDefaultPtRange(double& min, double& max) {
 	std::cout << "INFO in RapidAcceptance::getDefaultPtRange : Getting pT range for 4pi geometry." << std::endl;
 	std::cout << "                                             Range is 0 - 300 GeV." << std::endl;

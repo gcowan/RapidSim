@@ -34,6 +34,7 @@ class RapidDecay {
 
 		void setMaxGen(int mg) { maxgen_ = mg; }
 		void setParentKinematics(TH1* ptHisto, TH1* etaHisto);
+		void setParentKinematics2d(TH2* momentaHisto2D);
 		void setPVntracks(TH1* pvHisto);
 		void setAcceptRejectHist(TH1* histo, RapidParam* param);
 		void setAcceptRejectHist(TH1* histo, RapidParam* paramX, RapidParam* paramY);
@@ -74,6 +75,8 @@ class RapidDecay {
 		//parent kinematics
 		TH1* ptHisto_;
 		TH1* etaHisto_;
+
+		TH2* momentaHisto2D_;
 
 		//PVNTRACKS
 		TH1* pvHisto_;

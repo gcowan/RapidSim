@@ -38,6 +38,8 @@ class RapidAcceptance {
 		virtual void getDefaultPtRange(double& min, double& max);
 		virtual void getDefaultEtaRange(double& min, double& max);
 
+		virtual bool setEtaAcceptRejectHisto();
+
 	private:
 		void setup(std::vector<RapidParticle*> parts);
 

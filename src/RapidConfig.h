@@ -121,6 +121,7 @@ class RapidConfig {
 		//parent kinematic distributions
 		TH1* ptHisto_;
 		TH1* etaHisto_;
+		TH2* momentaHisto2D_;
 
 		// PVNTRACKS
 		TH1* pvHisto_;
